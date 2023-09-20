@@ -1,0 +1,46 @@
+package com.demo.filmdb.role;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+@DataJpaTest
+public class RoleRepositoryTests {
+
+    @Autowired
+    private RoleRepository repository;
+
+    @Nested
+    class FindByFilmIdAndPersonId {
+
+        @Test
+        @DisplayName("Given filmId and personId of an existing role, returns the role")
+        void ExistingRoleIds_ReturnsRole() {
+            long expectedFilmId = 2L;
+            long expectedPersonId = 2L;
+
+            Optional<Role> role = repository.findByIds(expectedFilmId, expectedPersonId);
+
+            assertThat(role).isPresent();
+            assertThat(role.get().getFilm().getId()).isEqualTo(expectedFilmId);
+            assertThat(role.get().getPerson().getId()).isEqualTo(expectedPersonId);
+        }
+
+        @Test
+        @DisplayName("Given filmId and personId of a not existing role, returns an empty Optional")
+        void NotExistingRoleIds_ReturnsEmpty() {
+            long filmId = 1L;
+            long personId = 5L;
+
+            Optional<Role> role = repository.findByIds(filmId, personId);
+
+            assertThat(role).isEmpty();
+        }
+    }
+}
