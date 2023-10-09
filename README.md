@@ -1,37 +1,30 @@
-# FilmDB - demo Spring Boot REST service
+# FilmDB - RESTful web service created with Spring Boot
 
-FilmDB is a REST service application created with Spring Boot.
+FilmDB is a demo application that allows to manage a database of films, people and their creative roles.
 
-### Running with the Docker
-You can run the app with the provided `docker-compose.yml` file by executing `docker compose up` from the project
-directory. The compose stack contains application service `app`, database service `postgres` and a volume
-`filmdb_postgres_data`.
+## Usage
+Running service can be accessed with the following URLs:
 
-### Documentation
+API root - http://localhost:8080/api
 
-To see `springdoc-openapi` generated OpenAPI 3 documentation visit http://localhost:8080/v3/api-docs.
-Or use Swagger-ui: http://localhost:8080/swagger-ui.html
+Swagger UI documentation - http://localhost:8080/swagger-ui.html
 
-### Access
+OpenAPI 3 documentation - http://localhost:8080/v3/api-docs
 
-To browse hypermedia-driven data directly: http://localhost:8080/api
+### Screenshots
+<img src="https://github.com/meume/FilmDB/assets/24320267/bb074831-784b-4710-bf7f-ad873e903e1a" alt="API example" title="API example" width="400"/>
+<img src="https://github.com/meume/FilmDB/assets/24320267/65f96451-e413-4921-afb8-bfa9ccdd1540" alt="Swagger example" title="Swagger example" width="400"/>
+
+## How to run
+Besides using IntelliJ IDEA you can run the application with Docker by executing `docker compose up` from the project directory.
 
 ### Database configuration
+The application uses in-memory H2 database by default. To use persistent PostgreSQL database the application must be run with `postgres` profile by setting environment variable `spring.profiles.active=postgres`.
 
-The app uses in-memory H2 database by default. To use persistent PostgreSQL database the app must be run with `postgres`
-profile by setting environment variable `spring.profiles.active=postgres`.
-
-To run PostgreSQL in a docker container:
+To run PostgreSQL database in a docker container named `filmdb-postgres-db`:
 ```
-docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=filmdb postgres:15-alpine
+docker run --name filmdb-postgres-db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=filmdb postgres:15-alpine
 ```
-
-## Libraries used
-
-[Flyway](https://flywaydb.org/), [Mapstruct](https://github.com/mapstruct/mapstruct).
-
-Testing: [JUnit5](https://junit.org/junit5/), [AssertJ](https://github.com/assertj/assertj), [Mockito](https://site.mockito.org/).
 
 ## License
-
-MIT License.
+This project is licensed under the MIT license.
