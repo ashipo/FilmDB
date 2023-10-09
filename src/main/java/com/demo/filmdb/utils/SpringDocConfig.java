@@ -2,7 +2,6 @@ package com.demo.filmdb.utils;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.boot.CommandLineRunner;
@@ -14,8 +13,7 @@ import org.springframework.hateoas.Links;
         info = @Info(
                 title = "FilmDB API",
                 version = "1.0",
-                description = "FilmDB API documentation",
-                license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")
+                description = "FilmDB API documentation"
         ),
         tags = {@Tag(name = SpringDocConfig.TAG_ROOT),
                 @Tag(name = SpringDocConfig.TAG_FILMS),
