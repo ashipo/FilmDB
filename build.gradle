@@ -1,50 +1,55 @@
 plugins {
-	id 'org.springframework.boot' version '3.2.5'
-	id 'io.spring.dependency-management' version '1.1.4'
-	id 'java'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
 }
 
 group = 'com.demo'
 version = '1.0.0'
 
 java {
-	sourceCompatibility = '17'
+    sourceCompatibility = '17'
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 configurations {
-	integrationTestImplementation.extendsFrom testImplementation
-	integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	runtimeOnly 'org.postgresql:postgresql'
-	runtimeOnly 'com.h2database:h2'
-	implementation 'org.flywaydb:flyway-core'
-	def mapstruct = '1.5.5.Final'
-	implementation "org.mapstruct:mapstruct:${mapstruct}"
-	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct}"
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
-	compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
+    implementation 'org.flywaydb:flyway-core'
+    def mapstruct = '1.5.5.Final'
+    implementation "org.mapstruct:mapstruct:${mapstruct}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct}"
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    def jjwt = '0.12.5'
+    implementation "io.jsonwebtoken:jjwt-api:${jjwt}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwt}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwt}"
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 sourceSets {
-	integrationTest {
-		compileClasspath += sourceSets.main.output
-		runtimeClasspath += sourceSets.main.output
-		java.srcDir file("src/integrationTest/java")
-		resources.srcDir file("src/integrationTest/resources")
-	}
+    integrationTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+        java.srcDir file("src/integrationTest/java")
+        resources.srcDir file("src/integrationTest/resources")
+    }
 }
