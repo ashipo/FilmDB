@@ -26,9 +26,10 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'com.h2database:h2'
 	implementation 'org.flywaydb:flyway-core'
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+	def mapstruct = '1.5.5.Final'
+	implementation "org.mapstruct:mapstruct:${mapstruct}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct}"
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 	compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
