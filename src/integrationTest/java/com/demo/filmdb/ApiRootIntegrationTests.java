@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@DisplayName("API root")
 public class ApiRootIntegrationTests {
 
     private MockMvc mockMvc;

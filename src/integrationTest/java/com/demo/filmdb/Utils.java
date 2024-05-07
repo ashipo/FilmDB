@@ -5,6 +5,8 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
@@ -15,13 +17,24 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 public class Utils {
     static final String API_PREFIX = "/api";
     static final long NOT_EXISTING_ID = 100L;
+    static final String ROLE_ADMIN = "ADMIN";
 
     static MockMvc configureMockMvc(WebApplicationContext wac) {
+        return commonMvcBuilder(wac)
+                .build();
+    }
+
+    static MockMvc configureMockMvc(WebApplicationContext wac, MockMvcConfigurer security) {
+        return commonMvcBuilder(wac)
+                .apply(security)
+                .build();
+    }
+
+    private static DefaultMockMvcBuilder commonMvcBuilder(WebApplicationContext wac) {
         return webAppContextSetup(wac)
                 .defaultRequest(get("/")
                         .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .build();
+                        .contentType(MediaType.APPLICATION_JSON));
     }
 
     /**
@@ -30,7 +43,7 @@ public class Utils {
      * @return {@link Matcher}.
      */
     static Matcher<LocalDate> isAfter(LocalDate relativeTo) {
-        return new BaseMatcher<>(){
+        return new BaseMatcher<>() {
 
             @Override
             public void describeTo(Description description) {
@@ -54,7 +67,7 @@ public class Utils {
      * @return {@link Matcher}.
      */
     static Matcher<LocalDate> isBefore(LocalDate relativeTo) {
-        return new BaseMatcher<>(){
+        return new BaseMatcher<>() {
 
             @Override
             public void describeTo(Description description) {

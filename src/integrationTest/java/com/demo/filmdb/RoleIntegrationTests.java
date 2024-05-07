@@ -9,16 +9,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static com.demo.filmdb.Utils.*;
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@DisplayName("Role")
 public class RoleIntegrationTests {
 
     private MockMvc mockMvc;
@@ -32,14 +35,16 @@ public class RoleIntegrationTests {
 
     @BeforeEach
     void setUp(WebApplicationContext wac) {
-        mockMvc = configureMockMvc(wac);
+        mockMvc = configureMockMvc(wac, springSecurity());
     }
 
     @Nested
+    @DisplayName("POST")
     class Post {
         @Transactional
         @Test
-        @DisplayName("POST /films/{existing id}/cast valid request, expect 201")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, valid request, expect 201")
         public void PostCastURI_ExistingId_Response201() throws Exception {
             final String expectedUri = API_PREFIX + "/films/1/cast";
             FilmRoleDtoInput expectedRole = new FilmRoleDtoInput(3L, "Cameo");
@@ -55,35 +60,38 @@ public class RoleIntegrationTests {
         }
 
         @Test
-        @DisplayName("POST /films/{not existing id}/cast valid request, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Not existing film id, valid request, expect 404")
         public void PostCastURI_NotExistingFilmId_Response404() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast";
-            FilmRoleDtoInput expectedRole = new FilmRoleDtoInput(3L, "Cameo");
-            String requestBody = objectMapper.writeValueAsString(expectedRole);
+            final String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast";
+            FilmRoleDtoInput role = new FilmRoleDtoInput(3L, "Cameo");
+            String requestBody = objectMapper.writeValueAsString(role);
 
-            mockMvc.perform(post(expectedUri).content(requestBody))
+            mockMvc.perform(post(uri).content(requestBody))
                     .andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("POST /films/{existing id}/cast valid request with not existing personId, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, valid request with not existing personId, expect 404")
         public void PostCastURI_NotExistingPersonId_Response404() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/1/cast";
-            FilmRoleDtoInput expectedRole = new FilmRoleDtoInput(NOT_EXISTING_ID, "Cameo");
-            String requestBody = objectMapper.writeValueAsString(expectedRole);
+            final String uri = API_PREFIX + "/films/1/cast";
+            FilmRoleDtoInput role = new FilmRoleDtoInput(NOT_EXISTING_ID, "Cameo");
+            String requestBody = objectMapper.writeValueAsString(role);
 
-            mockMvc.perform(post(expectedUri).content(requestBody))
+            mockMvc.perform(post(uri).content(requestBody))
                     .andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("POST /films/{existing id}/cast valid request with existing role, expect 409")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, valid request with existing role, expect 409")
         public void PostCastURI_ExistingRole_Response409() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/2/cast";
-            FilmRoleDtoInput expectedRole = new FilmRoleDtoInput(2L, "Cameo");
-            String requestBody = objectMapper.writeValueAsString(expectedRole);
+            final String uri = API_PREFIX + "/films/2/cast";
+            FilmRoleDtoInput role = new FilmRoleDtoInput(2L, "Cameo");
+            String requestBody = objectMapper.writeValueAsString(role);
 
-            mockMvc.perform(post(expectedUri).content(requestBody))
+            mockMvc.perform(post(uri).content(requestBody))
                     .andExpect(status().isConflict());
         }
 
@@ -95,19 +103,32 @@ public class RoleIntegrationTests {
                 "{ \"personId\" :, \"character\" : \"test\"}",
                 "{ \"personId\" : 1, \"character\" :}"
         })
-        @DisplayName("POST /films/{existing id}/cast invalid request, expect 400")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, invalid request, expect 400")
         public void PostCastURI_InvalidRequest_Response400(String requestBody) throws Exception {
-            final String expectedUri = API_PREFIX + "/films/1/cast";
+            final String uri = API_PREFIX + "/films/1/cast";
 
-            mockMvc.perform(post(expectedUri).content(requestBody))
+            mockMvc.perform(post(uri).content(requestBody))
                     .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, expect 403")
+        public void PostCastURI_Unauthorized_Response403() throws Exception {
+            final String uri = API_PREFIX + "/films/1/cast";
+            FilmRoleDtoInput role = new FilmRoleDtoInput(3L, "Cameo");
+            String requestBody = objectMapper.writeValueAsString(role);
+
+            mockMvc.perform(post(uri).content(requestBody))
+                    .andExpect(status().isForbidden());
         }
     }
 
     @Nested
+    @DisplayName("GET")
     class Get {
         @Test
-        @DisplayName("GET /films/{existing id}/cast/{existing id}, expect 200")
+        @DisplayName("Existing film id, existing person id, expect 200")
         public void GetRoleURI_ExistingIds_Response200() throws Exception {
             final String expectedUri = API_PREFIX + "/films/3/cast/1";
 
@@ -121,29 +142,31 @@ public class RoleIntegrationTests {
         }
 
         @Test
-        @DisplayName("GET /films/{not existing id}/cast/{existing id}, expect 404")
+        @DisplayName("Not existing film id, existing person id, expect 404")
         public void GetRoleURI_NotExistingFilmId_Response404() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast/1";
+            final String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast/1";
 
-            mockMvc.perform(get(expectedUri))
+            mockMvc.perform(get(uri))
                     .andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("GET /films/{existing id}/cast/{not existing id}, expect 404")
+        @DisplayName("Existing film id, not existing person id, expect 404")
         public void GetRoleURI_NotExistingPersonId_Response404() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/1/cast/" + NOT_EXISTING_ID;
+            final String uri = API_PREFIX + "/films/1/cast/" + NOT_EXISTING_ID;
 
-            mockMvc.perform(get(expectedUri))
+            mockMvc.perform(get(uri))
                     .andExpect(status().isNotFound());
         }
     }
 
     @Nested
+    @DisplayName("PATCH")
     class Patch {
         @Transactional
         @Test
-        @DisplayName("PATCH /films/{existing id}/cast/{existing id}, expect 200")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, existing person id, expect 200")
         public void PatchRoleURI_ExistingIds_Response200() throws Exception {
             String expectedUri = API_PREFIX + "/films/3/cast/3";
             RoleDtoInput expectedRole = new RoleDtoInput("Borat");
@@ -157,65 +180,92 @@ public class RoleIntegrationTests {
         }
 
         @Test
-        @DisplayName("PATCH /films/{not existing id}/cast/{existing id}, expect 400")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, existing person id, invalid request, expect 400")
         public void PatchRoleURI_InvalidRequest_Response400() throws Exception {
-            String expectedUri = API_PREFIX + "/films/3/cast/3";
+            String uri = API_PREFIX + "/films/3/cast/3";
 
-            mockMvc.perform(patch(expectedUri).content("{\"title\": \"Title\"}"))
+            mockMvc.perform(patch(uri).content("{\"title\": \"Title\"}"))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("PATCH /films/{not existing id}/cast/{existing id}, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Not existing film id, existing person id, expect 404")
         public void PatchRoleURI_NotExistingFilmId_Response404() throws Exception {
-            String expectedUri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast/3";
-            RoleDtoInput expectedRole = new RoleDtoInput("Borat");
-            String requestBody = objectMapper.writeValueAsString(expectedRole);
+            String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast/3";
+            RoleDtoInput role = new RoleDtoInput("Borat");
+            String requestBody = objectMapper.writeValueAsString(role);
 
-            mockMvc.perform(patch(expectedUri).content(requestBody))
+            mockMvc.perform(patch(uri).content(requestBody))
                     .andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("PATCH /films/{existing id}/cast/{not existing id}, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, not existing person id, expect 404")
         public void PatchRoleURI_NotExistingPersonId_Response404() throws Exception {
-            String expectedUri = API_PREFIX + "/films/3/cast/" + NOT_EXISTING_ID;
-            RoleDtoInput expectedRole = new RoleDtoInput("Borat");
-            String requestBody = objectMapper.writeValueAsString(expectedRole);
+            String uri = API_PREFIX + "/films/3/cast/" + NOT_EXISTING_ID;
+            RoleDtoInput role = new RoleDtoInput("Borat");
+            String requestBody = objectMapper.writeValueAsString(role);
 
-            mockMvc.perform(patch(expectedUri).content(requestBody))
+            mockMvc.perform(patch(uri).content(requestBody))
                     .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, expect 403")
+        public void PatchRoleURI_Unauthorized_Response403() throws Exception {
+            String uri = API_PREFIX + "/films/3/cast/3";
+            RoleDtoInput role = new RoleDtoInput("Borat");
+            String requestBody = objectMapper.writeValueAsString(role);
+
+            mockMvc.perform(patch(uri).content(requestBody))
+                    .andExpect(status().isForbidden());
         }
     }
 
     @Nested
+    @DisplayName("DELETE")
     class Delete {
         @Transactional
         @Test
-        @DisplayName("DELETE /films/{existing id}/cast/{existing id}, expect 204")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, existing person id, expect 204")
         public void DeleteRoleURI_ExistingIds_Response204() throws Exception {
-            String expectedUri = API_PREFIX + "/films/3/cast/3";
+            String uri = API_PREFIX + "/films/3/cast/3";
 
-            mockMvc.perform(delete(expectedUri))
+            mockMvc.perform(delete(uri))
                     .andExpect(status().isNoContent());
         }
 
         @Test
-        @DisplayName("DELETE /films/{not existing id}/cast/{existing id}, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Not existing film id, existing person id, expect 404")
         public void DeleteRoleURI_NotExistingFilmId_Response404() throws Exception {
-            String expectedUri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast/3";
+            String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast/3";
 
-            mockMvc.perform(delete(expectedUri))
+            mockMvc.perform(delete(uri))
                     .andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("DELETE /films/{existing id}/cast/{not existing id}, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing film id, not existing person id, expect 404")
         public void DeleteRoleURI_NotExistingPersonId_Response404() throws Exception {
-            String expectedUri = API_PREFIX + "/films/3/cast/" + NOT_EXISTING_ID;
+            String uri = API_PREFIX + "/films/3/cast/" + NOT_EXISTING_ID;
 
-            mockMvc.perform(delete(expectedUri))
+            mockMvc.perform(delete(uri))
                     .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, expect 403")
+        public void DeleteRoleURI_Unauthorized_Response403() throws Exception {
+            String uri = API_PREFIX + "/films/3/cast/3";
+
+            mockMvc.perform(delete(uri))
+                    .andExpect(status().isForbidden());
         }
     }
 }
