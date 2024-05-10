@@ -30,6 +30,12 @@ public class SpringDocConfig {
     public static final String TAG_DIRECTORS = "Directors";
     public static final String TAG_ROLES = "Roles";
 
+    public static final String SUCCESS = "Successful operation";
+    public static final String UNAUTHORIZED_TO = "Must have administrative rights to ";
+    public static final String FILM_NOT_FOUND = "Film not found";
+    public static final String ROLE_NOT_FOUND = "Role not found";
+    public static final String PERSON_NOT_FOUND = "Person not found";
+
     /**
      * Hides Links object from the SpringDoc generated schemas.
      * Currently, generated example schemas for the RepresentationModel based DTOs include "_link" object

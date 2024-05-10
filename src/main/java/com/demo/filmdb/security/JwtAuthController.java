@@ -1,6 +1,5 @@
 package com.demo.filmdb.security;
 
-import com.demo.filmdb.annotations.ApiPrefixRestController;
 import com.demo.filmdb.security.dtos.LoginRequestDto;
 import com.demo.filmdb.security.dtos.LoginResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +12,16 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import static com.demo.filmdb.utils.Path.API_PREFIX;
+import static com.demo.filmdb.utils.Path.LOGIN;
 import static org.springframework.http.HttpHeaders.WWW_AUTHENTICATE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@ApiPrefixRestController
+@RestController
+@RequestMapping(path = API_PREFIX + LOGIN, produces = APPLICATION_JSON_VALUE)
 public class JwtAuthController {
 
     @Autowired
@@ -26,8 +30,8 @@ public class JwtAuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PostMapping(value = "/login", produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<LoginResponseDto> authenticate(@RequestBody LoginRequestDto request) {
+    @PostMapping
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
         Authentication authenticationRequest =
                 UsernamePasswordAuthenticationToken.unauthenticated(request.username(), request.password());
         Authentication authenticationResponse;

@@ -1,6 +1,5 @@
 package com.demo.filmdb.person;
 
-import com.demo.filmdb.annotations.ApiPrefixRestController;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmModelAssembler;
 import com.demo.filmdb.film.dtos.FilmDto;
@@ -31,10 +30,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import static com.demo.filmdb.utils.SpringDocConfig.TAG_DIRECTORS;
-import static com.demo.filmdb.utils.SpringDocConfig.TAG_PEOPLE;
+import static com.demo.filmdb.utils.Path.API_PREFIX;
+import static com.demo.filmdb.utils.Path.PEOPLE;
+import static com.demo.filmdb.utils.SpringDocConfig.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@ApiPrefixRestController
+@RestController
+@RequestMapping(path = API_PREFIX + PEOPLE, produces = APPLICATION_JSON_VALUE)
 public class PersonController {
 
     private final PersonService personService;
@@ -43,6 +45,7 @@ public class PersonController {
     private final ActorRoleModelAssembler roleModelAssembler;
     private final PersonMapper personMapper;
     private final PagedResourcesAssembler<Person> pagedResourcesAssembler;
+
     public PersonController(PersonService personService,
                             PersonModelAssembler personModelAssembler,
                             FilmModelAssembler filmModelAssembler,
@@ -56,9 +59,12 @@ public class PersonController {
         this.personMapper = personMapper;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
+
     @Operation(summary = "Find people", tags = TAG_PEOPLE)
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successful operation") })
-    @GetMapping(value = "/people/search", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+    })
+    @GetMapping("/search")
     public CollectionModel<PersonDto> findPeople(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "born_after", required = false)
@@ -75,8 +81,10 @@ public class PersonController {
     }
 
     @Operation(summary = "List all people", tags = TAG_PEOPLE)
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successful operation") })
-    @GetMapping(value = "/people", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+    })
+    @GetMapping
     public CollectionModel<PersonDto> getAllPeople(Pageable pageable) {
         Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
         Page<Person> peoplePage = personService.getAllPeople(filteredPageable);
@@ -86,9 +94,11 @@ public class PersonController {
     @Operation(summary = "Create a person", tags = TAG_PEOPLE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Person created"),
-            @ApiResponse(responseCode = "400", description = "Malformed request", content = @Content) })
-    @PostMapping(value = "/people", produces = "application/json")
-    public ResponseEntity<PersonDto> createPerson(@RequestBody @Valid PersonDtoInput personDtoInput){
+            @ApiResponse(responseCode = "400", content = @Content),
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "create a person", content = @Content),
+    })
+    @PostMapping
+    public ResponseEntity<PersonDto> createPerson(@RequestBody @Valid PersonDtoInput personDtoInput) {
         Person person = personMapper.personDtoInputToPerson(personDtoInput);
         PersonDto newPersonDto = personModelAssembler.toModel(personService.savePerson(person));
         return ResponseEntity.created(newPersonDto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(newPersonDto);
@@ -97,8 +107,9 @@ public class PersonController {
     @Operation(summary = "Get a person", tags = TAG_PEOPLE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Person found"),
-            @ApiResponse(responseCode = "404", description = "Person not found", content = @Content) })
-    @GetMapping(value = "/people/{personId}", produces = "application/json")
+            @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
+    })
+    @GetMapping("/{personId}")
     public PersonDto getPerson(@PathVariable Long personId) {
         Person person = personService.getPerson(personId);
         return personModelAssembler.toModel(person);
@@ -107,9 +118,11 @@ public class PersonController {
     @Operation(summary = "Update a person", tags = TAG_PEOPLE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Person updated"),
-            @ApiResponse(responseCode = "400", description = "Malformed request", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Person not found", content = @Content) })
-    @PutMapping(value = "/people/{personId}", produces = "application/json")
+            @ApiResponse(responseCode = "400", content = @Content),
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "update a person", content = @Content),
+            @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
+    })
+    @PutMapping("/{personId}")
     public PersonDto updatePerson(@PathVariable Long personId, @Valid @RequestBody PersonDtoInput personDtoInput) {
         Person personToUpdate = personService.getPerson(personId);
         Person updatedPerson = personMapper.updatePersonFromPersonDtoInput(personDtoInput, personToUpdate);
@@ -120,8 +133,10 @@ public class PersonController {
     @Operation(summary = "Delete a person", tags = TAG_PEOPLE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Person deleted", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Person not found", content = @Content) })
-    @DeleteMapping("/people/{personId}")
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "delete a person", content = @Content),
+            @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
+    })
+    @DeleteMapping("/{personId}")
     public ResponseEntity<?> deletePerson(@PathVariable Long personId) {
         personService.deletePerson(personId);
         return ResponseEntity.noContent().build();
@@ -129,9 +144,10 @@ public class PersonController {
 
     @Operation(summary = "Get films directed by a person", tags = TAG_DIRECTORS)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "404", description = "Person not found", content = @Content) })
-    @GetMapping(value = "/people/{personId}/films_directed", produces = "application/json")
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+            @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
+    })
+    @GetMapping("/{personId}/films_directed")
     public CollectionModel<FilmDto> getFilmsDirected(@PathVariable Long personId) {
         Collection<Film> directed = personService.getDirected(personId);
         return filmModelAssembler.directedFilmsCollectionModel(directed, personId);
@@ -139,9 +155,10 @@ public class PersonController {
 
     @Operation(summary = "Get roles acted by a person", tags = TAG_DIRECTORS)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "404", description = "Person not found", content = @Content) })
-    @GetMapping(value = "/people/{personId}/roles", produces = "application/json")
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+            @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
+    })
+    @GetMapping("/{personId}/roles")
     public CollectionModel<ActorRoleDto> getRoles(@PathVariable Long personId) {
         Collection<Role> roles = personService.getRoles(personId);
         return roleModelAssembler.toCollectionModel(roles, personId);
