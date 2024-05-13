@@ -16,6 +16,7 @@ import org.springframework.hateoas.Links;
                 description = "FilmDB API documentation"
         ),
         tags = {@Tag(name = SpringDocConfig.TAG_ROOT),
+                @Tag(name = SpringDocConfig.TAG_LOGIN),
                 @Tag(name = SpringDocConfig.TAG_FILMS),
                 @Tag(name = SpringDocConfig.TAG_PEOPLE),
                 @Tag(name = SpringDocConfig.TAG_DIRECTORS),
@@ -25,6 +26,7 @@ import org.springframework.hateoas.Links;
 public class SpringDocConfig {
 
     public static final String TAG_ROOT = "API Root";
+    public static final String TAG_LOGIN = "Login";
     public static final String TAG_FILMS = "Films";
     public static final String TAG_PEOPLE = "People";
     public static final String TAG_DIRECTORS = "Directors";

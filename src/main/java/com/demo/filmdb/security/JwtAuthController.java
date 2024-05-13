@@ -2,6 +2,7 @@ package com.demo.filmdb.security;
 
 import com.demo.filmdb.security.dtos.LoginRequestDto;
 import com.demo.filmdb.security.dtos.LoginResponseDto;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.LOGIN;
+import static com.demo.filmdb.utils.SpringDocConfig.TAG_LOGIN;
 import static org.springframework.http.HttpHeaders.WWW_AUTHENTICATE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -30,6 +32,7 @@ public class JwtAuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Operation(tags = TAG_LOGIN)
     @PostMapping
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
         Authentication authenticationRequest =
