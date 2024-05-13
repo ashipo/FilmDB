@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -64,6 +65,7 @@ public class PersonController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = SUCCESS),
     })
+    @SecurityRequirements
     @GetMapping("/search")
     public CollectionModel<PersonDto> findPeople(
             @RequestParam(value = "name", required = false) String name,
@@ -84,6 +86,7 @@ public class PersonController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = SUCCESS),
     })
+    @SecurityRequirements
     @GetMapping
     public CollectionModel<PersonDto> getAllPeople(Pageable pageable) {
         Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
@@ -109,6 +112,7 @@ public class PersonController {
             @ApiResponse(responseCode = "200", description = "Person found"),
             @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
     })
+    @SecurityRequirements
     @GetMapping("/{personId}")
     public PersonDto getPerson(@PathVariable Long personId) {
         Person person = personService.getPerson(personId);
@@ -147,6 +151,7 @@ public class PersonController {
             @ApiResponse(responseCode = "200", description = SUCCESS),
             @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
     })
+    @SecurityRequirements
     @GetMapping("/{personId}/films_directed")
     public CollectionModel<FilmDto> getFilmsDirected(@PathVariable Long personId) {
         Collection<Film> directed = personService.getDirected(personId);
@@ -158,6 +163,7 @@ public class PersonController {
             @ApiResponse(responseCode = "200", description = SUCCESS),
             @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
     })
+    @SecurityRequirements
     @GetMapping("/{personId}/roles")
     public CollectionModel<ActorRoleDto> getRoles(@PathVariable Long personId) {
         Collection<Role> roles = personService.getRoles(personId);

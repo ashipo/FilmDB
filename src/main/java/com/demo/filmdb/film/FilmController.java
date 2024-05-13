@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -82,6 +83,7 @@ public class FilmController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = SUCCESS),
     })
+    @SecurityRequirements
     @GetMapping("/search")
     public CollectionModel<FilmDto> findFilms(
             @RequestParam(value = "title", required = false) String title,
@@ -102,6 +104,7 @@ public class FilmController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = SUCCESS),
     })
+    @SecurityRequirements
     @GetMapping
     public CollectionModel<FilmDto> getAllFilms(Pageable pageable) {
         Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
@@ -127,6 +130,7 @@ public class FilmController {
             @ApiResponse(responseCode = "200", description = "Film found"),
             @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
     })
+    @SecurityRequirements
     @GetMapping("/{filmId}")
     public FilmDto getFilm(@PathVariable Long filmId) {
         Film film = filmService.getFilm(filmId);
@@ -167,6 +171,7 @@ public class FilmController {
             @ApiResponse(responseCode = "200", description = SUCCESS),
             @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
     })
+    @SecurityRequirements
     @GetMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> getDirectors(@PathVariable Long filmId) {
         Collection<Person> directors = filmService.getDirectors(filmId);
@@ -206,6 +211,7 @@ public class FilmController {
             @ApiResponse(responseCode = "200", description = SUCCESS),
             @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
     })
+    @SecurityRequirements
     @GetMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> getCast(@PathVariable Long filmId) {
         Collection<Role> cast = filmService.getCast(filmId);
@@ -264,6 +270,7 @@ public class FilmController {
             @ApiResponse(responseCode = "200", description = SUCCESS),
             @ApiResponse(responseCode = "404", description = ROLE_NOT_FOUND, content = @Content),
     })
+    @SecurityRequirements
     @GetMapping("/{filmId}/cast/{personId}")
     public RoleDto getRole(@PathVariable Long filmId, @PathVariable Long personId) {
         Role role = roleService.getRole(filmId, personId);

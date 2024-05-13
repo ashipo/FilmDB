@@ -11,7 +11,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    SecretKey key = Jwts.SIG.HS256.key().build();
+    private final SecretKey key = Jwts.SIG.HS256.key().build();
 
     public String generateToken(UserDetails user) {
         return Jwts.builder()

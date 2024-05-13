@@ -3,6 +3,7 @@ package com.demo.filmdb.security;
 import com.demo.filmdb.security.dtos.LoginRequestDto;
 import com.demo.filmdb.security.dtos.LoginResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(path = API_PREFIX + LOGIN, produces = APPLICATION_JSON_VALUE)
+@SecurityRequirements
 public class JwtAuthController {
 
     @Autowired
