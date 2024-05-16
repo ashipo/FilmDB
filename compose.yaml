@@ -13,7 +13,7 @@ services:
         condition: service_healthy
 
   postgres:
-    image: postgres:15-alpine
+    image: postgres:alpine
     ports:
       - 5432:5432
     environment:
@@ -22,7 +22,7 @@ services:
       - PGUSER=postgres
       - POSTGRES_DB=filmdb
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "filmdb"]
+      test: [ "CMD-SHELL", "pg_isready", "-d", "filmdb" ]
       interval: 5s
       timeout: 2s
       start_period: 10s
