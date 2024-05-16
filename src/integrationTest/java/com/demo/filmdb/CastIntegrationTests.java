@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
@@ -15,10 +16,12 @@ import java.util.List;
 import static com.demo.filmdb.Utils.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.in;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@DisplayName("Cast")
 public class CastIntegrationTests {
 
     private MockMvc mockMvc;
@@ -32,13 +35,14 @@ public class CastIntegrationTests {
 
     @BeforeEach
     void setUp(WebApplicationContext wac) {
-        mockMvc = configureMockMvc(wac);
+        mockMvc = configureMockMvc(wac, springSecurity());
     }
 
     @Nested
+    @DisplayName("GET cast for a film")
     class Get {
         @Test
-        @DisplayName("GET /films/{existing id}/cast, expect 200")
+        @DisplayName("Existing id, expect 200")
         public void GetCastURI_ExistingId_Response200() throws Exception {
             final String expectedUri = API_PREFIX + "/films/2/cast";
 
@@ -50,19 +54,20 @@ public class CastIntegrationTests {
         }
 
         @Test
-        @DisplayName("GET /films/{not existing id}/cast, expect 404")
+        @DisplayName("Not existing id, expect 404")
         public void GetCastURI_NotExistingId_Response404() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast";
+            final String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast";
 
-            mockMvc.perform(get(expectedUri))
+            mockMvc.perform(get(uri))
                     .andExpect(status().isNotFound());
         }
     }
 
     @Nested
+    @DisplayName("GET roles for a person")
     class GetActedBy {
         @Test
-        @DisplayName("GET /people/{existing id}/roles, expect 200")
+        @DisplayName("Existing id, expect 200")
         public void GetDirectedURI_ExistingId_Response200() throws Exception {
             final String expectedUri = API_PREFIX + "/people/2/roles";
 
@@ -74,20 +79,22 @@ public class CastIntegrationTests {
         }
 
         @Test
-        @DisplayName("GET /people/{not existing id}/roles, expect 404")
+        @DisplayName("Not existing id, expect 404")
         public void GetDirectedURI_NotExistingId_Response404() throws Exception {
-            final String expectedUri = API_PREFIX + "/people/" + NOT_EXISTING_ID + "/roles";
+            final String uri = API_PREFIX + "/people/" + NOT_EXISTING_ID + "/roles";
 
-            mockMvc.perform(get(expectedUri))
+            mockMvc.perform(get(uri))
                     .andExpect(status().isNotFound());
         }
     }
 
     @Nested
+    @DisplayName("PUT cast for a film")
     class Put {
         @Transactional
         @Test
-        @DisplayName("PUT /films/{existing id}/cast valid request, expect 200")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing id, valid request, expect 200")
         public void PutCastURI_ExistingId_Response200() throws Exception {
             final String expectedUri = API_PREFIX + "/films/1/cast";
             List<String> expectedCharacters = List.of("Dumb", "Dumber");
@@ -107,63 +114,93 @@ public class CastIntegrationTests {
 
         @Transactional
         @Test
-        @DisplayName("PUT /films/{existing id}/cast empty array in request body, expect 200")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing id, empty array in request body, expect 200")
         public void PutCastURI_EmptyArray_Response200() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/1/cast";
+            final String uri = API_PREFIX + "/films/1/cast";
 
-            mockMvc.perform(put(expectedUri).content("[]"))
+            mockMvc.perform(put(uri).content("[]"))
                     .andExpect(status().isOk());
         }
 
         @Test
-        @DisplayName("PUT /films/{existing id}/cast invalid request, expect 400")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing id, invalid request, expect 400")
         public void PutCastURI_InvalidRequest_Response400() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/1/cast";
+            final String uri = API_PREFIX + "/films/1/cast";
 
-            mockMvc.perform(put(expectedUri).content("[1, 2]"))
+            mockMvc.perform(put(uri).content("[1, 2]"))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("PUT /films/{not existing id}/cast valid request, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Not existing id, valid request, expect 404")
         public void PutCastURI_NotExistingId_Response404() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast";
+            final String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast";
 
-            mockMvc.perform(put(expectedUri).content("[]"))
+            mockMvc.perform(put(uri).content("[]"))
                     .andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("PUT /films/{existing id}/cast valid request with not existing personId, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing id, valid request with not existing personId, expect 404")
         public void PutCastURI_NotExistingPersonId_Response404() throws Exception {
-            final String expectedUri = API_PREFIX + "/films/1/cast";
-            List<FilmRoleDtoInput> expectedRoles = List.of(new FilmRoleDtoInput(NOT_EXISTING_ID, "Vasily"));
-            String requestBody = objectMapper.writeValueAsString(expectedRoles);
+            final String uri = API_PREFIX + "/films/1/cast";
+            List<FilmRoleDtoInput> roles = List.of(new FilmRoleDtoInput(NOT_EXISTING_ID, "Vasily"));
+            String requestBody = objectMapper.writeValueAsString(roles);
 
-            mockMvc.perform(put(expectedUri).content(requestBody))
+            mockMvc.perform(put(uri).content(requestBody))
                     .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, expect 403")
+        public void PutCastURI_Unauthorized_Response403() throws Exception {
+            final String uri = API_PREFIX + "/films/1/cast";
+            List<String> characters = List.of("Dumb", "Dumber");
+            List<FilmRoleDtoInput> roles = List.of(
+                    new FilmRoleDtoInput(3L, characters.get(0)),
+                    new FilmRoleDtoInput(4L, characters.get(1)));
+            String requestBody = objectMapper.writeValueAsString(roles);
+
+            mockMvc.perform(put(uri).content(requestBody))
+                    .andExpect(status().isForbidden());
         }
     }
 
     @Nested
-    class Delete{
+    @DisplayName("DELETE cast for a film")
+    class Delete {
         @Transactional
         @Test
-        @DisplayName("DELETE /films/{existing id}/cast, expect 204")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Existing id, expect 204")
         public void DeleteCastURI_ExistingId_Response204() throws Exception {
-            String expectedUri = API_PREFIX + "/films/1/cast";
+            String uri = API_PREFIX + "/films/1/cast";
 
-            mockMvc.perform(delete(expectedUri))
+            mockMvc.perform(delete(uri))
                     .andExpect(status().isNoContent());
         }
 
         @Test
-        @DisplayName("DELETE /films/{not existing id}/cast, expect 404")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DisplayName("Not existing id, expect 404")
         public void DeleteCastURI_NotExistingId_Response404() throws Exception {
-            String expectedUri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast";
+            String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/cast";
 
-            mockMvc.perform(delete(expectedUri))
+            mockMvc.perform(delete(uri))
                     .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, expect 403")
+        public void DeleteCastURI_Unauthorized_Response403() throws Exception {
+            String uri = API_PREFIX + "/films/1/cast";
+
+            mockMvc.perform(delete(uri))
+                    .andExpect(status().isForbidden());
         }
     }
 }

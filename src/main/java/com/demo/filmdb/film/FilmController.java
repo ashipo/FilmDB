@@ -1,6 +1,5 @@
 package com.demo.filmdb.film;
 
-import com.demo.filmdb.annotations.ApiPrefixRestController;
 import com.demo.filmdb.film.dtos.FilmDto;
 import com.demo.filmdb.film.dtos.FilmDtoInput;
 import com.demo.filmdb.film.specifications.FilmWithReleaseAfter;
@@ -20,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,9 +38,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.demo.filmdb.utils.Path.API_PREFIX;
+import static com.demo.filmdb.utils.Path.FILM;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@ApiPrefixRestController
+@RestController
+@RequestMapping(path = API_PREFIX + FILM, produces = APPLICATION_JSON_VALUE)
 public class FilmController {
 
     private final FilmService filmService;
@@ -76,8 +80,11 @@ public class FilmController {
     }
 
     @Operation(summary = "Find films", tags = TAG_FILMS)
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successful operation") })
-    @GetMapping(value = "/films/search", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+    })
+    @SecurityRequirements
+    @GetMapping("/search")
     public CollectionModel<FilmDto> findFilms(
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "release_after", required = false)
@@ -94,8 +101,11 @@ public class FilmController {
     }
 
     @Operation(summary = "List all films", tags = TAG_FILMS)
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successful operation") })
-    @GetMapping(value = "/films", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+    })
+    @SecurityRequirements
+    @GetMapping
     public CollectionModel<FilmDto> getAllFilms(Pageable pageable) {
         Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
         Page<Film> filmsPage = filmService.getAllFilms(filteredPageable);
@@ -105,8 +115,10 @@ public class FilmController {
     @Operation(summary = "Create a film", tags = TAG_FILMS)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Film created"),
-            @ApiResponse(responseCode = "400", description = "Malformed request", content = @Content) })
-    @PostMapping(value = "/films", produces = "application/json")
+            @ApiResponse(responseCode = "400", content = @Content),
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "create a film", content = @Content),
+    })
+    @PostMapping
     public ResponseEntity<FilmDto> createFilm(@RequestBody @Valid FilmDtoInput filmDtoInput) {
         Film film = filmMapper.filmDtoInputToFilm(filmDtoInput);
         FilmDto newFilmDto = filmModelAssembler.toModel(filmService.saveFilm(film));
@@ -116,8 +128,10 @@ public class FilmController {
     @Operation(summary = "Get a film", tags = TAG_FILMS)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Film found"),
-            @ApiResponse(responseCode = "404", description = "Film not found", content = @Content) })
-    @GetMapping(value = "/films/{filmId}", produces = "application/json")
+            @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
+    })
+    @SecurityRequirements
+    @GetMapping("/{filmId}")
     public FilmDto getFilm(@PathVariable Long filmId) {
         Film film = filmService.getFilm(filmId);
         return filmModelAssembler.toModel(film);
@@ -126,9 +140,11 @@ public class FilmController {
     @Operation(summary = "Update a film", tags = TAG_FILMS)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Film updated"),
-            @ApiResponse(responseCode = "400", description = "Malformed request", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Film not found", content = @Content) })
-    @PutMapping(value = "/films/{filmId}", produces = "application/json")
+            @ApiResponse(responseCode = "400", content = @Content),
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "update a film", content = @Content),
+            @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
+    })
+    @PutMapping("/{filmId}")
     public FilmDto updateFilm(@PathVariable Long filmId, @Valid @RequestBody FilmDtoInput filmDtoInput) {
         Film filmToUpdate = filmService.getFilm(filmId);
         Film updatedFilm = filmMapper.updateFilmFromFilmDtoInput(filmDtoInput, filmToUpdate);
@@ -139,8 +155,10 @@ public class FilmController {
     @Operation(summary = "Delete a film", tags = TAG_FILMS)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Film deleted", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Film not found", content = @Content) })
-    @DeleteMapping("/films/{filmId}")
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "delete a film", content = @Content),
+            @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
+    })
+    @DeleteMapping("/{filmId}")
     public ResponseEntity<?> deleteFilm(@PathVariable Long filmId) {
         filmService.deleteFilm(filmId);
         return ResponseEntity.noContent().build();
@@ -150,9 +168,11 @@ public class FilmController {
 
     @Operation(summary = "Get film directors", tags = TAG_DIRECTORS)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "404", description = "Film not found", content = @Content) })
-    @GetMapping(value = "/films/{filmId}/directors", produces = "application/json")
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+            @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
+    })
+    @SecurityRequirements
+    @GetMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> getDirectors(@PathVariable Long filmId) {
         Collection<Person> directors = filmService.getDirectors(filmId);
         return personModelAssembler.directorsCollectionModel(directors, filmId);
@@ -161,9 +181,11 @@ public class FilmController {
     @Operation(summary = "Update film directors", tags = TAG_DIRECTORS)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Directors updated"),
-            @ApiResponse(responseCode = "400", description = "Malformed request", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content) })
-    @PutMapping(value = "/films/{filmId}/directors", produces = "application/json")
+            @ApiResponse(responseCode = "400", content = @Content),
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "update film directors", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content),
+    })
+    @PutMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorIds) {
         List<Person> directors = personService.getPeople(directorIds);
         Film updatedFilm = filmService.updateDirectors(filmId, directors);
@@ -173,8 +195,10 @@ public class FilmController {
     @Operation(summary = "Delete film directors", tags = TAG_DIRECTORS)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Directors deleted", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Film not found", content = @Content) })
-    @DeleteMapping("/films/{filmId}/directors")
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "delete film directors", content = @Content),
+            @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
+    })
+    @DeleteMapping("/{filmId}/directors")
     public ResponseEntity<?> deleteDirectors(@PathVariable Long filmId) {
         filmService.deleteDirectors(filmId);
         return ResponseEntity.noContent().build();
@@ -184,9 +208,11 @@ public class FilmController {
 
     @Operation(summary = "Get film cast", tags = TAG_ROLES)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "404", description = "Film not found", content = @Content) })
-    @GetMapping(value = "/films/{filmId}/cast", produces = "application/json")
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+            @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
+    })
+    @SecurityRequirements
+    @GetMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> getCast(@PathVariable Long filmId) {
         Collection<Role> cast = filmService.getCast(filmId);
         return filmRoleModelAssembler.toCollectionModel(cast, filmId);
@@ -195,9 +221,11 @@ public class FilmController {
     @Operation(summary = "Update film cast", tags = TAG_ROLES)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cast updated"),
-            @ApiResponse(responseCode = "400", description = "Malformed request", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content) })
-    @PutMapping(value = "/films/{filmId}/cast", produces = "application/json")
+            @ApiResponse(responseCode = "400", content = @Content),
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "update film cast", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content),
+    })
+    @PutMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> updateCast(@PathVariable Long filmId, @RequestBody @Valid Set<FilmRoleDtoInput> newRoleDtos) {
         Film film = filmService.getFilm(filmId);
         Map<Person, String> newCast = newRoleDtos.stream().
@@ -209,8 +237,10 @@ public class FilmController {
     @Operation(summary = "Delete film cast", tags = TAG_ROLES)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Cast deleted", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Film not found", content = @Content) })
-    @DeleteMapping("/films/{filmId}/cast")
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "delete film cast", content = @Content),
+            @ApiResponse(responseCode = "404", description = FILM_NOT_FOUND, content = @Content),
+    })
+    @DeleteMapping("/{filmId}/cast")
     public ResponseEntity<?> deleteCast(@PathVariable Long filmId) {
         filmService.deleteCast(filmId);
         return ResponseEntity.noContent().build();
@@ -221,10 +251,12 @@ public class FilmController {
     @Operation(summary = "Create a role", tags = TAG_ROLES)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Role created"),
-            @ApiResponse(responseCode = "400", description = "Malformed request", content = @Content),
+            @ApiResponse(responseCode = "400", content = @Content),
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "create a role", content = @Content),
             @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content),
-            @ApiResponse(responseCode = "409", description = "Role already exists", content = @Content) })
-    @PostMapping(value = "/films/{filmId}/cast", produces = "application/json")
+            @ApiResponse(responseCode = "409", description = "Role already exists", content = @Content),
+    })
+    @PostMapping("/{filmId}/cast")
     public ResponseEntity<RoleDto> createRole(@PathVariable Long filmId, @RequestBody @Valid FilmRoleDtoInput roleDto) {
         Film film = filmService.getFilm(filmId);
         Person person = personService.getPerson(roleDto.personId());
@@ -235,9 +267,11 @@ public class FilmController {
 
     @Operation(summary = "Get a role", tags = TAG_ROLES)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "404", description = "Role not found", content = @Content) })
-    @GetMapping(value = "/films/{filmId}/cast/{personId}", produces = "application/json")
+            @ApiResponse(responseCode = "200", description = SUCCESS),
+            @ApiResponse(responseCode = "404", description = ROLE_NOT_FOUND, content = @Content),
+    })
+    @SecurityRequirements
+    @GetMapping("/{filmId}/cast/{personId}")
     public RoleDto getRole(@PathVariable Long filmId, @PathVariable Long personId) {
         Role role = roleService.getRole(filmId, personId);
         return roleModelAssembler.toModel(role);
@@ -246,11 +280,13 @@ public class FilmController {
     @Operation(summary = "Update a role", tags = TAG_ROLES)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Role updated"),
-            @ApiResponse(responseCode = "400", description = "Malformed request", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Role not found", content = @Content) })
-    @PatchMapping(value = "/films/{filmId}/cast/{personId}", produces = "application/json")
+            @ApiResponse(responseCode = "400", content = @Content),
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "update a role", content = @Content),
+            @ApiResponse(responseCode = "404", description = ROLE_NOT_FOUND, content = @Content),
+    })
+    @PatchMapping("/{filmId}/cast/{personId}")
     public RoleDto updateRole(@PathVariable Long filmId, @PathVariable Long personId,
-                                        @RequestBody @Valid RoleDtoInput inputDto) {
+                              @RequestBody @Valid RoleDtoInput inputDto) {
         Role role = roleService.getRole(filmId, personId);
         Role updatedRole = roleMapper.updateRoleFromRoleDtoInput(inputDto, role);
         Role savedRole = roleService.saveRole(updatedRole);
@@ -260,8 +296,10 @@ public class FilmController {
     @Operation(summary = "Delete a role", tags = TAG_ROLES)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Role deleted", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Role not found", content = @Content) })
-    @DeleteMapping("/films/{filmId}/cast/{personId}")
+            @ApiResponse(responseCode = "403", description = UNAUTHORIZED_TO + "delete a role", content = @Content),
+            @ApiResponse(responseCode = "404", description = ROLE_NOT_FOUND, content = @Content),
+    })
+    @DeleteMapping("/{filmId}/cast/{personId}")
     public ResponseEntity<?> deleteRole(@PathVariable Long filmId, @PathVariable Long personId) {
         roleService.deleteRole(filmId, personId);
         return ResponseEntity.noContent().build();

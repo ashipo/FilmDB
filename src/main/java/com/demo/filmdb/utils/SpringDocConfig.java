@@ -1,13 +1,18 @@
 package com.demo.filmdb.utils;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.hateoas.Links;
+
+@SecurityScheme(name = "JWT Bearer authentication", type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
 
 @OpenAPIDefinition(
         info = @Info(
@@ -16,19 +21,28 @@ import org.springframework.hateoas.Links;
                 description = "FilmDB API documentation"
         ),
         tags = {@Tag(name = SpringDocConfig.TAG_ROOT),
+                @Tag(name = SpringDocConfig.TAG_LOGIN),
                 @Tag(name = SpringDocConfig.TAG_FILMS),
                 @Tag(name = SpringDocConfig.TAG_PEOPLE),
                 @Tag(name = SpringDocConfig.TAG_DIRECTORS),
-                @Tag(name = SpringDocConfig.TAG_ROLES)}
+                @Tag(name = SpringDocConfig.TAG_ROLES)},
+        security = {@SecurityRequirement(name = "JWT Bearer authentication")}
 )
 @Configuration
 public class SpringDocConfig {
 
     public static final String TAG_ROOT = "API Root";
+    public static final String TAG_LOGIN = "Login";
     public static final String TAG_FILMS = "Films";
     public static final String TAG_PEOPLE = "People";
     public static final String TAG_DIRECTORS = "Directors";
     public static final String TAG_ROLES = "Roles";
+
+    public static final String SUCCESS = "Successful operation";
+    public static final String UNAUTHORIZED_TO = "Must have administrative rights to ";
+    public static final String FILM_NOT_FOUND = "Film not found";
+    public static final String ROLE_NOT_FOUND = "Role not found";
+    public static final String PERSON_NOT_FOUND = "Person not found";
 
     /**
      * Hides Links object from the SpringDoc generated schemas.
