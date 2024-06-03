@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.demo.filmdb.util.HttpUtil.require;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.FILM;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
@@ -133,7 +134,7 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}")
     public FilmDto getFilm(@PathVariable Long filmId) {
-        Film film = filmService.getFilm(filmId);
+        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
         return filmModelAssembler.toModel(film);
     }
 
@@ -146,7 +147,7 @@ public class FilmController {
     })
     @PutMapping("/{filmId}")
     public FilmDto updateFilm(@PathVariable Long filmId, @Valid @RequestBody FilmDtoInput filmDtoInput) {
-        Film filmToUpdate = filmService.getFilm(filmId);
+        Film filmToUpdate = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
         Film updatedFilm = filmMapper.updateFilmFromFilmDtoInput(filmDtoInput, filmToUpdate);
         Film savedFilm = filmService.saveFilm(updatedFilm);
         return filmModelAssembler.toModel(savedFilm);
@@ -160,7 +161,8 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}")
     public ResponseEntity<?> deleteFilm(@PathVariable Long filmId) {
-        filmService.deleteFilm(filmId);
+        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        filmService.deleteFilm(film);
         return ResponseEntity.noContent().build();
     }
 
@@ -174,7 +176,8 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> getDirectors(@PathVariable Long filmId) {
-        Collection<Person> directors = filmService.getDirectors(filmId);
+        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        Collection<Person> directors = film.getDirectors();
         return personModelAssembler.directorsCollectionModel(directors, filmId);
     }
 
@@ -187,8 +190,9 @@ public class FilmController {
     })
     @PutMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorIds) {
+        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
         List<Person> directors = personService.getPeople(directorIds);
-        Film updatedFilm = filmService.updateDirectors(filmId, directors);
+        Film updatedFilm = filmService.updateDirectors(film, directors);
         return personModelAssembler.directorsCollectionModel(updatedFilm.getDirectors(), filmId);
     }
 
@@ -200,7 +204,8 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/directors")
     public ResponseEntity<?> deleteDirectors(@PathVariable Long filmId) {
-        filmService.deleteDirectors(filmId);
+        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        filmService.deleteDirectors(film);
         return ResponseEntity.noContent().build();
     }
 
@@ -214,8 +219,9 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> getCast(@PathVariable Long filmId) {
-        Collection<Role> cast = filmService.getCast(filmId);
-        return filmRoleModelAssembler.toCollectionModel(cast, filmId);
+        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        Collection<Role> cast = film.getRoles();
+        return filmRoleModelAssembler.toCollectionModel(cast, film.getId());
     }
 
     @Operation(summary = "Update film cast", tags = TAG_ROLES)
@@ -227,7 +233,7 @@ public class FilmController {
     })
     @PutMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> updateCast(@PathVariable Long filmId, @RequestBody @Valid Set<FilmRoleDtoInput> newRoleDtos) {
-        Film film = filmService.getFilm(filmId);
+        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
         Map<Person, String> newCast = newRoleDtos.stream().
                 collect(Collectors.toMap(dto -> personService.getPerson(dto.personId()), FilmRoleDtoInput::character));
         Set<Role> updatedCast = roleService.updateCast(film, newCast);
@@ -242,6 +248,7 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/cast")
     public ResponseEntity<?> deleteCast(@PathVariable Long filmId) {
+        require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
         filmService.deleteCast(filmId);
         return ResponseEntity.noContent().build();
     }
@@ -258,7 +265,7 @@ public class FilmController {
     })
     @PostMapping("/{filmId}/cast")
     public ResponseEntity<RoleDto> createRole(@PathVariable Long filmId, @RequestBody @Valid FilmRoleDtoInput roleDto) {
-        Film film = filmService.getFilm(filmId);
+        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
         Person person = personService.getPerson(roleDto.personId());
         Role newRole = roleService.createRole(film, person, roleDto.character());
         RoleDto newRoleDto = roleModelAssembler.toModel(newRole);
@@ -303,5 +310,9 @@ public class FilmController {
     public ResponseEntity<?> deleteRole(@PathVariable Long filmId, @PathVariable Long personId) {
         roleService.deleteRole(filmId, personId);
         return ResponseEntity.noContent().build();
+    }
+
+    private String filmNotFoundMessage(Long id) {
+        return "Could not find film with id " + id;
     }
 }
