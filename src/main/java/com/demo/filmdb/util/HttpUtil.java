@@ -3,7 +3,6 @@ package com.demo.filmdb.util;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public final class HttpUtil {
@@ -16,7 +15,7 @@ public final class HttpUtil {
      * @return the entity.
      * @throws ResponseStatusException {@link HttpStatus#NOT_FOUND} if {@code entity} is {@code null}.
      */
-    public static <T> T require(@Nullable T entity, Supplier<String> message) {
+    public static <T> T require(T entity, Supplier<String> message) {
         if (entity == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, message.get());
         }

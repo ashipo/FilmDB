@@ -8,15 +8,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -33,7 +31,7 @@ public class RoleServiceTests extends ServiceTest {
     class GetRole {
         @Test
         @DisplayName("Given existing ids, finds")
-        void ExistingIds_Finds(){
+        void ExistingIds_Finds() {
             final long expectedFilmId = 11L;
             final long expectedPersonId = 11L;
             given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(new Role()));
@@ -44,15 +42,13 @@ public class RoleServiceTests extends ServiceTest {
         }
 
         @Test
-        @DisplayName("Given at least one not existing id, throws 404")
-        void NotExistingIds_Throws404(){
-            final long expectedFilmId = 11L;
-            final long expectedPersonId = 11L;
-            given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.empty());
+        @DisplayName("Given ids of a non existing role, returns null")
+        void NotExistingIds_ReturnsNull() {
+            given(roleRepository.findByIds(anyLong(), anyLong())).willReturn(Optional.empty());
 
-            Throwable thrown = catchThrowable(() -> roleService.getRole(expectedFilmId, expectedPersonId));
+            Role actual = roleService.getRole(11L, 11L);
 
-            assertThatValid404(thrown, expectedFilmId, expectedPersonId);
+            assertThat(actual).isNull();
         }
     }
 
@@ -69,28 +65,14 @@ public class RoleServiceTests extends ServiceTest {
     @Nested
     class DeleteRole {
         @Test
-        @DisplayName("Given existing Ids, deletes")
+        @DisplayName("Deletes existing role")
         void ExistingIds_Deletes() {
-            long expectedFilmId = 11L;
-            long expectedPersonId = 11L;
             Role expectedRole = new Role();
-            given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(expectedRole));
 
-            roleService.deleteRole(expectedFilmId, expectedPersonId);
+            roleService.deleteRole(expectedRole);
 
             verify(roleRepository).delete(expectedRole);
         }
-
-        @Test
-        @DisplayName("Given at least one not existing Id, throws 404")
-        void NotExistingIds_Throws404() {
-            long expectedFilmId = 11L;
-            long expectedPersonId = 11L;
-            given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.empty());
-
-            Throwable thrown = catchThrowable(() -> roleService.deleteRole(expectedFilmId, expectedPersonId));
-
-            assertThatValid404(thrown, expectedFilmId, expectedPersonId);        }
     }
 
     @Nested
@@ -101,7 +83,6 @@ public class RoleServiceTests extends ServiceTest {
             long expectedFilmId = 2L;
             long expectedPersonId = 3L;
             String expectedCharacter = "butler";
-            given(roleRepository.existsById(any())).willReturn(false);
 
             roleService.createRole(createFilm(expectedFilmId), createPerson(expectedPersonId), expectedCharacter);
 
@@ -111,24 +92,6 @@ public class RoleServiceTests extends ServiceTest {
             assertThat(actualRole.getFilm().getId()).as("Film id").isEqualTo(expectedFilmId);
             assertThat(actualRole.getPerson().getId()).as("Person id").isEqualTo(expectedPersonId);
             assertThat(actualRole.getCharacter()).as("Character").isEqualTo(expectedCharacter);
-        }
-
-        @Test
-        @DisplayName("Given already existing role, throws 409")
-        void ExistingRole_Throws409() {
-            long expectedFilmId = 2L;
-            long expectedPersonId = 3L;
-            given(roleRepository.existsById(any())).willReturn(true);
-
-            Throwable thrown = catchThrowable(() -> roleService.
-                    createRole(createFilm(expectedFilmId), createPerson(expectedPersonId), "butler"));
-
-            assertThat(thrown).as("Expected ResponseStatusException to be thrown")
-                    .isInstanceOf(ResponseStatusException.class);
-            ResponseStatusException statusException = (ResponseStatusException) thrown;
-            assertThat(statusException.getStatusCode().value()).as("Status code").isEqualTo(409);
-            assertThat(thrown).hasMessageContaining("Role for film %d and person %d already exists.",
-                    expectedFilmId, expectedPersonId);
         }
     }
 
@@ -166,8 +129,9 @@ public class RoleServiceTests extends ServiceTest {
 
             Optional<Role> actualRole = actualRoles.stream().filter(r -> r.getPerson().getId() == expectedPersonId)
                     .findFirst();
-            assertThat(actualRole).isPresent();
-            assertThat(actualRole.get().getCharacter()).isEqualTo(expectedCharacter);
+            assertThat(actualRole).hasValueSatisfying(role ->
+                    assertThat(role.getCharacter()).isEqualTo(expectedCharacter)
+            );
         }
 
         @Test
@@ -190,12 +154,6 @@ public class RoleServiceTests extends ServiceTest {
     }
 
     /* Utility */
-
-    private void assertThatValid404(Throwable thrown, long filmId, long personId){
-        assertThatValid404(thrown);
-        assertThat(thrown).hasMessageContaining("Could not find role with filmId %d and personId %d",
-                filmId, personId);
-    }
 
     private Film getFilmWithRole(long filmId, long actorId) {
         Film film = createFilm(filmId);

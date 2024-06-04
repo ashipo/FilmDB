@@ -28,8 +28,10 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -265,11 +267,20 @@ public class FilmController {
     })
     @PostMapping("/{filmId}/cast")
     public ResponseEntity<RoleDto> createRole(@PathVariable Long filmId, @RequestBody @Valid FilmRoleDtoInput roleDto) {
+        final Long personId = roleDto.personId();
         Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Person person = personService.getPerson(roleDto.personId());
-        Role newRole = roleService.createRole(film, person, roleDto.character());
-        RoleDto newRoleDto = roleModelAssembler.toModel(newRole);
-        return ResponseEntity.created(newRoleDto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(newRoleDto);
+        Person person = personService.getPerson(personId);
+        if (roleService.roleExists(filmId, personId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Role for film " + filmId + " and person " + personId + " already exists."
+            );
+        }
+        Role createdRole = roleService.createRole(film, person, roleDto.character());
+        RoleDto createdRoleDto = roleModelAssembler.toModel(createdRole);
+        return ResponseEntity
+                .created(createdRoleDto.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(createdRoleDto);
     }
 
     @Operation(summary = "Get a role", tags = TAG_ROLES)
@@ -280,7 +291,7 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/cast/{personId}")
     public RoleDto getRole(@PathVariable Long filmId, @PathVariable Long personId) {
-        Role role = roleService.getRole(filmId, personId);
+        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
         return roleModelAssembler.toModel(role);
     }
 
@@ -294,7 +305,7 @@ public class FilmController {
     @PatchMapping("/{filmId}/cast/{personId}")
     public RoleDto updateRole(@PathVariable Long filmId, @PathVariable Long personId,
                               @RequestBody @Valid RoleDtoInput inputDto) {
-        Role role = roleService.getRole(filmId, personId);
+        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
         Role updatedRole = roleMapper.updateRoleFromRoleDtoInput(inputDto, role);
         Role savedRole = roleService.saveRole(updatedRole);
         return roleModelAssembler.toModel(savedRole);
@@ -308,11 +319,16 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/cast/{personId}")
     public ResponseEntity<?> deleteRole(@PathVariable Long filmId, @PathVariable Long personId) {
-        roleService.deleteRole(filmId, personId);
+        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
+        roleService.deleteRole(role);
         return ResponseEntity.noContent().build();
     }
 
     private String filmNotFoundMessage(Long id) {
         return "Could not find film with id " + id;
+    }
+
+    private String roleNotFoundMessage(Long filmId, Long personId) {
+        return "Could not find role with filmId " + filmId + " and personId " + personId;
     }
 }

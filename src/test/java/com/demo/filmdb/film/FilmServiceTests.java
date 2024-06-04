@@ -86,7 +86,7 @@ class FilmServiceTests extends ServiceTest {
     @Nested
     class DeleteFilm {
         @Test
-        @DisplayName("Deletes existing film by id")
+        @DisplayName("Deletes existing film")
         void ExistingId_DeletesFilm() {
             final long expectedFilmId = 9L;
             Film expected = new Film();
