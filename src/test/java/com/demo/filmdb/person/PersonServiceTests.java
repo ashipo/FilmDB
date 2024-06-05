@@ -14,17 +14,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class PersonServiceTests extends ServiceTest {
@@ -67,7 +67,7 @@ public class PersonServiceTests extends ServiceTest {
     @Nested
     class GetPerson {
         @Test
-        @DisplayName("(existing id) finds")
+        @DisplayName("Finds existing person by id")
         void ExistingId_Finds() {
             final long expectedPersonId = 11L;
             given(personRepository.findById(anyLong())).willReturn(Optional.of(new Person()));
@@ -78,93 +78,34 @@ public class PersonServiceTests extends ServiceTest {
         }
 
         @Test
-        @DisplayName("(not existing id) throws 404")
-        void NotExistingId_Throws404() {
-            final long expectedPersonId = 11L;
+        @DisplayName("Given not existing id returns null")
+        void NotExistingId_ReturnsNull() {
             given(personRepository.findById(anyLong())).willReturn(Optional.empty());
 
-            Throwable thrown = catchThrowable(() -> personService.getPerson(expectedPersonId));
+            Person actual = personService.getPerson(11L);
 
-            assertThatValid404(thrown, expectedPersonId);
+            assertThat(actual).isNull();
         }
     }
 
     @Nested
     class DeletePerson {
         @Test
-        @DisplayName("(existing id) deletes")
+        @DisplayName("Deletes existing person")
         void ExistingId_Deletes() {
             final long expectedPersonId = 11L;
-            given(personRepository.findById(anyLong())).willReturn(Optional.of(new Person()));
+            Person expected = new Person();
+            expected.setId(expectedPersonId);
 
-            personService.deletePerson(expectedPersonId);
+            personService.deletePerson(expected);
 
-            verify(personRepository).deleteById(expectedPersonId);
+            verify(personRepository).delete(expected);
             verify(roleRepository).deleteById_PersonId(expectedPersonId);
         }
-
-        @Test
-        @DisplayName("(not existing id) throws 404")
-        void NotExistingId_Throws404() {
-            final long expectedPersonId = 11L;
-            given(personRepository.findById(anyLong())).willReturn(Optional.empty());
-
-            Throwable thrown = catchThrowable(() -> personService.deletePerson(expectedPersonId));
-
-            assertThatValid404(thrown, expectedPersonId);
-            verify(roleRepository, never()).deleteById_PersonId(anyLong());
-            verify(personRepository, never()).deleteById(anyLong());
-        }
     }
 
     @Nested
-    class GetRoles {
-        @Test
-        public void ExistingId_Finds() {
-            final long expectedPersonId = 3L;
-            given(personRepository.findById(anyLong())).willReturn(Optional.of(new Person()));
-
-            personService.getRoles(expectedPersonId);
-
-            verify(personRepository).findById(expectedPersonId);
-        }
-
-        @Test
-        public void NotExistingId_Throws404() {
-            final long expectedPersonId = 3L;
-            given(personRepository.findById(anyLong())).willReturn(Optional.empty());
-
-            Throwable thrown = catchThrowable(() -> personService.getRoles(expectedPersonId));
-
-            assertThatValid404(thrown, expectedPersonId);
-        }
-    }
-
-    @Nested
-    class GetDirected {
-        @Test
-        public void ExistingId_Finds() {
-            final long expectedPersonId = 3L;
-            given(personRepository.findById(anyLong())).willReturn(Optional.of(new Person()));
-
-            personService.getDirected(expectedPersonId);
-
-            verify(personRepository).findById(expectedPersonId);
-        }
-
-        @Test
-        public void NotExistingId_Throws404() {
-            final long expectedPersonId = 3L;
-            given(personRepository.findById(anyLong())).willReturn(Optional.empty());
-
-            Throwable thrown = catchThrowable(() -> personService.getDirected(expectedPersonId));
-
-            assertThatValid404(thrown, expectedPersonId);
-        }
-    }
-
-    @Nested
-    class GetPeople{
+    class GetPeople {
         @Test
         @DisplayName("Given existing ids, finds")
         public void ExistingIds_Finds() {
@@ -179,30 +120,20 @@ public class PersonServiceTests extends ServiceTest {
 
         @ParameterizedTest(name = "given {0}, exist {1}")
         @MethodSource("com.demo.filmdb.person.PersonServiceTests#expectedAndActualIdsProvider")
-        @DisplayName("Given not existing ids, throws 404")
-        public void NotExistingIds_Throws404(List<Long> givenIds, List<Long> existingIds) {
+        @DisplayName("Given not existing ids, returns only people for existing ids")
+        public void NotExistingIds_FindsExisting(List<Long> givenIds, List<Long> existingIds) {
             given(personRepository.findAllById(anyCollection()))
                     .willReturn(createPeoplesWithIds(existingIds));
-            List<Long> expectedNotFoundIds = new ArrayList<>(givenIds);
-            expectedNotFoundIds.removeAll(existingIds);
 
-            Throwable thrown = catchThrowable(() -> personService.getPeople(givenIds));
+            List<Person> actual = personService.getPeople(givenIds);
 
-            assertThatValid404(thrown, expectedNotFoundIds);
+            Set<Long> expectedIds = new HashSet<>(existingIds);
+            Set<Long> actualIds = actual.stream().map((Person::getId)).collect(Collectors.toSet());
+            assertThat(actualIds).isEqualTo(expectedIds);
         }
     }
 
     /* Utility */
-
-    private void assertThatValid404(Throwable thrown, long notFoundId){
-        assertThatValid404(thrown);
-        assertThat(thrown).hasMessageContaining("Could not find person with id %d", notFoundId);
-    }
-
-    private void assertThatValid404(Throwable thrown, List<Long> notFoundIds){
-        assertThatValid404(thrown);
-        assertThat(thrown).hasMessageContaining("Could not find people with ids " + notFoundIds);
-    }
 
     private List<Person> createPeoplesWithIds(List<Long> ids) {
         return ids.stream().map(id -> {

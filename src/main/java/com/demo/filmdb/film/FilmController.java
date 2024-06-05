@@ -34,13 +34,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.demo.filmdb.util.HttpUtil.require;
+import static com.demo.filmdb.util.RestUtil.*;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.FILM;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
@@ -194,6 +191,9 @@ public class FilmController {
     public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorIds) {
         Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
         List<Person> directors = personService.getPeople(directorIds);
+        if (directors.size() < directorIds.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, peopleNotFoundMessage());
+        }
         Film updatedFilm = filmService.updateDirectors(film, directors);
         return personModelAssembler.directorsCollectionModel(updatedFilm.getDirectors(), filmId);
     }
@@ -236,8 +236,12 @@ public class FilmController {
     @PutMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> updateCast(@PathVariable Long filmId, @RequestBody @Valid Set<FilmRoleDtoInput> newRoleDtos) {
         Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Map<Person, String> newCast = newRoleDtos.stream().
-                collect(Collectors.toMap(dto -> personService.getPerson(dto.personId()), FilmRoleDtoInput::character));
+        Map<Person, String> newCast = new HashMap<>();
+        newRoleDtos.forEach(dto -> {
+            Long personId = dto.personId();
+            Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+            newCast.put(person, dto.character());
+        });
         Set<Role> updatedCast = roleService.updateCast(film, newCast);
         return filmRoleModelAssembler.toCollectionModel(updatedCast, filmId);
     }
@@ -269,7 +273,7 @@ public class FilmController {
     public ResponseEntity<RoleDto> createRole(@PathVariable Long filmId, @RequestBody @Valid FilmRoleDtoInput roleDto) {
         final Long personId = roleDto.personId();
         Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Person person = personService.getPerson(personId);
+        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
         if (roleService.roleExists(filmId, personId)) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -322,13 +326,5 @@ public class FilmController {
         Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
         roleService.deleteRole(role);
         return ResponseEntity.noContent().build();
-    }
-
-    private String filmNotFoundMessage(Long id) {
-        return "Could not find film with id " + id;
-    }
-
-    private String roleNotFoundMessage(Long filmId, Long personId) {
-        return "Could not find role with filmId " + filmId + " and personId " + personId;
     }
 }

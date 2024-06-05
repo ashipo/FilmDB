@@ -72,11 +72,9 @@ public class RoleService {
     @Transactional
     public Set<Role> updateCast(Film film, Map<Person, String> newCast) {
         Set<Long> newCastIds = newCast.keySet().stream().map(Person::getId).collect(Collectors.toSet());
-
         film.getRoles().stream().
                 filter(r -> !newCastIds.contains(r.getPerson().getId())).
                 forEach(roleRepository::delete);
-
         Set<Role> result = new HashSet<>();
         newCast.forEach((person, character) -> {
             Role role = roleRepository
@@ -88,7 +86,6 @@ public class RoleService {
                     .orElseGet(() -> saveRole(new Role(film, person, character)));
             result.add(role);
         });
-
         return result;
     }
 
