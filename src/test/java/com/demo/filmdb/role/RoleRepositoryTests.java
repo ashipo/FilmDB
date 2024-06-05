@@ -22,14 +22,15 @@ public class RoleRepositoryTests {
         @Test
         @DisplayName("Given filmId and personId of an existing role, returns the role")
         void ExistingRoleIds_ReturnsRole() {
-            long expectedFilmId = 2L;
+            long expectedFilmId = 1L;
             long expectedPersonId = 2L;
 
             Optional<Role> role = repository.findByIds(expectedFilmId, expectedPersonId);
 
-            assertThat(role).isPresent();
-            assertThat(role.get().getFilm().getId()).isEqualTo(expectedFilmId);
-            assertThat(role.get().getPerson().getId()).isEqualTo(expectedPersonId);
+            assertThat(role).hasValueSatisfying((r) -> {
+                assertThat(r.getFilm().getId()).isEqualTo(expectedFilmId);
+                assertThat(r.getPerson().getId()).isEqualTo(expectedPersonId);
+            });
         }
 
         @Test
