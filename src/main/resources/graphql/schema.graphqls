@@ -1,0 +1,26 @@
+scalar Date
+  @specifiedBy(url:
+    "https://tools.ietf.org/html/rfc3339"
+  )
+
+type Query {
+    login(username: String!, password: String!): String!
+    filmById(id: ID!): Film
+}
+
+type Mutation {
+    deleteFilm(id: ID!): ID
+}
+
+type Film {
+    id: ID
+    title: String
+    synopsis: String
+    releaseDate: Date
+}
+
+type Person {
+    id: ID
+    firstName: String
+    lastName: String
+}
