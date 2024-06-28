@@ -78,6 +78,17 @@ public class FilmService {
     }
 
     /**
+     * Deletes a {@link Film} entity with the given id.
+     *
+     * @param filmId id.
+     */
+    @Transactional
+    public void deleteFilmById(Long filmId) {
+        roleRepository.deleteById_FilmId(filmId);
+        filmRepository.deleteById(filmId);
+    }
+
+    /**
      * Replaces directors for the given {@link Film} entity.
      *
      * @param film to replace directors in.
