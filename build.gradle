@@ -18,10 +18,8 @@ repositories {
 
 sourceSets {
     integrationTest {
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-        java.srcDirs = ['src/integrationTest/java']
-        resources.srcDirs = ['src/integrationTest/resources']
+        compileClasspath = sourceSets.main.output + compileClasspath
+        runtimeClasspath = sourceSets.main.output + runtimeClasspath
     }
 }
 
@@ -60,10 +58,10 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'org.springframework.graphql:spring-graphql-test'
 
     integrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
     integrationTestImplementation 'org.springframework.security:spring-security-test'
+    integrationTestImplementation 'org.springframework.graphql:spring-graphql-test'
 }
 
 test {
