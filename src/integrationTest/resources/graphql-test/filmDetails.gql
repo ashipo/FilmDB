@@ -1,0 +1,7 @@
+query filmDetails($id: ID!) {
+    filmById(id: $id) {
+        title
+        synopsis
+        releaseDate
+    }
+}

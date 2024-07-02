@@ -1,0 +1,3 @@
+mutation deleteFilm {
+    deleteFilm(id: "1")
+}
