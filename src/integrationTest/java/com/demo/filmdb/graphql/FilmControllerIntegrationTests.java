@@ -14,6 +14,7 @@ import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 
 @SpringBootTest
 @AutoConfigureGraphQlTester
+@DisplayName("GraphQL Film")
 class FilmControllerIntegrationTests {
 
     @Autowired
