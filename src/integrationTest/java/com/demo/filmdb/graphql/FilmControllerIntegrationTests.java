@@ -57,23 +57,53 @@ class FilmControllerIntegrationTests {
     class DeleteFilm {
 
         @Test
-        @DisplayName("Authorized, no errors")
+        @DisplayName("Authorized, response has no errors")
         @WithMockUser(roles = {"ADMIN"})
         @DirtiesContext
         void Authorized_NoErrors() {
             graphQlTester
                     .documentName("deleteFilm")
+                    .variable("id", "1")
                     .executeAndVerify();
         }
 
         @Test
-        @DisplayName("Not authorized, response contains error")
+        @DisplayName("Authorized, response value is correct")
+        @WithMockUser(roles = {"ADMIN"})
+        @DirtiesContext
+        void Authorized_CorrectValue() {
+            String expectedId = "1";
+            graphQlTester
+                    .documentName("deleteFilm")
+                    .variable("id", expectedId)
+                    .execute()
+                    .path("deleteFilm")
+                    .entity(String.class).isEqualTo(expectedId);
+        }
+
+        @Test
+        @DisplayName("Not authorized, response contains UNAUTHORIZED error")
         void NotAuthorized_UnauthorizedError() {
             graphQlTester
                     .documentName("deleteFilm")
+                    .variable("id", "1")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
+        }
+
+        @Test
+        @DisplayName("Not authorized, response value is null")
+        void NotAuthorized_NullValue() {
+            graphQlTester
+                    .documentName("deleteFilm")
+                    .variable("id", "1")
+                    .execute()
+                    .errors()
+                    .filter(e -> true)
+                    .verify()
+                    .path("deleteFilm")
+                    .valueIsNull();
         }
     }
 }
