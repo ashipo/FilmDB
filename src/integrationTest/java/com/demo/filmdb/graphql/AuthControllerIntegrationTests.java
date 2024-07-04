@@ -3,18 +3,19 @@ package com.demo.filmdb.graphql;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester;
+import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.graphql.test.tester.HttpGraphQlTester;
 
 import java.util.Objects;
 
 @SpringBootTest
-@AutoConfigureGraphQlTester
+@AutoConfigureHttpGraphQlTester
 @DisplayName("GraphQL Authentication")
 public class AuthControllerIntegrationTests {
+
     @Autowired
-    GraphQlTester graphQlTester;
+    HttpGraphQlTester graphQlTester;
 
     @Test
     @DisplayName("login: valid credentials, response contains a token")

@@ -4,21 +4,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester;
+import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.graphql.test.tester.HttpGraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
 import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 
 @SpringBootTest
-@AutoConfigureGraphQlTester
+@AutoConfigureHttpGraphQlTester
 @DisplayName("GraphQL Film")
 class FilmControllerIntegrationTests {
 
     @Autowired
-    GraphQlTester graphQlTester;
+    HttpGraphQlTester graphQlTester;
 
     @Nested
     @DisplayName("filmById")

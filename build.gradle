@@ -62,6 +62,7 @@ dependencies {
     integrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
     integrationTestImplementation 'org.springframework.security:spring-security-test'
     integrationTestImplementation 'org.springframework.graphql:spring-graphql-test'
+    integrationTestImplementation 'org.springframework:spring-webflux'
 }
 
 test {
