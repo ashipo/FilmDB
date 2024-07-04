@@ -2,6 +2,7 @@ package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
+import com.demo.filmdb.graphql.inputs.FilmInput;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -28,5 +29,12 @@ public class FilmController {
         long parsedId = Long.parseLong(id);
         filmService.deleteFilmById(parsedId);
         return parsedId;
+    }
+
+    @MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public Film createFilm(@Argument FilmInput input) {
+        Film film = new Film(input.title(), input.releaseDate(), input.synopsis());
+        return filmService.saveFilm(film);
     }
 }
