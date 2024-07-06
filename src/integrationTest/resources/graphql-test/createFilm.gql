@@ -1,0 +1,7 @@
+mutation createFilm($filmInput: FilmInput!) {
+    createFilm(input: $filmInput) {
+        title
+        releaseDate
+        synopsis
+    }
+}

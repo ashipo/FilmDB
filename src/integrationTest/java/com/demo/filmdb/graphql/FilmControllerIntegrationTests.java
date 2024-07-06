@@ -1,5 +1,7 @@
 package com.demo.filmdb.graphql;
 
+import com.demo.filmdb.film.Film;
+import com.demo.filmdb.graphql.inputs.FilmInput;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -8,8 +10,13 @@ import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureH
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
+import static com.demo.filmdb.Utils.NOT_EXISTING_ID;
+import static com.demo.filmdb.Utils.ROLE_ADMIN;
+import static graphql.ErrorType.ValidationError;
 import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 
 @SpringBootTest
@@ -46,7 +53,7 @@ class FilmControllerIntegrationTests {
         void NotExistingId_ResponseNull() {
             graphQlTester
                     .documentName("filmDetails")
-                    .variable("id", "100")
+                    .variable("id", NOT_EXISTING_ID)
                     .execute()
                     .path("filmById")
                     .valueIsNull();
@@ -59,8 +66,8 @@ class FilmControllerIntegrationTests {
 
         @Test
         @DisplayName("Authorized, response has no errors")
-        @WithMockUser(roles = {"ADMIN"})
-        @DirtiesContext
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @Transactional
         void Authorized_NoErrors() {
             graphQlTester
                     .documentName("deleteFilm")
@@ -70,8 +77,8 @@ class FilmControllerIntegrationTests {
 
         @Test
         @DisplayName("Authorized, response value is correct")
-        @WithMockUser(roles = {"ADMIN"})
-        @DirtiesContext
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @Transactional
         void Authorized_CorrectValue() {
             String expectedId = "1";
             graphQlTester
@@ -105,6 +112,54 @@ class FilmControllerIntegrationTests {
                     .verify()
                     .path("deleteFilm")
                     .valueIsNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("createFilm")
+    class CreateFilm {
+
+        @Test
+        @DisplayName("Valid mutation, correct response")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @Transactional
+        void ValidMutation_CorrectResponse() {
+            FilmInput input = new FilmInput("Mission: Impossible", LocalDate.now(), "There is a mission.");
+            graphQlTester
+                    .documentName("createFilm")
+                    .variable("filmInput", input)
+                    .execute()
+                    .path("createFilm")
+                    .entity(Film.class)
+                    .matches(film -> film.getTitle().equals(input.title()))
+                    .matches(film -> film.getReleaseDate().equals(input.releaseDate()))
+                    .matches(film -> film.getSynopsis().equals(input.synopsis()));
+        }
+
+        @Test
+        @DisplayName("Invalid mutation, validation error")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @Transactional
+        void InvalidMutation_NullResponse() {
+            FilmInput input = new FilmInput("", null, "There is a mission.");
+            graphQlTester
+                    .documentName("createFilm")
+                    .variable("filmInput", input)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == ValidationError);
+        }
+
+        @Test
+        @DisplayName("Not authorized, response contains UNAUTHORIZED error")
+        void NotAuthorized_UnauthorizedError() {
+            FilmInput input = new FilmInput("Mission: Impossible", LocalDate.now(), "There is a mission.");
+            graphQlTester
+                    .documentName("createFilm")
+                    .variable("filmInput", input)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
         }
     }
 }
