@@ -2,6 +2,7 @@ scalar Date
   @specifiedBy(url:
     "https://tools.ietf.org/html/rfc3339"
   )
+scalar NonBlankString
 
 type Query {
     login(username: String!, password: String!): String!
@@ -27,7 +28,7 @@ type Person {
 }
 
 input FilmInput {
-    title: String!
+    title: NonBlankString!
     releaseDate: Date!
     synopsis: String
 }
