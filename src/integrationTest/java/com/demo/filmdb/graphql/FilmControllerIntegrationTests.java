@@ -124,7 +124,7 @@ class FilmControllerIntegrationTests {
         @WithMockUser(roles = {ROLE_ADMIN})
         @Transactional
         void ValidMutation_CorrectResponse() {
-            FilmInput input = new FilmInput("Mission: Impossible", LocalDate.now(), "There is a mission.");
+            FilmInput input = getValidFilmInput();
             graphQlTester
                     .documentName("createFilm")
                     .variable("filmInput", input)
@@ -139,7 +139,6 @@ class FilmControllerIntegrationTests {
         @Test
         @DisplayName("Invalid mutation, validation error")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @Transactional
         void InvalidMutation_NullResponse() {
             FilmInput input = new FilmInput("", null, "There is a mission.");
             graphQlTester
@@ -151,15 +150,68 @@ class FilmControllerIntegrationTests {
         }
 
         @Test
-        @DisplayName("Not authorized, response contains UNAUTHORIZED error")
+        @DisplayName("Not authorized, valid input, response contains UNAUTHORIZED error")
         void NotAuthorized_UnauthorizedError() {
-            FilmInput input = new FilmInput("Mission: Impossible", LocalDate.now(), "There is a mission.");
             graphQlTester
                     .documentName("createFilm")
-                    .variable("filmInput", input)
+                    .variable("filmInput", getValidFilmInput())
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
         }
+    }
+
+    @Nested
+    @DisplayName("updateFilm")
+    class UpdateFilm {
+
+        @Test
+        @DisplayName("Existing ID, Valid mutation, correct response")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @Transactional
+        void ExistingIdValidMutation_CorrectResponse() {
+            FilmInput input = getValidFilmInput();
+            Long id = 1L;
+            graphQlTester
+                    .documentName("updateFilm")
+                    .variable("id", id)
+                    .variable("filmInput", input)
+                    .execute()
+                    .path("updateFilm")
+                    .entity(Film.class)
+                    .matches(film -> film.getId().equals(id))
+                    .matches(film -> film.getTitle().equals(input.title()))
+                    .matches(film -> film.getReleaseDate().equals(input.releaseDate()))
+                    .matches(film -> film.getSynopsis().equals(input.synopsis()));
+        }
+
+        @Test
+        @DisplayName("Not existing ID, Valid mutation, null response")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        void NotExistingIdValidMutation_NullResponse() {
+            graphQlTester
+                    .documentName("updateFilm")
+                    .variable("id", NOT_EXISTING_ID)
+                    .variable("filmInput", getValidFilmInput())
+                    .execute()
+                    .path("updateFilm")
+                    .valueIsNull();
+        }
+
+        @Test
+        @DisplayName("Not authorized, valid input, response contains UNAUTHORIZED error")
+        void NotAuthorized_UnauthorizedError() {
+            graphQlTester
+                    .documentName("updateFilm")
+                    .variable("id", 1L)
+                    .variable("filmInput", getValidFilmInput())
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
+        }
+    }
+
+    private FilmInput getValidFilmInput() {
+        return new FilmInput("Mission: Impossible", LocalDate.now(), "There is a mission.");
     }
 }

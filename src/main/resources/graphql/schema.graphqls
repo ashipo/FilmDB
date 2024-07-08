@@ -13,6 +13,7 @@ type Query {
 type Mutation {
     deleteFilm(id: Long!): Long
     createFilm(input: FilmInput!): Film
+    updateFilm(id: Long!, input: FilmInput!): Film
 }
 
 type Film {

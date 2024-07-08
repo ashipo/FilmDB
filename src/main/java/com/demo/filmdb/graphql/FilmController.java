@@ -36,4 +36,21 @@ public class FilmController {
         Film film = new Film(input.title(), input.releaseDate(), input.synopsis());
         return filmService.saveFilm(film);
     }
+
+    @MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public Film updateFilm(@Argument Long id, @Argument FilmInput input) {
+        final Film film = filmService.getFilm(id);
+        if (film == null) {
+            return null;
+        }
+        updateFilmFromInput(film, input);
+        return filmService.saveFilm(film);
+    }
+
+    private void updateFilmFromInput(Film film, FilmInput input) {
+        film.setTitle(input.title());
+        film.setReleaseDate(input.releaseDate());
+        film.setSynopsis(input.synopsis());
+    }
 }
