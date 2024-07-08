@@ -19,16 +19,15 @@ public class FilmController {
     }
 
     @QueryMapping
-    public Film filmById(@Argument String id) {
-        return filmService.getFilm(Long.parseLong(id));
+    public Film filmById(@Argument Long id) {
+        return filmService.getFilm(id);
     }
 
     @MutationMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public long deleteFilm(@Argument String id) {
-        long parsedId = Long.parseLong(id);
-        filmService.deleteFilmById(parsedId);
-        return parsedId;
+    public Long deleteFilm(@Argument Long id) {
+        filmService.deleteFilmById(id);
+        return id;
     }
 
     @MutationMapping

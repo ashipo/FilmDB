@@ -1,4 +1,4 @@
-query filmDetails($id: ID!) {
+query filmDetails($id: Long!) {
     filmById(id: $id) {
         title
         synopsis

@@ -2,27 +2,28 @@ scalar Date
   @specifiedBy(url:
     "https://tools.ietf.org/html/rfc3339"
   )
+scalar Long
 scalar NonBlankString
 
 type Query {
     login(username: String!, password: String!): String!
-    filmById(id: ID!): Film
+    filmById(id: Long!): Film
 }
 
 type Mutation {
-    deleteFilm(id: ID!): ID
+    deleteFilm(id: Long!): Long
     createFilm(input: FilmInput!): Film
 }
 
 type Film {
-    id: ID
+    id: Long
     title: String
     synopsis: String
     releaseDate: Date
 }
 
 type Person {
-    id: ID
+    id: Long
     firstName: String
     lastName: String
 }
