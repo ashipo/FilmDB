@@ -33,7 +33,8 @@ public class FilmController {
     @MutationMapping
     @PreAuthorize("hasRole('ADMIN')")
     public Film createFilm(@Argument FilmInput input) {
-        Film film = new Film(input.title(), input.releaseDate(), input.synopsis());
+        Film film = new Film();
+        updateFilmFromInput(film, input);
         return filmService.saveFilm(film);
     }
 
