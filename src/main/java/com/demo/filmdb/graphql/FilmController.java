@@ -3,6 +3,8 @@ package com.demo.filmdb.graphql;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.inputs.FilmInput;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -16,6 +18,12 @@ public class FilmController {
 
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
+    }
+
+    @QueryMapping
+    public Iterable<Film> films(@Argument int page, @Argument int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return filmService.getAllFilms(pageable);
     }
 
     @QueryMapping

@@ -8,6 +8,7 @@ scalar NonBlankString
 type Query {
     login(username: String!, password: String!): String!
     filmById(id: Long!): Film
+    films(page: Int!, pageSize: Int!): [Film]
 }
 
 type Mutation {
