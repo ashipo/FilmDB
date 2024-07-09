@@ -1,0 +1,8 @@
+query films($page: Int!, $pageSize: Int!) {
+    films(page: $page, pageSize: $pageSize) {
+        id
+        title
+        releaseDate
+        synopsis
+    }
+}

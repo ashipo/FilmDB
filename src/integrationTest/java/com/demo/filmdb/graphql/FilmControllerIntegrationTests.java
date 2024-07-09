@@ -28,6 +28,37 @@ class FilmControllerIntegrationTests {
     HttpGraphQlTester graphQlTester;
 
     @Nested
+    @DisplayName("films")
+    class Films {
+
+        @Test
+        @DisplayName("Page 0, size 20, response contains all (3) films")
+        void GetAllFilms_CorrectResponse() {
+            graphQlTester
+                    .documentName("films")
+                    .variable("page", "0")
+                    .variable("pageSize", "20")
+                    .execute()
+                    .path("films")
+                    .entityList(Film.class)
+                    .hasSize(3);
+        }
+
+        @Test
+        @DisplayName("Page 1, size 2, response contains 1 film")
+        void GetPage_CorrectResponse() {
+            graphQlTester
+                    .documentName("films")
+                    .variable("page", "1")
+                    .variable("pageSize", "2")
+                    .execute()
+                    .path("films")
+                    .entityList(Film.class)
+                    .hasSize(1);
+        }
+    }
+
+    @Nested
     @DisplayName("filmById")
     class FilmById {
 
