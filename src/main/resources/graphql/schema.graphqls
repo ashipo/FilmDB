@@ -26,8 +26,10 @@ type Film {
 
 type Person {
     id: Long
-    firstName: String
-    lastName: String
+    name: String
+    dob: Date
+    filmsDirected: [Film]
+    roles: [Role]
 }
 
 type Role {
