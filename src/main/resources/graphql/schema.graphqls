@@ -22,6 +22,8 @@ type Film {
     title: String
     synopsis: String
     releaseDate: Date
+    directors: [Person]
+    roles: [Role]
 }
 
 type Person {
