@@ -30,6 +30,12 @@ type Person {
     lastName: String
 }
 
+type Role {
+    film: Film
+    person: Person
+    character: String
+}
+
 input FilmInput {
     title: NonBlankString!
     releaseDate: Date!
