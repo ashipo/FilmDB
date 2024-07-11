@@ -109,9 +109,10 @@ public class FilmService {
      * Alias for the {@link FilmService#updateDirectors}({@code film, null}).
      *
      * @param film to delete.
+     * @return the saved entity.
      */
-    public void deleteDirectors(Film film) {
-        updateDirectors(film, null);
+    public Film deleteDirectors(Film film) {
+        return updateDirectors(film, null);
     }
 
     /**
