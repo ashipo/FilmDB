@@ -1,5 +1,6 @@
 package com.demo.filmdb.graphql.config;
 
+import com.demo.filmdb.graphql.exceptions.EntityNotFoundException;
 import com.demo.filmdb.graphql.exceptions.InvalidCredentialsException;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
@@ -12,7 +13,9 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
 
     @Override
     protected GraphQLError resolveToSingleError(Throwable ex, DataFetchingEnvironment env) {
-        if (ex instanceof InvalidCredentialsException) {
+        if (ex instanceof InvalidCredentialsException
+                || ex instanceof EntityNotFoundException
+        ) {
             return GraphQLError.newError()
                     .errorType(ErrorType.NOT_FOUND)
                     .message(ex.getMessage())

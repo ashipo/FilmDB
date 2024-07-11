@@ -15,6 +15,12 @@ type Mutation {
     deleteFilm(id: Long!): Long
     createFilm(input: FilmInput!): Film
     updateFilm(id: Long!, input: FilmInput!): Film
+    """
+    Set directors for a `Film`.
+    `directorsIds` is list of `Person.id`.
+    `directorsIds` can be omitted or be empty to remove directors.
+    """
+    updateFilmDirectors(filmId: Long!, directorsIds: [Long!]): Film
 }
 
 type Film {
