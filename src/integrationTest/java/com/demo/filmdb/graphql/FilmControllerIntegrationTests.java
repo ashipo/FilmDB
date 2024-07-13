@@ -2,6 +2,7 @@ package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.graphql.inputs.FilmInput;
+import com.demo.filmdb.person.Person;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static com.demo.filmdb.Utils.NOT_EXISTING_ID;
 import static com.demo.filmdb.Utils.ROLE_ADMIN;
@@ -23,6 +25,8 @@ import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 @AutoConfigureHttpGraphQlTester
 @DisplayName("GraphQL Film")
 class FilmControllerIntegrationTests {
+
+    private final String UPDATE_DIRECTORS = "updateFilmDirectors";
 
     @Autowired
     HttpGraphQlTester graphQlTester;
@@ -236,6 +240,61 @@ class FilmControllerIntegrationTests {
                     .documentName("updateFilm")
                     .variable("id", 1L)
                     .variable("filmInput", getValidFilmInput())
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
+        }
+    }
+
+    @Nested
+    @DisplayName(UPDATE_DIRECTORS)
+    class UpdateFilmDirectors {
+
+        @Test
+        @DisplayName("Existing IDs, correct response")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        void ExistingIds_CorrectResponse() {
+            graphQlTester
+                    .documentName(UPDATE_DIRECTORS)
+                    .variable("filmId", 1L)
+                    .variable("directorsIds", List.of(2L, 3L, 4L))
+                    .execute()
+                    .path(UPDATE_DIRECTORS + ".directors")
+                    .entityList(Person.class)
+                    .hasSize(3);
+        }
+
+        @Test
+        @DisplayName("Existing filmId, null directorsIds, directors removed")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        void NullDirectorsIds_RemovesDirectors() {
+            graphQlTester
+                    .documentName(UPDATE_DIRECTORS)
+                    .variable("filmId", 1L)
+                    .execute()
+                    .path(UPDATE_DIRECTORS + ".directors")
+                    .entityList(Person.class)
+                    .hasSize(0);
+        }
+
+        @Test
+        @DisplayName("Not existing filmId, null response")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        void NullDirectorsIds_ResponseNull() {
+            graphQlTester
+                    .documentName(UPDATE_DIRECTORS)
+                    .variable("filmId", NOT_EXISTING_ID)
+                    .execute()
+                    .path(UPDATE_DIRECTORS)
+                    .valueIsNull();
+        }
+
+        @Test
+        @DisplayName("Not authorized, response contains UNAUTHORIZED error")
+        void NotAuthorized_UnauthorizedError() {
+            graphQlTester
+                    .documentName(UPDATE_DIRECTORS)
+                    .variable("filmId", 1L)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
