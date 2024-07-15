@@ -60,6 +60,14 @@ class FilmControllerIntegrationTests {
                     .entityList(Film.class)
                     .hasSize(1);
         }
+
+        @Test
+        @DisplayName("No arguments, runs successfully")
+        void NoArguments_RunsSuccessfully() {
+            graphQlTester
+                    .documentName("films")
+                    .executeAndVerify();
+        }
     }
 
     @Nested
