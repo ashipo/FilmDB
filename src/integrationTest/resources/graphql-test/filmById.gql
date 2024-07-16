@@ -1,5 +1,6 @@
-query filmDetails($id: Long!) {
+query filmById($id: Long!) {
     filmById(id: $id) {
+        id
         title
         synopsis
         releaseDate

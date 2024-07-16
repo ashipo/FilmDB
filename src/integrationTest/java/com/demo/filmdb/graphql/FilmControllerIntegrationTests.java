@@ -78,7 +78,7 @@ class FilmControllerIntegrationTests {
         @DisplayName("Existing id, correct response")
         void ExistingId_CorrectResponse() {
             graphQlTester
-                    .documentName("filmDetails")
+                    .documentName("filmById")
                     .variable("id", "1")
                     .execute()
                     .path("filmById")
@@ -95,7 +95,7 @@ class FilmControllerIntegrationTests {
         @DisplayName("Non existing id, null response")
         void NotExistingId_ResponseNull() {
             graphQlTester
-                    .documentName("filmDetails")
+                    .documentName("filmById")
                     .variable("id", NOT_EXISTING_ID)
                     .execute()
                     .path("filmById")
