@@ -2,9 +2,8 @@ package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
+import com.demo.filmdb.graphql.exceptions.EntityNotFoundException;
 import com.demo.filmdb.graphql.inputs.FilmInput;
-import com.demo.filmdb.person.Person;
-import com.demo.filmdb.person.PersonService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,8 +25,7 @@ import java.util.Map;
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.graphql.execution.ErrorType.NOT_FOUND;
@@ -41,8 +39,6 @@ public class FilmControllerTests {
 
     @MockBean
     private FilmService filmService;
-    @MockBean
-    private PersonService personService;
 
     @Nested
     @DisplayName(FILMS)
@@ -302,52 +298,42 @@ public class FilmControllerTests {
     class UpdateDirectors {
 
         @Captor
-        ArgumentCaptor<List<Person>> peopleCaptor;
+        ArgumentCaptor<List<Long>> idsCaptor;
 
         @Test
         @DisplayName("Valid input, updates correctly")
         void ValidInput_CorrectResponse() {
-            List<Long> requestedPeopleIds = List.of(3L, 7L);
-            List<Person> foundPeople = new ArrayList<>();
-            for (Long id : requestedPeopleIds) {
-                Person person = new Person();
-                person.setId(id);
-                foundPeople.add(person);
-            }
-            given(personService.getPeople(any())).willReturn(foundPeople);
-            given(filmService.getFilm(anyLong())).willReturn(new Film());
+            Long filmId = 5L;
+            List<Long> directorsIds = List.of(3L, 7L);
 
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", 5L)
-                    .variable("directorsIds", requestedPeopleIds)
+                    .variable("filmId", filmId)
+                    .variable("directorsIds", directorsIds)
                     .executeAndVerify();
 
-            verify(filmService).updateDirectors(any(), peopleCaptor.capture());
-            assertThat(peopleCaptor.getValue().size()).isEqualTo(requestedPeopleIds.size());
+            ArgumentCaptor<Long> filmIdCaptor = ArgumentCaptor.forClass(Long.class);
+            verify(filmService).updateDirectors(filmIdCaptor.capture(), idsCaptor.capture());
+            assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
+            assertThat(idsCaptor.getValue()).isEqualTo(directorsIds);
         }
 
         @Test
-        @DisplayName("Not existing people ids, not found error")
-        void NotExistingPeopleIds_NotFoundError() {
-            List<Long> requestedPeopleIds = List.of(3L, 7L);
-            List<Person> foundPeople = new ArrayList<>();
-            Person person1 = new Person();
-            person1.setId(3L);
-            foundPeople.add(person1);
-            given(personService.getPeople(any())).willReturn(foundPeople);
-            given(filmService.getFilm(anyLong())).willReturn(new Film());
+        @DisplayName("Not existing ids, not found error")
+        void NotExistingIds_NotFoundError() {
+            given(filmService.updateDirectors(anyLong(), anyCollection()))
+                    .willThrow(new EntityNotFoundException("Msg"));
 
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
                     .variable("filmId", 5L)
-                    .variable("directorsIds", requestedPeopleIds)
+                    .variable("directorsIds", List.of(3L))
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == NOT_FOUND)
                     .verify()
-                    .path(DATA)
-                    .pathDoesNotExist();
+                    .path(UPDATE_DIRECTORS)
+                    .valueIsNull();
         }
 
         @Test

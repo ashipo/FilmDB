@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 public class Utils {
     static final String API_PREFIX = "/api";
-    public static final long NOT_EXISTING_ID = 100L;
+    public static final Long NOT_EXISTING_ID = -1L;
     public static final String ROLE_ADMIN = "ADMIN";
 
     static MockMvc configureMockMvc(WebApplicationContext wac) {
