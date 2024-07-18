@@ -3,6 +3,7 @@ package com.demo.filmdb.film;
 import com.demo.filmdb.ServiceTest;
 import com.demo.filmdb.film.specifications.FilmWithTitle;
 import com.demo.filmdb.person.Person;
+import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -13,14 +14,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("FilmService")
 class FilmServiceTests extends ServiceTest {
 
     private FilmService filmService;
@@ -28,6 +34,7 @@ class FilmServiceTests extends ServiceTest {
     @BeforeEach
     void setUp() {
         filmService = new FilmService(filmRepository, roleRepository);
+        filmService.setPersonService(personService);
     }
 
     @Test
@@ -116,25 +123,58 @@ class FilmServiceTests extends ServiceTest {
     /* Directors */
 
     @Nested
+    @DisplayName("updateDirectors")
     class UpdateDirectors {
+
         @Test
-        public void NotEmptyDirectors_SavesDirectors() {
-            final Set<Person> expectedDirectors = Set.of(
-                    new Person("Name1", LocalDate.of(1000, 2, 3))
-                    , new Person("Name2", LocalDate.of(2000, 4, 5))
-            );
+        @DisplayName("Not existing Film ID, throws EntityNotFoundException")
+        public void NotExistingFilmId_Throws() {
+            given(filmRepository.findById(anyLong()))
+                    .willThrow(EntityNotFoundException.class);
 
-            filmService.updateDirectors(new Film(), expectedDirectors);
-
-            ArgumentCaptor<Film> filmArgumentCaptor = ArgumentCaptor.forClass(Film.class);
-            verify(filmRepository).save(filmArgumentCaptor.capture());
-            Set<Person> actualDirectors = filmArgumentCaptor.getValue().getDirectors();
-            assertThat(actualDirectors).isEqualTo(expectedDirectors);
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    filmService.updateDirectors(1L, null));
         }
 
         @Test
-        public void NullDirectors_SavesEmptyDirectors() {
-            filmService.updateDirectors(new Film(), null);
+        @DisplayName("Not existing people ID, throws EntityNotFoundException")
+        public void NotExistingPeopleId_Throws() {
+            List<Long> directorsIds = List.of(1L, 2L);
+            List<Person> directors = List.of(createPerson(1L));
+            given(filmRepository.findById(anyLong())).willReturn(Optional.of(new Film()));
+            given(personService.getPeople(any())).willReturn(directors);
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    filmService.updateDirectors(1L, directorsIds));
+        }
+
+        @Test
+        @DisplayName("Non-empty directors, saves correctly")
+        public void NotEmptyDirectors_SavesCorrectly() {
+            Long filmId = 5L;
+            List<Long> directorsIds = List.of(1L, 2L);
+            List<Person> directors = new ArrayList<>();
+            for (Long id : directorsIds) {
+                directors.add(createPerson(id));
+            }
+            given(filmRepository.findById(anyLong())).willReturn(Optional.of(createFilm(filmId)));
+            given(personService.getPeople(any())).willReturn(directors);
+
+            filmService.updateDirectors(filmId, directorsIds);
+
+            ArgumentCaptor<Film> filmArgumentCaptor = ArgumentCaptor.forClass(Film.class);
+            verify(filmRepository).save(filmArgumentCaptor.capture());
+            List<Person> actualDirectors = filmArgumentCaptor.getValue().getDirectors().stream().toList();
+            assertThat(actualDirectors).isEqualTo(directors);
+            assertThat(filmArgumentCaptor.getValue().getId()).isEqualTo(filmId);
+        }
+
+        @Test
+        @DisplayName("Null directors, saves empty directors")
+        public void NullDirectors_SavesCorrectly() {
+            given(filmRepository.findById(anyLong())).willReturn(Optional.of(new Film()));
+
+            filmService.updateDirectors(1L, null);
 
             ArgumentCaptor<Film> filmArgumentCaptor = ArgumentCaptor.forClass(Film.class);
             verify(filmRepository).save(filmArgumentCaptor.capture());

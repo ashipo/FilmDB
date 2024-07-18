@@ -4,6 +4,7 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmRepository;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonRepository;
+import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.role.RoleRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,6 +19,8 @@ public abstract class ServiceTest {
     protected PersonRepository personRepository;
     @Mock
     protected RoleRepository roleRepository;
+    @Mock
+    protected PersonService personService;
 
     protected Film createFilm(long id) {
         Film result = new Film();
