@@ -5,6 +5,7 @@ import com.demo.filmdb.film.dtos.FilmDtoInput;
 import com.demo.filmdb.film.specifications.FilmWithReleaseAfter;
 import com.demo.filmdb.film.specifications.FilmWithReleaseBefore;
 import com.demo.filmdb.film.specifications.FilmWithTitle;
+import com.demo.filmdb.graphql.exceptions.EntityNotFoundException;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonModelAssembler;
 import com.demo.filmdb.person.PersonService;
@@ -188,14 +189,13 @@ public class FilmController {
             @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content),
     })
     @PutMapping("/{filmId}/directors")
-    public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorIds) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        List<Person> directors = personService.getPeople(directorIds);
-        if (directors.size() < directorIds.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, peopleNotFoundMessage());
+    public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorsIds) {
+        try {
+            Film updatedFilm = filmService.updateDirectors(filmId, directorsIds);
+            return personModelAssembler.directorsCollectionModel(updatedFilm.getDirectors(), filmId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        Film updatedFilm = filmService.updateDirectors(film, directors);
-        return personModelAssembler.directorsCollectionModel(updatedFilm.getDirectors(), filmId);
     }
 
     @Operation(summary = "Delete film directors", tags = TAG_DIRECTORS)
