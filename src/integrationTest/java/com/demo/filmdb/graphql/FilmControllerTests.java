@@ -309,9 +309,9 @@ public class FilmControllerTests {
         void ValidInput_CorrectResponse() {
             List<Long> requestedPeopleIds = List.of(3L, 7L);
             List<Person> foundPeople = new ArrayList<>();
-            for (Long l : requestedPeopleIds) {
+            for (Long id : requestedPeopleIds) {
                 Person person = new Person();
-                person.setId(l);
+                person.setId(id);
                 foundPeople.add(person);
             }
             given(personService.getPeople(any())).willReturn(foundPeople);
@@ -328,7 +328,7 @@ public class FilmControllerTests {
         }
 
         @Test
-        @DisplayName("Not exising people ids, not found error")
+        @DisplayName("Not existing people ids, not found error")
         void NotExistingPeopleIds_NotFoundError() {
             List<Long> requestedPeopleIds = List.of(3L, 7L);
             List<Person> foundPeople = new ArrayList<>();
