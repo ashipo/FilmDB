@@ -1,6 +1,6 @@
 package com.demo.filmdb.graphql.config;
 
-import com.demo.filmdb.graphql.exceptions.EntityNotFoundException;
+import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.graphql.exceptions.InvalidCredentialsException;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;

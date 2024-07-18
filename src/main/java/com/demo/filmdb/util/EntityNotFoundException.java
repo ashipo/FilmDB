@@ -1,4 +1,4 @@
-package com.demo.filmdb.graphql.exceptions;
+package com.demo.filmdb.util;
 
 public class EntityNotFoundException extends RuntimeException {
 

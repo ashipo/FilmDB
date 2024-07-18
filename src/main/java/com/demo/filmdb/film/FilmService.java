@@ -1,6 +1,6 @@
 package com.demo.filmdb.film;
 
-import com.demo.filmdb.graphql.exceptions.EntityNotFoundException;
+import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.role.RoleRepository;

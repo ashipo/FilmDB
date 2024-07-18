@@ -2,7 +2,7 @@ package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
-import com.demo.filmdb.graphql.exceptions.EntityNotFoundException;
+import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.graphql.inputs.FilmInput;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

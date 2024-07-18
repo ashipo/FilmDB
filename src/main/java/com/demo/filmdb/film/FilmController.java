@@ -5,7 +5,7 @@ import com.demo.filmdb.film.dtos.FilmDtoInput;
 import com.demo.filmdb.film.specifications.FilmWithReleaseAfter;
 import com.demo.filmdb.film.specifications.FilmWithReleaseBefore;
 import com.demo.filmdb.film.specifications.FilmWithTitle;
-import com.demo.filmdb.graphql.exceptions.EntityNotFoundException;
+import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonModelAssembler;
 import com.demo.filmdb.person.PersonService;
