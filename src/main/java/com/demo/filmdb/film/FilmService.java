@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.demo.filmdb.util.RestUtil.filmNotFoundMessage;
+import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
 
 @Service
 public class FilmService {

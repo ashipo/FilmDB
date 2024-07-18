@@ -32,7 +32,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 
 import static com.demo.filmdb.util.HttpUtil.require;
-import static com.demo.filmdb.util.RestUtil.personNotFoundMessage;
+import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.PEOPLE;
 import static com.demo.filmdb.utils.SpringDocConfig.*;

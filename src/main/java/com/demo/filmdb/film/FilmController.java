@@ -38,7 +38,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static com.demo.filmdb.util.HttpUtil.require;
-import static com.demo.filmdb.util.RestUtil.*;
+import static com.demo.filmdb.util.ErrorUtil.*;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.FILM;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
