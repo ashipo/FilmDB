@@ -1,10 +1,11 @@
 package com.demo.filmdb.film;
 
-import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.role.RoleRepository;
+import com.demo.filmdb.util.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,7 +26,6 @@ import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
 @Service
 public class FilmService {
 
-    @Autowired
     private PersonService personService;
 
     private final FilmRepository filmRepository;
@@ -35,6 +35,11 @@ public class FilmService {
     public FilmService(FilmRepository filmRepository, RoleRepository roleRepository) {
         this.filmRepository = filmRepository;
         this.roleRepository = roleRepository;
+    }
+
+    @Autowired
+    public void setPersonService(@Lazy PersonService personService) {
+        this.personService = personService;
     }
 
     /**
