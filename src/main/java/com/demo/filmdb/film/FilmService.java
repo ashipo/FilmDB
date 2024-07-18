@@ -1,20 +1,32 @@
 package com.demo.filmdb.film;
 
+import com.demo.filmdb.graphql.exceptions.EntityNotFoundException;
 import com.demo.filmdb.person.Person;
+import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.role.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static com.demo.filmdb.util.RestUtil.filmNotFoundMessage;
 
 @Service
 public class FilmService {
+
+    @Autowired
+    private PersonService personService;
 
     private final FilmRepository filmRepository;
     private final RoleRepository roleRepository;
@@ -105,6 +117,26 @@ public class FilmService {
         return saveFilm(film);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    public Film updateDirectors(Long filmId, @Nullable Collection<Long> directorsIds) throws EntityNotFoundException {
+        Film film = getFilm(filmId);
+        if (film == null) {
+            throw new EntityNotFoundException(filmNotFoundMessage(filmId));
+        }
+        if (directorsIds == null || directorsIds.isEmpty()) {
+            film.getDirectors().clear();
+            return saveFilm(film);
+        }
+
+        List<Person> directors = personService.getPeople(directorsIds);
+        if (directors.size() != directorsIds.size()) {
+            List<Long> notFoundIds = notFoundIds(directorsIds, directors);
+            throw new EntityNotFoundException("Could not find people with ids " + notFoundIds);
+        }
+        film.setDirectors(new HashSet<>(directors));
+        return saveFilm(film);
+    }
+
     /**
      * Alias for the {@link FilmService#updateDirectors}({@code film, null}).
      *
@@ -122,5 +154,10 @@ public class FilmService {
      */
     public void deleteCast(Long filmId) {
         roleRepository.deleteById_FilmId(filmId);
+    }
+
+    private List<Long> notFoundIds(Collection<Long> requestedIds, Collection<Person> foundPeople) {
+        Set<Long> existingIds = foundPeople.stream().map(Person::getId).collect(Collectors.toSet());
+        return requestedIds.stream().filter(Predicate.not(existingIds::contains)).toList();
     }
 }
