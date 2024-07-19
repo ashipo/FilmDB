@@ -36,7 +36,6 @@ public class FilmController {
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public Long deleteFilm(@Argument Long id) {
         filmService.deleteFilmById(id);
         return id;
