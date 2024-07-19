@@ -42,7 +42,6 @@ public class FilmController {
     }
 
     @MutationMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public Film createFilm(@Argument FilmInput input) {
         Film film = new Film();
         updateFilmFromInput(film, input);

@@ -69,6 +69,7 @@ public class FilmService {
      * @param film must not be {@code null}.
      * @return the saved entity.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     public Film saveFilm(Film film) {
         return filmRepository.save(film);
     }
