@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,8 +18,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -107,16 +108,18 @@ class FilmServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("deleteFilmById")
     class DeleteFilmById {
+
         @Test
-        @DisplayName("Deletes existing film")
+        @DisplayName("Deletes correctly")
         void ExistingId_DeletesFilm() {
-            final long expected = 1L;
+            final Long expectedId = 1L;
 
-            filmService.deleteFilmById(expected);
+            filmService.deleteFilmById(expectedId);
 
-            verify(filmRepository).deleteById(expected);
-            verify(roleRepository).deleteById_FilmId(expected);
+            verify(filmRepository).deleteById(expectedId);
+            verify(roleRepository).deleteById_FilmId(expectedId);
         }
     }
 
@@ -126,8 +129,11 @@ class FilmServiceTests extends ServiceTest {
     @DisplayName("updateDirectors")
     class UpdateDirectors {
 
+        @Captor
+        ArgumentCaptor<Film> filmCaptor;
+
         @Test
-        @DisplayName("Not existing Film ID, throws EntityNotFoundException")
+        @DisplayName("Not existing film id, throws EntityNotFoundException")
         public void NotExistingFilmId_Throws() {
             given(filmRepository.findById(anyLong()))
                     .willThrow(EntityNotFoundException.class);
@@ -137,7 +143,7 @@ class FilmServiceTests extends ServiceTest {
         }
 
         @Test
-        @DisplayName("Not existing people ID, throws EntityNotFoundException")
+        @DisplayName("Not existing people ids, throws EntityNotFoundException")
         public void NotExistingPeopleId_Throws() {
             List<Long> directorsIds = List.of(1L, 2L);
             List<Person> directors = List.of(createPerson(1L));
@@ -149,8 +155,8 @@ class FilmServiceTests extends ServiceTest {
         }
 
         @Test
-        @DisplayName("Non-empty directors, saves correctly")
-        public void NotEmptyDirectors_SavesCorrectly() {
+        @DisplayName("Existing ids, saves correctly")
+        public void ExistingIds_SavesCorrectly() {
             Long filmId = 5L;
             List<Long> directorsIds = List.of(1L, 2L);
             List<Person> directors = new ArrayList<>();
@@ -162,11 +168,9 @@ class FilmServiceTests extends ServiceTest {
 
             filmService.updateDirectors(filmId, directorsIds);
 
-            ArgumentCaptor<Film> filmArgumentCaptor = ArgumentCaptor.forClass(Film.class);
-            verify(filmRepository).save(filmArgumentCaptor.capture());
-            List<Person> actualDirectors = filmArgumentCaptor.getValue().getDirectors().stream().toList();
-            assertThat(actualDirectors).isEqualTo(directors);
-            assertThat(filmArgumentCaptor.getValue().getId()).isEqualTo(filmId);
+            verify(filmRepository).save(filmCaptor.capture());
+            assertThat(filmCaptor.getValue().getId()).isEqualTo(filmId);
+            assertThatCollection(filmCaptor.getValue().getDirectors()).containsExactlyElementsOf(directors);
         }
 
         @Test
@@ -176,21 +180,36 @@ class FilmServiceTests extends ServiceTest {
 
             filmService.updateDirectors(1L, null);
 
-            ArgumentCaptor<Film> filmArgumentCaptor = ArgumentCaptor.forClass(Film.class);
-            verify(filmRepository).save(filmArgumentCaptor.capture());
-            Set<Person> actualDirectors = filmArgumentCaptor.getValue().getDirectors();
-            assertThat(actualDirectors.isEmpty()).isTrue();
+            verify(filmRepository).save(filmCaptor.capture());
+            assertThatCollection(filmCaptor.getValue().getDirectors()).isEmpty();
         }
     }
 
-    @Test
-    public void deleteDirectors_ExistingId_SavesEmptyDirectors() {
-        filmService.deleteDirectors(new Film());
+    @Nested
+    @DisplayName("deleteDirectors")
+    class DeleteDirectors {
 
-        ArgumentCaptor<Film> filmArgumentCaptor = ArgumentCaptor.forClass(Film.class);
-        verify(filmRepository).save(filmArgumentCaptor.capture());
-        Set<Person> actualDirectors = filmArgumentCaptor.getValue().getDirectors();
-        assertThat(actualDirectors.isEmpty()).isTrue();
+        @Test
+        @DisplayName("Existing id, saves empty directors")
+        public void ExistingId_SavesEmptyDirectors(@Captor ArgumentCaptor<Film> filmCaptor) {
+            given(filmRepository.findById(anyLong()))
+                    .willReturn(Optional.of(new Film()));
+
+            filmService.deleteDirectors(1L);
+
+            verify(filmRepository).save(filmCaptor.capture());
+            assertThatCollection(filmCaptor.getValue().getDirectors()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Not existing id, throws EntityNotFoundException")
+        public void NotExistingId_Throws() {
+            given(filmRepository.findById(anyLong()))
+                    .willThrow(EntityNotFoundException.class);
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    filmService.deleteDirectors(1L));
+        }
     }
 
     /* Cast */
