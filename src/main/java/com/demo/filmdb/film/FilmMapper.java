@@ -15,6 +15,6 @@ public interface FilmMapper {
 
     Film filmDtoInputToFilm(FilmDtoInput filmDtoInput);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     Film updateFilmFromFilmDtoInput(FilmDtoInput filmDtoInput, @MappingTarget Film film);
 }
