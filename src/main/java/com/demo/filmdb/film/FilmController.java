@@ -206,9 +206,12 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/directors")
     public ResponseEntity<?> deleteDirectors(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        filmService.deleteDirectors(film);
-        return ResponseEntity.noContent().build();
+        try {
+            filmService.deleteDirectors(filmId);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     /* Cast */
