@@ -5,7 +5,6 @@ import com.demo.filmdb.film.dtos.FilmDtoInput;
 import com.demo.filmdb.film.specifications.FilmWithReleaseAfter;
 import com.demo.filmdb.film.specifications.FilmWithReleaseBefore;
 import com.demo.filmdb.film.specifications.FilmWithTitle;
-import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonModelAssembler;
 import com.demo.filmdb.person.PersonService;
@@ -15,6 +14,7 @@ import com.demo.filmdb.role.dtos.FilmRoleDto;
 import com.demo.filmdb.role.dtos.FilmRoleDtoInput;
 import com.demo.filmdb.role.dtos.RoleDto;
 import com.demo.filmdb.role.dtos.RoleDtoInput;
+import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.utils.SortUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,8 +37,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.*;
 
-import static com.demo.filmdb.util.HttpUtil.require;
 import static com.demo.filmdb.util.ErrorUtil.*;
+import static com.demo.filmdb.util.HttpUtil.require;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.FILM;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
@@ -161,8 +161,8 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}")
     public ResponseEntity<?> deleteFilm(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        filmService.deleteFilm(film);
+        require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        filmService.deleteFilmById(filmId);
         return ResponseEntity.noContent().build();
     }
 
