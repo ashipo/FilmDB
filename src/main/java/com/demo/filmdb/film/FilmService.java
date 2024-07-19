@@ -84,17 +84,6 @@ public class FilmService {
     }
 
     /**
-     * Deletes the given {@link Film} entity.
-     *
-     * @param film to delete.
-     */
-    @Transactional
-    public void deleteFilm(Film film) {
-        roleRepository.deleteById_FilmId(film.getId());
-        filmRepository.delete(film);
-    }
-
-    /**
      * Deletes a {@link Film} entity with the given id.
      *
      * @param filmId id.
