@@ -106,22 +106,14 @@ public class FilmService {
     }
 
     /**
-     * Replaces directors for the given {@link Film} entity.
+     * Replaces directors for the {@link Film} with the given {@code filmId}
      *
-     * @param film to replace directors in.
-     * @param directors a collection of {@link Person} entities to set as directors for the {@code film}.
-     *                  Set to {@code null} to remove all directors.
-     * @return the saved entity.
+     * @param filmId id of the film
+     * @param directorsIds ids of the {@link Person} entities to set as directors for the film.
+     *                     Set to {@code null} to remove all directors.
+     * @return the updated entity
+     * @throws EntityNotFoundException if film or any of the directors could not be found
      */
-    public Film updateDirectors(Film film, @Nullable Collection<Person> directors) {
-        if (directors == null) {
-            film.getDirectors().clear();
-        } else {
-            film.setDirectors(new HashSet<>(directors));
-        }
-        return saveFilm(film);
-    }
-
     @PreAuthorize("hasRole('ADMIN')")
     public Film updateDirectors(Long filmId, @Nullable Collection<Long> directorsIds) throws EntityNotFoundException {
         Film film = getFilm(filmId);
@@ -143,24 +135,15 @@ public class FilmService {
     }
 
     /**
-     * Alias for the {@link FilmService#updateDirectors}({@code film, null}).
+     * Removes all directors for the {@link Film} with the given {@code filmId}.
+     * Same as {@link FilmService#updateDirectors}({@code filmId, null}).
      *
-     * @param film to delete.
-     * @return the saved entity.
-     */
-    public Film deleteDirectors(Film film) {
-        return updateDirectors(film, null);
-    }
-
-    /**
-     * Alias for the {@link FilmService#updateDirectors}({@code filmId, null}).
-     *
-     * @param filmId id of the film to delete directors for.
-     * @return the updated entity.
+     * @param filmId id of the film
+     * @throws EntityNotFoundException if film could not be found
      */
     @PreAuthorize("hasRole('ADMIN')")
-    public Film deleteDirectors(Long filmId) {
-        return updateDirectors(filmId, null);
+    public void deleteDirectors(Long filmId) throws EntityNotFoundException {
+        updateDirectors(filmId, null);
     }
 
     /**
