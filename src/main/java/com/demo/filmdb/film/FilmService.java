@@ -153,6 +153,17 @@ public class FilmService {
     }
 
     /**
+     * Alias for the {@link FilmService#updateDirectors}({@code filmId, null}).
+     *
+     * @param filmId id of the film to delete directors for.
+     * @return the updated entity.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Film deleteDirectors(Long filmId) {
+        return updateDirectors(filmId, null);
+    }
+
+    /**
      * Deletes all roles for a {@link Film} with the given {@code filmId}.
      *
      * @param filmId must not be {@code null}.
