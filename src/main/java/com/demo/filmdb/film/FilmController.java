@@ -147,10 +147,14 @@ public class FilmController {
     })
     @PutMapping("/{filmId}")
     public FilmDto updateFilm(@PathVariable Long filmId, @Valid @RequestBody FilmDtoInput filmDtoInput) {
-        Film filmToUpdate = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Film updatedFilm = filmMapper.updateFilmFromFilmDtoInput(filmDtoInput, filmToUpdate);
-        Film savedFilm = filmService.saveFilm(updatedFilm);
-        return filmModelAssembler.toModel(savedFilm);
+        try {
+            Film film = filmMapper.updateFilmFromFilmDtoInput(filmDtoInput, new Film());
+            film.setId(filmId);
+            Film updatedFilm = filmService.updateFilm(film);
+            return filmModelAssembler.toModel(updatedFilm);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Delete a film", tags = TAG_FILMS)
