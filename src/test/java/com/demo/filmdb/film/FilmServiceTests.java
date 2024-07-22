@@ -100,7 +100,6 @@ class FilmServiceTests extends ServiceTest {
         @Test
         @DisplayName("Existing id, saves")
         void ExistingId_Saves() {
-            final long expectedFilmId = 1L;
             given(filmRepository.existsById(anyLong())).willReturn(true);
             when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
             Film expected = createFilm();
@@ -149,8 +148,7 @@ class FilmServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing film id, throws EntityNotFoundException")
         public void NotExistingFilmId_Throws() {
-            given(filmRepository.findById(anyLong()))
-                    .willThrow(EntityNotFoundException.class);
+            given(filmRepository.findById(anyLong())).willReturn(Optional.empty());
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                     filmService.updateDirectors(1L, null)
