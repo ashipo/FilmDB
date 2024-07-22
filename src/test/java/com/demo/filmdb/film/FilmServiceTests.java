@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("FilmService")
 class FilmServiceTests extends ServiceTest {
@@ -92,6 +94,34 @@ class FilmServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("updateFilm")
+    class UpdateFilm {
+
+        @Test
+        @DisplayName("Existing id, saves")
+        void ExistingId_Saves() {
+            final long expectedFilmId = 1L;
+            given(filmRepository.existsById(anyLong())).willReturn(true);
+            when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
+            Film expected = createFilm();
+
+            Film actual = filmService.updateFilm(expected);
+
+            assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        }
+
+        @Test
+        @DisplayName("Not existing id, throws EntityNotFoundException")
+        void NotExistingId_Saves() {
+            given(filmRepository.existsById(anyLong())).willReturn(false);
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    filmService.updateFilm(createFilm())
+            );
+        }
+    }
+
+    @Nested
     @DisplayName("deleteFilmById")
     class DeleteFilmById {
 
@@ -123,7 +153,8 @@ class FilmServiceTests extends ServiceTest {
                     .willThrow(EntityNotFoundException.class);
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
-                    filmService.updateDirectors(1L, null));
+                    filmService.updateDirectors(1L, null)
+            );
         }
 
         @Test
