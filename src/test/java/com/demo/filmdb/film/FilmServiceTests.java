@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +40,7 @@ class FilmServiceTests extends ServiceTest {
     }
 
     @Test
+    @DisplayName("search - finds")
     void search_ValidArguments_Finds() {
         Specification<Film> expectedSpec = Specification.where(new FilmWithTitle("title"));
         Pageable expectedPageable = PageRequest.of(1, 5);
@@ -51,7 +51,8 @@ class FilmServiceTests extends ServiceTest {
     }
 
     @Test
-    void getAllFilms_ReturnsFilms() {
+    @DisplayName("getAllFilms - finds")
+    void getAllFilms_Finds() {
         final Pageable expectedPageable = Pageable.unpaged();
 
         filmService.getAllFilms(expectedPageable);
@@ -60,30 +61,36 @@ class FilmServiceTests extends ServiceTest {
     }
 
     @Test
+    @DisplayName("saveFilm - saves and returns the saved Entity")
     void saveFilm_ValidFilm_SavesFilm() {
-        Film expectedFilm = new Film("Shining", LocalDate.of(1980, 5, 23),
-                "A family heads to an isolated hotel.");
+        Film expected = createFilm();
+        when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
 
-        filmService.saveFilm(expectedFilm);
+        Film actual = filmService.saveFilm(expected);
 
-        verify(filmRepository).save(expectedFilm);
+        verify(filmRepository).save(expected);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Nested
+    @DisplayName("getFilm")
     class GetFilm {
+
         @Test
-        @DisplayName("Gets existing film by id")
+        @DisplayName("Existing id, finds and returns the found Entity")
         void ExistingId_ReturnsFilm() {
             final long expectedFilmId = 9L;
-            given(filmRepository.findById(anyLong())).willReturn(Optional.of(new Film()));
+            given(filmRepository.findById(expectedFilmId)).willReturn(Optional.of(createFilm(expectedFilmId)));
 
-            filmService.getFilm(expectedFilmId);
+            Film actual = filmService.getFilm(expectedFilmId);
 
             verify(filmRepository).findById(expectedFilmId);
+            assert actual != null;
+            assertThat(actual.getId()).isEqualTo(expectedFilmId);
         }
 
         @Test
-        @DisplayName("Given not existing id returns null")
+        @DisplayName("Not existing id, returns null")
         void NotExistingId_ReturnsNull() {
             given(filmRepository.findById(anyLong())).willReturn(Optional.empty());
 
