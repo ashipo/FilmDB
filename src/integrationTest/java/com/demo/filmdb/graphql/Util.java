@@ -3,6 +3,7 @@ package com.demo.filmdb.graphql;
 import com.demo.filmdb.graphql.inputs.FilmInput;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 class Util {
@@ -20,10 +21,10 @@ class Util {
     }
 
     static Map<String, Object> getFilmInputMap(FilmInput input) {
-        return Map.of(
-                "title", input.title(),
-                "releaseDate", input.releaseDate(),
-                "synopsis", input.synopsis()
-        );
+        return new HashMap<>() {{
+            put("title", input.title());
+            put("releaseDate", input.releaseDate());
+            put("synopsis", input.synopsis());
+        }};
     }
 }
