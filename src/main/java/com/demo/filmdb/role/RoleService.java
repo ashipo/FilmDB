@@ -1,8 +1,14 @@
 package com.demo.filmdb.role;
 
 import com.demo.filmdb.film.Film;
+import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.person.Person;
+import com.demo.filmdb.person.PersonService;
+import com.demo.filmdb.util.EntityAlreadyExistsException;
+import com.demo.filmdb.util.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,13 +17,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
+import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
+
 @Service
 public class RoleService {
+
+    private PersonService personService;
+    private FilmService filmService;
 
     private final RoleRepository roleRepository;
 
     public RoleService(RoleRepository repository) {
         this.roleRepository = repository;
+    }
+
+    @Autowired
+    public void setServices(PersonService personService, FilmService filmService) {
+        this.personService = personService;
+        this.filmService = filmService;
     }
 
     /**
@@ -29,6 +47,32 @@ public class RoleService {
      * @return the created entity.
      */
     public Role createRole(Film film, Person person, String character) {
+        return saveRole(new Role(film, person, character));
+    }
+
+    /**
+     * Creates a {@link Role}
+     *
+     * @param filmId role {@link Film} id
+     * @param personId role {@link Person} id
+     * @param character name or description of the character or characters. Must not be empty.
+     * @return the created entity
+     * @throws EntityNotFoundException if film or person could not be found
+     * @throws EntityAlreadyExistsException if role for the given film and person already exists
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Role createRole(Long filmId, Long personId, String character) throws EntityNotFoundException, EntityAlreadyExistsException {
+        Film film = filmService.getFilm(filmId);
+        if (film == null) {
+            throw new EntityNotFoundException(filmNotFoundMessage(filmId));
+        }
+        Person person = personService.getPerson(personId);
+        if (person == null) {
+            throw new EntityNotFoundException(personNotFoundMessage(personId));
+        }
+        if (roleExists(filmId, personId)) {
+            throw new EntityAlreadyExistsException("Role for filmId " + filmId + " and personId " + personId + " already exists.");
+        }
         return saveRole(new Role(film, person, character));
     }
 
