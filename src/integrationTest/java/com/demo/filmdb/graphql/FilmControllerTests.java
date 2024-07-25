@@ -373,9 +373,9 @@ public class FilmControllerTests {
     }
 
     private static Stream<Arguments> validFilmInputs() {
-        final String title = "Title";
+        final String title = "Forrest Gump";
         final LocalDate date = LocalDate.now();
-        final String synopsis = "Damn";
+        final String synopsis = "Life was like a box of chocolates";
         return Stream.of(
                 arguments(named("All fields", new FilmInput(title, date, synopsis))),
                 arguments(named("Null synopsis", new FilmInput(title, date, null)))
@@ -383,9 +383,9 @@ public class FilmControllerTests {
     }
 
     private static Stream<Arguments> invalidFilmInputs() {
-        final String title = "Title";
+        final String title = "Alien";
         final LocalDate date = LocalDate.now();
-        final String synopsis = "Damn";
+        final String synopsis = "In space, no can hear you scream";
         return Stream.of(
                 arguments(named("Null title", new FilmInput(null, date, synopsis))),
                 arguments(named("Null release date", new FilmInput(title, null, synopsis))),
