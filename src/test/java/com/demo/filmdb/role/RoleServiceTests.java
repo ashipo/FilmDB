@@ -3,20 +3,26 @@ package com.demo.filmdb.role;
 import com.demo.filmdb.ServiceTest;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.person.Person;
+import com.demo.filmdb.util.EntityAlreadyExistsException;
+import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RoleServiceTests extends ServiceTest {
 
@@ -25,6 +31,7 @@ public class RoleServiceTests extends ServiceTest {
     @BeforeEach
     void setUp() {
         roleService = new RoleService(roleRepository);
+        roleService.setServices(personService, filmService);
     }
 
     @Nested
@@ -92,6 +99,57 @@ public class RoleServiceTests extends ServiceTest {
             assertThat(actualRole.getFilm().getId()).as("Film id").isEqualTo(expectedFilmId);
             assertThat(actualRole.getPerson().getId()).as("Person id").isEqualTo(expectedPersonId);
             assertThat(actualRole.getCharacter()).as("Character").isEqualTo(expectedCharacter);
+        }
+
+        @Test
+        @DisplayName("Valid role, saves")
+        void ValidRole_Saves() {
+            Long expectedFilmId = 2L;
+            Long expectedPersonId = 3L;
+            String expectedCharacter = "butler";
+            given(filmService.getFilm(anyLong())).willReturn(createFilm(expectedFilmId));
+            given(personService.getPerson(anyLong())).willReturn(createPerson(expectedPersonId));
+            given(roleRepository.findById(any())).willReturn(Optional.empty());
+            when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
+
+            Role actual = roleService.createRole(expectedFilmId, expectedPersonId, expectedCharacter);
+
+            assertThat(actual.getFilm().getId()).as("Film id").isEqualTo(expectedFilmId);
+            assertThat(actual.getPerson().getId()).as("Person id").isEqualTo(expectedPersonId);
+            assertThat(actual.getCharacter()).as("Character").isEqualTo(expectedCharacter);
+        }
+
+        @Test
+        @DisplayName("Not existing film id, throws EntityNotFoundException")
+        void NotExistingFilmId_Throws() {
+            given(filmService.getFilm(anyLong())).willReturn(null);
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    roleService.createRole(1L, 1L, "Char")
+            );
+        }
+
+        @Test
+        @DisplayName("Not existing person id, throws EntityNotFoundException")
+        void NotExistingPersonId_Throws() {
+            given(filmService.getFilm(anyLong())).willReturn(new Film());
+            given(personService.getPerson(anyLong())).willReturn(null);
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    roleService.createRole(1L, 1L, "Char")
+            );
+        }
+
+        @Test
+        @DisplayName("Existing role, throws EntityAlreadyExistsException")
+        void ExistingRole_Throws() {
+            given(filmService.getFilm(anyLong())).willReturn(new Film());
+            given(personService.getPerson(anyLong())).willReturn(new Person());
+            given(roleRepository.findById(any())).willReturn(Optional.of(new Role()));
+
+            assertThatExceptionOfType(EntityAlreadyExistsException.class).isThrownBy(() ->
+                    roleService.createRole(1L, 1L, "Char")
+            );
         }
     }
 

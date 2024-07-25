@@ -2,6 +2,7 @@ package com.demo.filmdb;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmRepository;
+import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonRepository;
 import com.demo.filmdb.person.PersonService;
@@ -23,6 +24,8 @@ public abstract class ServiceTest {
     protected RoleRepository roleRepository;
     @Mock
     protected PersonService personService;
+    @Mock
+    protected FilmService filmService;
 
     private Film createFilmWithoutId() {
         return new Film("Shining", LocalDate.of(1980, 5, 23), "A family heads to an isolated hotel.");
