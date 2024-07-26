@@ -65,11 +65,11 @@ public class RoleService {
     }
 
     /**
-     * Returns a {@link Role} entity with the given ids or {@code null} if it doesn't exist.
+     * Returns a {@link Role} entity with the given ids or {@code null} if it doesn't exist
      *
-     * @param filmId must not be {@code null}.
-     * @param personId must not be {@code null}.
-     * @return the found entity.
+     * @param filmId must not be {@code null}
+     * @param personId must not be {@code null}
+     * @return the found entity
      */
     public @Nullable Role getRole(Long filmId, Long personId) {
         return roleRepository.findByIds(filmId, personId).orElse(null);

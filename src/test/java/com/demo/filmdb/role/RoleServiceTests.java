@@ -35,17 +35,21 @@ public class RoleServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("getRole")
     class GetRole {
+
         @Test
         @DisplayName("Given existing ids, finds")
         void ExistingIds_Finds() {
-            final long expectedFilmId = 11L;
-            final long expectedPersonId = 11L;
-            given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(new Role()));
+            final Long expectedFilmId = 11L;
+            final Long expectedPersonId = 11L;
+            final Role expectedRole = new Role();
+            given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(expectedRole));
 
-            roleService.getRole(expectedFilmId, expectedPersonId);
+            Role actual = roleService.getRole(expectedFilmId, expectedPersonId);
 
             verify(roleRepository).findByIds(expectedFilmId, expectedPersonId);
+            assertThat(actual).isEqualTo(expectedRole);
         }
 
         @Test
