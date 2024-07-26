@@ -14,6 +14,7 @@ import com.demo.filmdb.role.dtos.FilmRoleDto;
 import com.demo.filmdb.role.dtos.FilmRoleDtoInput;
 import com.demo.filmdb.role.dtos.RoleDto;
 import com.demo.filmdb.role.dtos.RoleDtoInput;
+import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.utils.SortUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -278,20 +279,17 @@ public class FilmController {
     })
     @PostMapping("/{filmId}/cast")
     public ResponseEntity<RoleDto> createRole(@PathVariable Long filmId, @RequestBody @Valid FilmRoleDtoInput roleDto) {
-        final Long personId = roleDto.personId();
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
-        if (roleService.roleExists(filmId, personId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Role for film " + filmId + " and person " + personId + " already exists."
-            );
+        try {
+            Role createdRole = roleService.createRole(filmId, roleDto.personId(), roleDto.character());
+            RoleDto createdRoleDto = roleModelAssembler.toModel(createdRole);
+            return ResponseEntity
+                    .created(createdRoleDto.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                    .body(createdRoleDto);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (EntityAlreadyExistsException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
-        Role createdRole = roleService.createRole(film, person, roleDto.character());
-        RoleDto createdRoleDto = roleModelAssembler.toModel(createdRole);
-        return ResponseEntity
-                .created(createdRoleDto.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(createdRoleDto);
     }
 
     @Operation(summary = "Get a role", tags = TAG_ROLES)
