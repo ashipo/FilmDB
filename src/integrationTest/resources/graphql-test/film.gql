@@ -1,5 +1,5 @@
-query filmById($id: Long!) {
-    filmById(id: $id) {
+query film($id: Long!) {
+    film(id: $id) {
         id
         title
         synopsis

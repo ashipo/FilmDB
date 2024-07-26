@@ -40,14 +40,14 @@ public class FilmControllerSecurityTests {
     }
 
     @Nested
-    @DisplayName(FILM_BY_ID)
-    class FilmById {
+    @DisplayName(GET_FILM)
+    class GetFilm {
 
         @Test
         @DisplayName("Not authenticated, authorized")
         void NotAuthenticated_Authorized() {
             graphQlTester
-                    .documentName(FILM_BY_ID)
+                    .documentName(GET_FILM)
                     .variable("id", 1)
                     .executeAndVerify();
         }

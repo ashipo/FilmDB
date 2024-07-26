@@ -115,8 +115,8 @@ public class FilmControllerTests {
     }
 
     @Nested
-    @DisplayName(FILM_BY_ID)
-    class FilmById {
+    @DisplayName(GET_FILM)
+    class GetFilm {
 
         @Test
         @DisplayName("Existing id, correct response")
@@ -127,10 +127,10 @@ public class FilmControllerTests {
             given(filmService.getFilm(anyLong())).willReturn(expectedFilm);
 
             graphQlTester
-                    .documentName(FILM_BY_ID)
+                    .documentName(GET_FILM)
                     .variable("id", id)
                     .execute()
-                    .path(FILM_BY_ID)
+                    .path(GET_FILM)
                     .entity(Film.class)
                     .matches(film -> film.getId().equals(id))
                     .matches(film -> film.getTitle().equals(expectedFilm.getTitle()))
@@ -144,10 +144,10 @@ public class FilmControllerTests {
             given(filmService.getFilm(anyLong())).willReturn(null);
 
             graphQlTester
-                    .documentName(FILM_BY_ID)
+                    .documentName(GET_FILM)
                     .variable("id", 1)
                     .execute()
-                    .path(FILM_BY_ID)
+                    .path(GET_FILM)
                     .valueIsNull();
         }
 
@@ -157,7 +157,7 @@ public class FilmControllerTests {
             given(filmService.getFilm(anyLong())).willReturn(new Film());
 
             graphQlTester
-                    .documentName(FILM_BY_ID)
+                    .documentName(GET_FILM)
                     .variable("id", "Invalid ID")
                     .execute()
                     .errors()

@@ -16,7 +16,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class Util {
     // documents
     static final String FILMS = "films";
-    static final String FILM_BY_ID = "filmById";
+    static final String GET_FILM = "film";
     static final String DELETE_FILM = "deleteFilm";
     static final String CREATE_FILM = "createFilm";
     static final String UPDATE_FILM = "updateFilm";

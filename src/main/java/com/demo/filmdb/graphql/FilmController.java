@@ -30,7 +30,7 @@ public class FilmController {
     }
 
     @QueryMapping
-    public Film filmById(@Argument Long id) {
+    public Film film(@Argument Long id) {
         return filmService.getFilm(id);
     }
 
