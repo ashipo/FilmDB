@@ -9,12 +9,15 @@ type Query {
     login(username: String!, password: String!): String!
     filmById(id: Long!): Film
     films(page: Int = 0, pageSize: Int = 10): [Film]
+
+    "Get a `Role`"
+    role(id: CrewMemberID!): Role
 }
 
 type Mutation {
-    deleteFilm(id: Long!): Long
     createFilm(input: FilmInput!): Film
     updateFilm(id: Long!, input: FilmInput!): Film
+    deleteFilm(id: Long!): Long
 
     """
     Set directors for a `Film`.
@@ -54,6 +57,12 @@ input FilmInput {
     title: NonBlankString!
     releaseDate: Date!
     synopsis: String
+}
+
+"Cast and crew member ID"
+input CrewMemberID {
+    filmId: Long!
+    personId: Long!
 }
 
 input RoleInput {

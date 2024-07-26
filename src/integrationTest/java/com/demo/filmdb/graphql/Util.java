@@ -3,12 +3,18 @@ package com.demo.filmdb.graphql;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.graphql.inputs.FilmInput;
 import com.demo.filmdb.person.Person;
+import com.demo.filmdb.role.Role;
+import org.junit.jupiter.params.provider.Arguments;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class Util {
+    // documents
     static final String FILMS = "films";
     static final String FILM_BY_ID = "filmById";
     static final String DELETE_FILM = "deleteFilm";
@@ -16,6 +22,11 @@ class Util {
     static final String UPDATE_FILM = "updateFilm";
     static final String UPDATE_DIRECTORS = "updateFilmDirectors";
     static final String CREATE_ROLE = "createRole";
+    static final String GET_ROLE = "role";
+    // variables
+    static final String FILM_ID = "filmId";
+    static final String PERSON_ID = "personId";
+    static final String CHARACTER = "character";
 
     public static final String DATA = "data";
 
@@ -49,5 +60,22 @@ class Util {
         Person result = createPersonWithoutId();
         result.setId(id);
         return result;
+    }
+
+    static Role createRole(Long filmId, Long personId) {
+        return new Role(createFilm(filmId), createPerson(personId), "Sarah Connor");
+    }
+
+    static Role createRole(Long filmId, Long personId, String character) {
+        return new Role(createFilm(filmId), createPerson(personId), character);
+    }
+
+    static Stream<Arguments> invalidCrewMemberIdInputs() {
+        return Stream.of(
+                arguments(null, 1L),
+                arguments(1L, null),
+                arguments("A", 1L),
+                arguments(1L, "A")
+        );
     }
 }

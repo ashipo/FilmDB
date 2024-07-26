@@ -11,7 +11,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
 import static com.demo.filmdb.Utils.ROLE_ADMIN;
-import static com.demo.filmdb.graphql.Util.CREATE_ROLE;
+import static com.demo.filmdb.graphql.Util.*;
 import static org.springframework.graphql.execution.ErrorType.FORBIDDEN;
 import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 
@@ -64,6 +64,21 @@ public class RoleControllerSecurityTests {
                     .variable("filmId", 1L)
                     .variable("personId", 3L)
                     .variable("character", "Sam")
+                    .executeAndVerify();
+        }
+    }
+
+    @Nested
+    @DisplayName(GET_ROLE)
+    class GetRole {
+
+        @Test
+        @DisplayName("Not authenticated, authorized")
+        void NotAuthenticated_Authorized() {
+            graphQlTester
+                    .documentName(GET_ROLE)
+                    .variable(FILM_ID, 1L)
+                    .variable(PERSON_ID, 1L)
                     .executeAndVerify();
         }
     }
