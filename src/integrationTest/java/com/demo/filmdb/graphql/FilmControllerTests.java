@@ -114,6 +114,8 @@ public class FilmControllerTests {
         }
     }
 
+    private final String FILM_INPUT = "filmInput";
+
     @Nested
     @DisplayName(GET_FILM)
     class GetFilm {
@@ -122,8 +124,7 @@ public class FilmControllerTests {
         @DisplayName("Existing id, correct response")
         void ExistingId_CorrectResponse() {
             Long id = 37L;
-            Film expectedFilm = new Film("title", LocalDate.now(), "synopsis");
-            expectedFilm.setId(id);
+            Film expectedFilm = createFilm(id);
             given(filmService.getFilm(anyLong())).willReturn(expectedFilm);
 
             graphQlTester
@@ -132,10 +133,10 @@ public class FilmControllerTests {
                     .execute()
                     .path(GET_FILM)
                     .entity(Film.class)
-                    .matches(film -> film.getId().equals(id))
-                    .matches(film -> film.getTitle().equals(expectedFilm.getTitle()))
-                    .matches(film -> film.getReleaseDate().equals(expectedFilm.getReleaseDate()))
-                    .matches(film -> film.getSynopsis().equals(expectedFilm.getSynopsis()));
+                    .matches(film -> Objects.equals(film.getId(), id))
+                    .matches(film -> Objects.equals(film.getTitle(), expectedFilm.getTitle()))
+                    .matches(film -> Objects.equals(film.getReleaseDate(), expectedFilm.getReleaseDate()))
+                    .matches(film -> Objects.equals(film.getSynopsis(), expectedFilm.getSynopsis()));
         }
 
         @Test
@@ -154,8 +155,6 @@ public class FilmControllerTests {
         @Test
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError() {
-            given(filmService.getFilm(anyLong())).willReturn(new Film());
-
             graphQlTester
                     .documentName(GET_FILM)
                     .variable("id", "Invalid ID")
@@ -182,7 +181,8 @@ public class FilmControllerTests {
                     .variable("id", expectedId)
                     .execute()
                     .path(DELETE_FILM)
-                    .entity(Long.class).isEqualTo(expectedId);
+                    .entity(Long.class)
+                    .isEqualTo(expectedId);
         }
 
         @Test
@@ -226,7 +226,7 @@ public class FilmControllerTests {
 
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable("filmInput", filmInput)
+                    .variable(FILM_INPUT, filmInput)
                     .execute()
                     .path(CREATE_FILM)
                     .entity(Film.class)
@@ -243,7 +243,7 @@ public class FilmControllerTests {
 
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable("filmInput", filmInput)
+                    .variable(FILM_INPUT, filmInput)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -268,7 +268,7 @@ public class FilmControllerTests {
             graphQlTester
                     .documentName(UPDATE_FILM)
                     .variable("id", expectedId)
-                    .variable("filmInput", filmInput)
+                    .variable(FILM_INPUT, filmInput)
                     .execute()
                     .path(UPDATE_FILM)
                     .entity(Film.class)
@@ -287,7 +287,7 @@ public class FilmControllerTests {
             graphQlTester
                     .documentName(UPDATE_FILM)
                     .variable("id", 1L)
-                    .variable("filmInput", filmInput)
+                    .variable(FILM_INPUT, filmInput)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == NOT_FOUND)
@@ -305,7 +305,7 @@ public class FilmControllerTests {
             graphQlTester
                     .documentName(UPDATE_FILM)
                     .variable("id", 1)
-                    .variable("filmInput", filmInput)
+                    .variable(FILM_INPUT, filmInput)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -330,12 +330,13 @@ public class FilmControllerTests {
 
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", filmId)
+                    .variable(FILM_ID, filmId)
                     .variable("directorsIds", directorsIds)
                     .executeAndVerify();
 
             ArgumentCaptor<Long> filmIdCaptor = ArgumentCaptor.forClass(Long.class);
             verify(filmService).updateDirectors(filmIdCaptor.capture(), idsCaptor.capture());
+            assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
             assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
             assertThat(idsCaptor.getValue()).isEqualTo(directorsIds);
         }
@@ -347,7 +348,7 @@ public class FilmControllerTests {
 
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", 5L)
+                    .variable(FILM_ID, 5L)
                     .variable("directorsIds", List.of(3L))
                     .execute()
                     .errors()
