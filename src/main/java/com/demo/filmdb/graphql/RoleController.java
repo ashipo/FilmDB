@@ -22,7 +22,7 @@ public class RoleController {
 
     @MutationMapping
     public Role createRole(@Argument RoleInput roleInput) {
-        return roleService.createRole(roleInput.filmId(), roleInput.personId(), roleInput.character());
+        return roleService.createRole(roleInput.id().filmId(), roleInput.id().personId(), roleInput.character());
     }
 
     @QueryMapping

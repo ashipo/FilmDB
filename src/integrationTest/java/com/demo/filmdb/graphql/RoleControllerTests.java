@@ -1,6 +1,5 @@
 package com.demo.filmdb.graphql;
 
-import com.demo.filmdb.graphql.inputs.RoleInput;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleService;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +18,6 @@ import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
-import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -60,15 +58,15 @@ public class RoleControllerTests {
                     .matches(role -> Objects.equals(role.getCharacter(), character));
         }
 
-        @ParameterizedTest(name = "{0}")
+        @ParameterizedTest(name = "{argumentsWithNames}")
         @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
         @DisplayName("Invalid input, validation error")
-        void InvalidInput_ValidationError(RoleInput input) {
+        void InvalidInput_ValidationError(Long filmId, Long personId, String character) {
             graphQlTester
                     .documentName(CREATE_ROLE)
-                    .variable(FILM_ID, input.filmId())
-                    .variable(PERSON_ID, input.personId())
-                    .variable(CHARACTER, input.character())
+                    .variable(FILM_ID, filmId)
+                    .variable(PERSON_ID, personId)
+                    .variable(CHARACTER, character)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -136,10 +134,10 @@ public class RoleControllerTests {
     private static Stream<Arguments> invalidRoleInputs() {
         final String character = "Boromir";
         return Stream.of(
-                arguments(named("Null film id", new RoleInput(null, 1L, character))),
-                arguments(named("Null person id", new RoleInput(1L, null, character))),
-                arguments(named("Null character", new RoleInput(1L, 1L, null))),
-                arguments(named("Empty character", new RoleInput(1L, 1L, "")))
+                arguments(null, 1L, character),
+                arguments(1L, null, character),
+                arguments(1L, 1L, null),
+                arguments(1L, 1L, "")
         );
     }
 }
