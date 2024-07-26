@@ -83,23 +83,8 @@ public class RoleServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("createRole")
     class CreateRole {
-        @Test
-        @DisplayName("Given valid data, saves")
-        void NotExistingRole_Saves() {
-            long expectedFilmId = 2L;
-            long expectedPersonId = 3L;
-            String expectedCharacter = "butler";
-
-            roleService.createRole(createFilm(expectedFilmId), createPerson(expectedPersonId), expectedCharacter);
-
-            ArgumentCaptor<Role> roleCaptor = ArgumentCaptor.forClass(Role.class);
-            verify(roleRepository).save(roleCaptor.capture());
-            Role actualRole = roleCaptor.getValue();
-            assertThat(actualRole.getFilm().getId()).as("Film id").isEqualTo(expectedFilmId);
-            assertThat(actualRole.getPerson().getId()).as("Person id").isEqualTo(expectedPersonId);
-            assertThat(actualRole.getCharacter()).as("Character").isEqualTo(expectedCharacter);
-        }
 
         @Test
         @DisplayName("Valid role, saves")

@@ -39,18 +39,6 @@ public class RoleService {
     }
 
     /**
-     * Creates a {@link Role}.
-     *
-     * @param film must not be {@code null}.
-     * @param person must not be {@code null}.
-     * @param character name or description of character or characters. Must not be {@code null}.
-     * @return the created entity.
-     */
-    public Role createRole(Film film, Person person, String character) {
-        return saveRole(new Role(film, person, character));
-    }
-
-    /**
      * Creates a {@link Role}
      *
      * @param filmId role {@link Film} id
