@@ -29,4 +29,11 @@ public class RoleController {
     public Role role(@Argument CrewMemberId id) {
         return roleService.getRole(id.filmId(), id.personId());
     }
+
+    @MutationMapping
+    public Role updateRole(@Argument RoleInput roleInput) {
+        Role role = new Role();
+        role.setCharacter(roleInput.character());
+        return roleService.updateRole(roleInput.id().filmId(), roleInput.id().personId(), role);
+    }
 }

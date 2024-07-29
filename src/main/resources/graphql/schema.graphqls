@@ -28,6 +28,9 @@ type Mutation {
 
     "Create a `Role`"
     createRole(roleInput: RoleInput!): Role
+
+    "Update a `Role`"
+    updateRole(roleInput: RoleInput!): Role
 }
 
 type Film {
