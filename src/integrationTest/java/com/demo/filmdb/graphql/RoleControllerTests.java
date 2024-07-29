@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 @GraphQlTest({RoleController.class, TestConfigurer.class})
@@ -122,6 +122,50 @@ public class RoleControllerTests {
                     .documentName(GET_ROLE)
                     .variable(FILM_ID, filmId)
                     .variable(PERSON_ID, personId)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == ValidationError)
+                    .verify()
+                    .path(DATA)
+                    .pathDoesNotExist();
+        }
+    }
+
+    @Nested
+    @DisplayName(UPDATE_ROLE)
+    class UpdateRole {
+
+        @Test
+        @DisplayName("Valid input, correct response")
+        void ValidInput_CorrectResponse() {
+            final Long filmId = 1L;
+            final Long personId = 4L;
+            final String character = "Frodo";
+            final Role expectedRole = createRole(filmId, personId, character);
+            given(roleService.updateRole(eq(filmId), eq(personId), any(Role.class))).willReturn(expectedRole);
+
+            graphQlTester
+                    .documentName(UPDATE_ROLE)
+                    .variable(FILM_ID, filmId)
+                    .variable(PERSON_ID, personId)
+                    .variable(CHARACTER, character)
+                    .execute()
+                    .path(UPDATE_ROLE)
+                    .entity(Role.class)
+                    .matches(role -> Objects.equals(role.getFilm().getId(), filmId))
+                    .matches(role -> Objects.equals(role.getPerson().getId(), personId))
+                    .matches(role -> Objects.equals(role.getCharacter(), character));
+        }
+
+        @ParameterizedTest(name = "{argumentsWithNames}")
+        @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
+        @DisplayName("Invalid input, validation error")
+        void InvalidInput_ValidationError(Long filmId, Long personId, String character) {
+            graphQlTester
+                    .documentName(UPDATE_ROLE)
+                    .variable(FILM_ID, filmId)
+                    .variable(PERSON_ID, personId)
+                    .variable(CHARACTER, character)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)

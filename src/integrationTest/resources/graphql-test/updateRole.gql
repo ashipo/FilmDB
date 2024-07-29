@@ -1,0 +1,11 @@
+mutation updateRole($filmId: Long!, $personId: Long!, $character: NonBlankString!) {
+    updateRole(roleInput: {id: {filmId: $filmId, personId: $personId}, character: $character}) {
+        film {
+            id
+        }
+        person {
+            id
+        }
+        character
+    }
+}

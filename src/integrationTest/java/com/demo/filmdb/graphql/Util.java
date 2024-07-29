@@ -23,6 +23,7 @@ class Util {
     static final String UPDATE_DIRECTORS = "updateFilmDirectors";
     static final String CREATE_ROLE = "createRole";
     static final String GET_ROLE = "role";
+    static final String UPDATE_ROLE = "updateRole";
     // variables
     static final String FILM_ID = "filmId";
     static final String PERSON_ID = "personId";
