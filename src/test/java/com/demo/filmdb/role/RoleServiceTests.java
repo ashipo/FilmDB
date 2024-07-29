@@ -143,6 +143,39 @@ public class RoleServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("updateRole")
+    class UpdateRole {
+
+        @Test
+        @DisplayName("Valid role, updates")
+        void ValidRole_Updates() {
+            Long expectedFilmId = 2L;
+            Long expectedPersonId = 3L;
+            String expectedCharacter = "Amelie";
+            Role expectedRole = new Role();
+            expectedRole.setCharacter(expectedCharacter);
+            when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
+            given(roleRepository.existsById(any())).willReturn(true);
+
+            Role actual = roleService.updateRole(expectedFilmId, expectedPersonId, expectedRole);
+
+            assertThat(actual.getId().getFilmId()).as("Film id").isEqualTo(expectedFilmId);
+            assertThat(actual.getId().getPersonId()).as("Person id").isEqualTo(expectedPersonId);
+            assertThat(actual.getCharacter()).as("Character").isEqualTo(expectedCharacter);
+        }
+
+        @Test
+        @DisplayName("Not existing role, throws EntityNotFoundException")
+        void NotExistingRole_Throws() {
+            given(roleRepository.existsById(any())).willReturn(false);
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    roleService.updateRole(1L, 1L, new Role())
+            );
+        }
+    }
+
+    @Nested
     class UpdateCast {
         @Test
         @DisplayName("Given a cast that doesn't contain an existing role, deletes that role")

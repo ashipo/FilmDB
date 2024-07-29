@@ -17,8 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
-import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
+import static com.demo.filmdb.util.ErrorUtil.*;
 
 @Service
 public class RoleService {
@@ -67,12 +66,31 @@ public class RoleService {
     /**
      * Returns a {@link Role} entity with the given ids or {@code null} if it doesn't exist
      *
-     * @param filmId must not be {@code null}
+     * @param filmId   must not be {@code null}
      * @param personId must not be {@code null}
      * @return the found entity
      */
     public @Nullable Role getRole(Long filmId, Long personId) {
         return roleRepository.findByIds(filmId, personId).orElse(null);
+    }
+
+    /**
+     * Updates the {@link Role} for the given ids
+     *
+     * @param filmId   role film
+     * @param personId role person
+     * @param role     entity to update
+     * @return the updated entity
+     * @throws EntityNotFoundException if role could not be found
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Role updateRole(Long filmId, Long personId, Role role) throws EntityNotFoundException {
+        RoleKey roleKey = new RoleKey(filmId, personId);
+        if (!roleRepository.existsById(roleKey)) {
+            throw new EntityNotFoundException(roleNotFoundMessage(filmId, personId));
+        }
+        role.setId(roleKey);
+        return roleRepository.save(role);
     }
 
     /**
