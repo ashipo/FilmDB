@@ -74,6 +74,7 @@ public class RoleServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("deleteRole")
     class DeleteRole {
         @Test
         @DisplayName("Deletes existing role")
@@ -83,6 +84,18 @@ public class RoleServiceTests extends ServiceTest {
             roleService.deleteRole(expectedRole);
 
             verify(roleRepository).delete(expectedRole);
+        }
+
+        @Test
+        @DisplayName("Deletes correctly")
+        void ValidIds_DeletesCorrectly() {
+            final Long filmId = 1L;
+            final Long personId = 2L;
+            final RoleKey expectedId = new RoleKey(filmId, personId);
+
+            roleService.deleteRole(filmId, personId);
+
+            verify(roleRepository).deleteById(expectedId);
         }
     }
 

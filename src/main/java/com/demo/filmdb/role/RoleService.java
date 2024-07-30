@@ -138,6 +138,18 @@ public class RoleService {
     }
 
     /**
+     * Deletes a {@link Role} entity for the given ids
+     *
+     * @param filmId    role film
+     * @param personId  role person
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteRole(Long filmId, Long personId) {
+        RoleKey roleKey = new RoleKey(filmId, personId);
+        roleRepository.deleteById(roleKey);
+    }
+
+    /**
      * Returns whether a {@link Role} with the given ids exist.
      *
      * @param filmId must not be {@code null}.
