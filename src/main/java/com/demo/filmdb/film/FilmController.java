@@ -57,7 +57,6 @@ public class FilmController {
     private final FilmRoleModelAssembler filmRoleModelAssembler;
     private final RoleModelAssembler roleModelAssembler;
     private final FilmMapper filmMapper;
-    private final RoleMapper roleMapper;
     private final PagedResourcesAssembler<Film> pagedResourcesAssembler;
 
     public FilmController(FilmService filmService,
@@ -67,7 +66,7 @@ public class FilmController {
                           PersonModelAssembler personModelAssembler,
                           FilmRoleModelAssembler filmRoleModelAssembler,
                           RoleModelAssembler roleModelAssembler,
-                          FilmMapper filmMapper, RoleMapper roleMapper,
+                          FilmMapper filmMapper,
                           PagedResourcesAssembler<Film> pagedResourcesAssembler) {
         this.filmService = filmService;
         this.personService = personService;
@@ -77,7 +76,6 @@ public class FilmController {
         this.filmRoleModelAssembler = filmRoleModelAssembler;
         this.roleModelAssembler = roleModelAssembler;
         this.filmMapper = filmMapper;
-        this.roleMapper = roleMapper;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
@@ -312,12 +310,13 @@ public class FilmController {
             @ApiResponse(responseCode = "404", description = ROLE_NOT_FOUND, content = @Content),
     })
     @PatchMapping("/{filmId}/cast/{personId}")
-    public RoleDto updateRole(@PathVariable Long filmId, @PathVariable Long personId,
-                              @RequestBody @Valid RoleDtoInput inputDto) {
-        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
-        Role updatedRole = roleMapper.updateRoleFromRoleDtoInput(inputDto, role);
-        Role savedRole = roleService.saveRole(updatedRole);
-        return roleModelAssembler.toModel(savedRole);
+    public RoleDto updateRole(@PathVariable Long filmId, @PathVariable Long personId, @RequestBody @Valid RoleDtoInput inputDto) {
+        try {
+            Role updatedRole = roleService.updateRole(filmId, personId, inputDto.character());
+            return roleModelAssembler.toModel(updatedRole);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Delete a role", tags = TAG_ROLES)
