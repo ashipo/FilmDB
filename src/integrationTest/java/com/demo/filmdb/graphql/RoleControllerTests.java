@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @GraphQlTest({RoleController.class, TestConfigurer.class})
@@ -142,7 +142,7 @@ public class RoleControllerTests {
             final Long personId = 4L;
             final String character = "Frodo";
             final Role expectedRole = createRole(filmId, personId, character);
-            given(roleService.updateRole(eq(filmId), eq(personId), any(Role.class))).willReturn(expectedRole);
+            given(roleService.updateRole(filmId, personId, character)).willReturn(expectedRole);
 
             graphQlTester
                     .documentName(UPDATE_ROLE)

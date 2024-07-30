@@ -151,26 +151,25 @@ public class RoleServiceTests extends ServiceTest {
         void ValidRole_Updates() {
             Long expectedFilmId = 2L;
             Long expectedPersonId = 3L;
-            String expectedCharacter = "Amelie";
-            Role expectedRole = new Role();
-            expectedRole.setCharacter(expectedCharacter);
+            String expectedCharacter = "Updated character";
+            Role originalRole = createRole(expectedFilmId, expectedPersonId, "Original character");
+            given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(originalRole));
             when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
-            given(roleRepository.existsById(any())).willReturn(true);
 
-            Role actual = roleService.updateRole(expectedFilmId, expectedPersonId, expectedRole);
+            Role actual = roleService.updateRole(expectedFilmId, expectedPersonId, expectedCharacter);
 
-            assertThat(actual.getId().getFilmId()).as("Film id").isEqualTo(expectedFilmId);
-            assertThat(actual.getId().getPersonId()).as("Person id").isEqualTo(expectedPersonId);
+            assertThat(actual.getFilm().getId()).as("Film id").isEqualTo(expectedFilmId);
+            assertThat(actual.getPerson().getId()).as("Person id").isEqualTo(expectedPersonId);
             assertThat(actual.getCharacter()).as("Character").isEqualTo(expectedCharacter);
         }
 
         @Test
         @DisplayName("Not existing role, throws EntityNotFoundException")
         void NotExistingRole_Throws() {
-            given(roleRepository.existsById(any())).willReturn(false);
+            given(roleRepository.findByIds(anyLong(), anyLong())).willReturn(Optional.empty());
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
-                    roleService.updateRole(1L, 1L, new Role())
+                    roleService.updateRole(1L, 1L, "Lawrence")
             );
         }
     }

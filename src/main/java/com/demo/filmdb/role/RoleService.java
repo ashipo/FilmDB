@@ -77,20 +77,18 @@ public class RoleService {
     /**
      * Updates the {@link Role} for the given ids
      *
-     * @param filmId   role film
-     * @param personId role person
-     * @param role     entity to update
+     * @param filmId    role film
+     * @param personId  role person
+     * @param character role character
      * @return the updated entity
      * @throws EntityNotFoundException if role could not be found
      */
     @PreAuthorize("hasRole('ADMIN')")
-    public Role updateRole(Long filmId, Long personId, Role role) throws EntityNotFoundException {
-        RoleKey roleKey = new RoleKey(filmId, personId);
-        if (!roleRepository.existsById(roleKey)) {
-            throw new EntityNotFoundException(roleNotFoundMessage(filmId, personId));
-        }
-        role.setId(roleKey);
-        return roleRepository.save(role);
+    public Role updateRole(Long filmId, Long personId, String character) throws EntityNotFoundException {
+        Role roleToUpdate = roleRepository.findByIds(filmId, personId)
+                .orElseThrow(() -> new EntityNotFoundException(roleNotFoundMessage(filmId, personId)));
+        roleToUpdate.setCharacter(character);
+        return roleRepository.save(roleToUpdate);
     }
 
     /**

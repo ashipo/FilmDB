@@ -6,6 +6,7 @@ import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonRepository;
 import com.demo.filmdb.person.PersonService;
+import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -44,8 +45,12 @@ public abstract class ServiceTest {
     }
 
     protected Person createPerson(long id) {
-        Person result = new Person();
+        Person result = new Person("John Doe", LocalDate.of(1969, 2, 28));
         result.setId(id);
         return result;
+    }
+
+    protected Role createRole(Long filmId, Long personId, String character) {
+        return new Role(createFilm(filmId), createPerson(personId), character);
     }
 }

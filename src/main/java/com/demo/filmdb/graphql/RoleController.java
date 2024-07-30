@@ -32,8 +32,6 @@ public class RoleController {
 
     @MutationMapping
     public Role updateRole(@Argument RoleInput roleInput) {
-        Role role = new Role();
-        role.setCharacter(roleInput.character());
-        return roleService.updateRole(roleInput.id().filmId(), roleInput.id().personId(), role);
+        return roleService.updateRole(roleInput.id().filmId(), roleInput.id().personId(), roleInput.character());
     }
 }
