@@ -63,16 +63,6 @@ public class RoleServiceTests extends ServiceTest {
         }
     }
 
-    @Test
-    @DisplayName("Given valid Role, saves")
-    void saveRole_ValidRole_Saves() {
-        Role expectedRole = new Role();
-
-        roleService.saveRole(expectedRole);
-
-        verify(roleRepository).save(expectedRole);
-    }
-
     @Nested
     @DisplayName("deleteRole")
     class DeleteRole {

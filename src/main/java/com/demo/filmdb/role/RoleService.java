@@ -60,7 +60,7 @@ public class RoleService {
         if (roleExists(filmId, personId)) {
             throw new EntityAlreadyExistsException("Role for filmId " + filmId + " and personId " + personId + " already exists.");
         }
-        return saveRole(new Role(film, person, character));
+        return roleRepository.save(new Role(film, person, character));
     }
 
     /**
@@ -92,16 +92,6 @@ public class RoleService {
     }
 
     /**
-     * Saves the given {@link Role} entity.
-     *
-     * @param role must not be {@code null}.
-     * @return the saved entity.
-     */
-    public Role saveRole(Role role) {
-        return roleRepository.save(role);
-    }
-
-    /**
      * Replaces roles for the {@code film} with the given cast.
      *
      * @param film must not be {@code null}.
@@ -122,7 +112,7 @@ public class RoleService {
                         roleToEdit.setCharacter(character);
                         return roleToEdit;
                     })
-                    .orElseGet(() -> saveRole(new Role(film, person, character)));
+                    .orElseGet(() -> roleRepository.save(new Role(film, person, character)));
             result.add(role);
         });
         return result;
