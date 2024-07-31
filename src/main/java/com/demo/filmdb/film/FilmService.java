@@ -106,7 +106,7 @@ public class FilmService {
      */
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteFilmById(Long filmId) {
+    public void deleteFilm(Long filmId) {
         roleRepository.deleteById_FilmId(filmId);
         filmRepository.deleteById(filmId);
     }

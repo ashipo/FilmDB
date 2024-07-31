@@ -36,7 +36,7 @@ public class FilmController {
 
     @MutationMapping
     public Long deleteFilm(@Argument Long id) {
-        filmService.deleteFilmById(id);
+        filmService.deleteFilm(id);
         return id;
     }
 

@@ -168,7 +168,7 @@ public class FilmController {
     @DeleteMapping("/{filmId}")
     public ResponseEntity<?> deleteFilm(@PathVariable Long filmId) {
         require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        filmService.deleteFilmById(filmId);
+        filmService.deleteFilm(filmId);
         return ResponseEntity.noContent().build();
     }
 

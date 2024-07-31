@@ -128,15 +128,15 @@ class FilmServiceTests extends ServiceTest {
     }
 
     @Nested
-    @DisplayName("deleteFilmById")
-    class DeleteFilmById {
+    @DisplayName("deleteFilm")
+    class DeleteFilm {
 
         @Test
         @DisplayName("Deletes correctly")
         void ExistingId_DeletesFilm() {
             final Long expectedId = 1L;
 
-            filmService.deleteFilmById(expectedId);
+            filmService.deleteFilm(expectedId);
 
             verify(filmRepository).deleteById(expectedId);
             verify(roleRepository).deleteById_FilmId(expectedId);
