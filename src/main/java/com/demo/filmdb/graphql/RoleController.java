@@ -9,6 +9,7 @@ import com.demo.filmdb.role.RoleService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 
 @Controller("graphqlRoleController")
@@ -28,7 +29,7 @@ public class RoleController {
     }
 
     @QueryMapping
-    public Role role(@Argument CrewMemberId id) {
+    public @Nullable Role role(@Argument CrewMemberId id) {
         return roleService.getRole(id.filmId(), id.personId());
     }
 

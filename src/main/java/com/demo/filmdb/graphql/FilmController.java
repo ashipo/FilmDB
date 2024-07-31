@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class FilmController {
     }
 
     @QueryMapping
-    public Film film(@Argument Long id) {
+    public @Nullable Film film(@Argument Long id) {
         return filmService.getFilm(id);
     }
 
