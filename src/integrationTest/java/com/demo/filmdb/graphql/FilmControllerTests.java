@@ -337,7 +337,6 @@ public class FilmControllerTests {
             ArgumentCaptor<Long> filmIdCaptor = ArgumentCaptor.forClass(Long.class);
             verify(filmService).updateDirectors(filmIdCaptor.capture(), idsCaptor.capture());
             assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
-            assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
             assertThat(idsCaptor.getValue()).isEqualTo(directorsIds);
         }
 
