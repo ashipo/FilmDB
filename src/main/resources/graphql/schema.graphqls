@@ -31,6 +31,9 @@ type Mutation {
 
     "Update a `Role`"
     updateRole(roleInput: RoleInput!): Role
+
+    "Delete a `Role`"
+    deleteRole(input: DeleteRoleInput!): DeleteRolePayload
 }
 
 type Film {
@@ -71,4 +74,13 @@ input CrewMemberID {
 input RoleInput {
     id: CrewMemberID!
     character: NonBlankString!
+}
+
+input DeleteRoleInput {
+    id: CrewMemberID!
+}
+
+type DeleteRolePayload {
+    filmId: Long!
+    personId: Long!
 }

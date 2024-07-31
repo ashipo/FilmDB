@@ -1,5 +1,6 @@
 package com.demo.filmdb.graphql;
 
+import com.demo.filmdb.graphql.payloads.DeleteRolePayload;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleService;
 import org.junit.jupiter.api.DisplayName;
@@ -166,6 +167,44 @@ public class RoleControllerTests {
                     .variable(FILM_ID, filmId)
                     .variable(PERSON_ID, personId)
                     .variable(CHARACTER, character)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == ValidationError)
+                    .verify()
+                    .path(DATA)
+                    .pathDoesNotExist();
+        }
+    }
+
+    @Nested
+    @DisplayName(DELETE_ROLE)
+    class DeleteRole {
+
+        @Test
+        @DisplayName("Valid input, correct response")
+        void ValidInput_CorrectResponse() {
+            final Long filmId = 1L;
+            final Long personId = 4L;
+
+            graphQlTester
+                    .documentName(DELETE_ROLE)
+                    .variable(FILM_ID, filmId)
+                    .variable(PERSON_ID, personId)
+                    .execute()
+                    .path(DELETE_ROLE)
+                    .entity(DeleteRolePayload.class)
+                    .matches(payload -> Objects.equals(payload.filmId(), filmId))
+                    .matches(payload -> Objects.equals(payload.personId(), personId));
+        }
+
+        @ParameterizedTest(name = "{argumentsWithNames}")
+        @MethodSource("com.demo.filmdb.graphql.Util#invalidCrewMemberIdInputs")
+        @DisplayName("Invalid input, validation error")
+        void InvalidInput_ValidationError(Object filmId, Object personId) {
+            graphQlTester
+                    .documentName(DELETE_ROLE)
+                    .variable(FILM_ID, filmId)
+                    .variable(PERSON_ID, personId)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)

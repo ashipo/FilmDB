@@ -127,4 +127,46 @@ public class RoleControllerSecurityTests {
                     .executeAndVerify();
         }
     }
+
+    @Nested
+    @DisplayName(DELETE_ROLE)
+    class DeleteRole {
+
+        @Test
+        @DisplayName("Not authenticated, unauthorized")
+        void NotAuthenticated_Unauthorized() {
+            graphQlTester
+                    .documentName(DELETE_ROLE)
+                    .variable(FILM_ID, 1L)
+                    .variable(PERSON_ID, 2L)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
+        }
+
+        @Test
+        @DisplayName("Authenticated as USER, forbidden")
+        @WithMockUser
+        void AuthenticatedUser_Forbidden() {
+            graphQlTester
+                    .documentName(DELETE_ROLE)
+                    .variable(FILM_ID, 1L)
+                    .variable(PERSON_ID, 2L)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
+        }
+
+        @Test
+        @DisplayName("Authenticated as ADMIN, authorized")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DirtiesContext
+        void AuthenticatedAdmin_Authorized() {
+            graphQlTester
+                    .documentName(DELETE_ROLE)
+                    .variable(FILM_ID, 1L)
+                    .variable(PERSON_ID, 2L)
+                    .executeAndVerify();
+        }
+    }
 }
