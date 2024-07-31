@@ -20,6 +20,7 @@ class Util {
     static final String DELETE_FILM = "deleteFilm";
     static final String CREATE_FILM = "createFilm";
     static final String UPDATE_FILM = "updateFilm";
+    static final String SET_DIRECTOR = "setDirector";
     static final String UPDATE_DIRECTORS = "updateFilmDirectors";
     static final String CREATE_ROLE = "createRole";
     static final String GET_ROLE = "role";

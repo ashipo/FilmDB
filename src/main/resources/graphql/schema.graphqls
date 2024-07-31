@@ -19,6 +19,9 @@ type Mutation {
     updateFilm(id: Long!, input: FilmInput!): Film
     deleteFilm(id: Long!): Long
 
+    "Set a `Person` as a director for a `Film`"
+    setDirector(input: SetDirectorInput!): SetDirectorPayload
+
     """
     Set directors for a `Film`.
     `directorsIds` is a list of `Person.id`.
@@ -74,6 +77,15 @@ input CrewMemberID {
 input RoleInput {
     id: CrewMemberID!
     character: NonBlankString!
+}
+
+input SetDirectorInput {
+    id: CrewMemberID!
+}
+
+type SetDirectorPayload {
+    filmId: Long!
+    personId: Long!
 }
 
 input DeleteRoleInput {
