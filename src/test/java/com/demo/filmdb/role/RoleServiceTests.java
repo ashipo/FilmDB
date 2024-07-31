@@ -76,15 +76,6 @@ public class RoleServiceTests extends ServiceTest {
     @Nested
     @DisplayName("deleteRole")
     class DeleteRole {
-        @Test
-        @DisplayName("Deletes existing role")
-        void ExistingIds_Deletes() {
-            Role expectedRole = new Role();
-
-            roleService.deleteRole(expectedRole);
-
-            verify(roleRepository).delete(expectedRole);
-        }
 
         @Test
         @DisplayName("Deletes correctly")

@@ -9,7 +9,10 @@ import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonModelAssembler;
 import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.person.dtos.PersonDto;
-import com.demo.filmdb.role.*;
+import com.demo.filmdb.role.FilmRoleModelAssembler;
+import com.demo.filmdb.role.Role;
+import com.demo.filmdb.role.RoleModelAssembler;
+import com.demo.filmdb.role.RoleService;
 import com.demo.filmdb.role.dtos.FilmRoleDto;
 import com.demo.filmdb.role.dtos.FilmRoleDtoInput;
 import com.demo.filmdb.role.dtos.RoleDto;
@@ -327,8 +330,10 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/cast/{personId}")
     public ResponseEntity<?> deleteRole(@PathVariable Long filmId, @PathVariable Long personId) {
-        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
-        roleService.deleteRole(role);
+        if (!roleService.roleExists(filmId, personId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, roleNotFoundMessage(filmId, personId));
+        }
+        roleService.deleteRole(filmId, personId);
         return ResponseEntity.noContent().build();
     }
 }

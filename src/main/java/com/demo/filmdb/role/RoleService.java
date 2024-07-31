@@ -102,15 +102,6 @@ public class RoleService {
     }
 
     /**
-     * Deletes the given {@link Role} entity.
-     *
-     * @param role to delete.
-     */
-    public void deleteRole(Role role) {
-        roleRepository.delete(role);
-    }
-
-    /**
      * Replaces roles for the {@code film} with the given cast.
      *
      * @param film must not be {@code null}.
