@@ -64,4 +64,46 @@ public class DirectorControllerSecurityTests {
                     .executeAndVerify();
         }
     }
+
+    @Nested
+    @DisplayName(DELETE_DIRECTOR)
+    class DeleteDirector {
+
+        @Test
+        @DisplayName("Not authenticated, unauthorized")
+        void NotAuthenticated_Unauthorized() {
+            graphQlTester
+                    .documentName(DELETE_DIRECTOR)
+                    .variable(FILM_ID, 1L)
+                    .variable(PERSON_ID, 2L)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
+        }
+
+        @Test
+        @DisplayName("Authenticated as USER, forbidden")
+        @WithMockUser
+        void AuthenticatedUser_Forbidden() {
+            graphQlTester
+                    .documentName(DELETE_DIRECTOR)
+                    .variable(FILM_ID, 1L)
+                    .variable(PERSON_ID, 2L)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
+        }
+
+        @Test
+        @DisplayName("Authenticated as ADMIN, authorized")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DirtiesContext
+        void AuthenticatedAdmin_Authorized() {
+            graphQlTester
+                    .documentName(DELETE_DIRECTOR)
+                    .variable(FILM_ID, 1L)
+                    .variable(PERSON_ID, 2L)
+                    .executeAndVerify();
+        }
+    }
 }

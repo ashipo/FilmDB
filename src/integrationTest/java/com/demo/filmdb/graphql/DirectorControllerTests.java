@@ -64,4 +64,42 @@ public class DirectorControllerTests {
                     .pathDoesNotExist();
         }
     }
+
+    @Nested
+    @DisplayName(DELETE_DIRECTOR)
+    class DeleteDirector {
+
+        @Test
+        @DisplayName("Valid input, correct response")
+        void ValidInput_CorrectResponse() {
+            final Long filmId = 1L;
+            final Long personId = 2L;
+
+            graphQlTester
+                    .documentName(DELETE_DIRECTOR)
+                    .variable(FILM_ID, filmId)
+                    .variable(PERSON_ID, personId)
+                    .execute()
+                    .path(DELETE_DIRECTOR)
+                    .entity(SetDirectorPayload.class)
+                    .matches(payload -> Objects.equals(payload.filmId(), filmId))
+                    .matches(payload -> Objects.equals(payload.personId(), personId));
+        }
+
+        @ParameterizedTest(name = "{argumentsWithNames}")
+        @MethodSource("com.demo.filmdb.graphql.Util#invalidCrewMemberIdInputs")
+        @DisplayName("Invalid input, validation error")
+        void InvalidInput_ValidationError(Object filmId, Object personId) {
+            graphQlTester
+                    .documentName(DELETE_DIRECTOR)
+                    .variable(FILM_ID, filmId)
+                    .variable(PERSON_ID, personId)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == ValidationError)
+                    .verify()
+                    .path(DATA)
+                    .pathDoesNotExist();
+        }
+    }
 }
