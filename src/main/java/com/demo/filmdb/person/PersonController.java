@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import static com.demo.filmdb.util.HttpUtil.require;
 import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
+import static com.demo.filmdb.util.HttpUtil.require;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.PEOPLE;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
@@ -162,7 +162,7 @@ public class PersonController {
         return filmModelAssembler.directedFilmsCollectionModel(directed, personId);
     }
 
-    @Operation(summary = "Get roles acted by a person", tags = TAG_DIRECTORS)
+    @Operation(summary = "Get roles acted by a person", tags = TAG_ROLES)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = SUCCESS),
             @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
