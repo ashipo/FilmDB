@@ -95,6 +95,11 @@ public class Film {
         this.id = id;
     }
 
+    public void removeDirector(Person director) {
+        directors.remove(director);
+        director.getFilmsDirected().remove(this);
+    }
+
     @Override
     public String toString() {
         return "Film{" +

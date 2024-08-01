@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
 import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
 
@@ -38,6 +40,28 @@ public class DirectorService {
         Person person = personRepository.findById(personId)
                 .orElseThrow(() -> new EntityNotFoundException(personNotFoundMessage(personId)));
         film.getDirectors().add(person);
+        filmRepository.save(film);
+    }
+
+    /**
+     * Delete a {@linkplain  Person} from directors of a {@linkplain Film}
+     *
+     * @param filmId    directed film id
+     * @param personId  director id
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteDirector(Long filmId, Long personId) {
+        Optional<Film> filmOptional = filmRepository.findById(filmId);
+        if (filmOptional.isEmpty()) {
+            return;
+        }
+        Optional<Person> personOptional = personRepository.findById(personId);
+        if (personOptional.isEmpty()) {
+            return;
+        }
+        Film film = filmOptional.get();
+        Person director = personOptional.get();
+        film.removeDirector(director);
         filmRepository.save(film);
     }
 }

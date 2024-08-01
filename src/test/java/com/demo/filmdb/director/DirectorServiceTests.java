@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -67,6 +69,31 @@ public class DirectorServiceTests extends ServiceTest {
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                     directorService.setDirector(1L, 2L)
             );
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteDirector")
+    class DeleteDirector {
+
+        @Test
+        @DisplayName("Deletes correctly")
+        void ExistingIds_DeletesCorrectly() {
+            final Long filmId = 1L;
+            final Long personId = 2L;
+            Film film = createFilm(filmId);
+            Person director = createPerson(personId);
+            Set<Person> directors = new HashSet<>();
+            directors.add(director);
+            film.setDirectors(directors);
+            given(filmRepository.findById(filmId)).willReturn(Optional.of(film));
+            given(personRepository.findById(personId)).willReturn(Optional.of(director));
+
+            directorService.deleteDirector(filmId, personId);
+
+            ArgumentCaptor<Film> filmCaptor = ArgumentCaptor.forClass(Film.class);
+            verify(filmRepository).save(filmCaptor.capture());
+            assertThatCollection(filmCaptor.getValue().getDirectors()).isEmpty();
         }
     }
 }
