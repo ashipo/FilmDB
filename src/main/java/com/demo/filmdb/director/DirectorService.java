@@ -39,7 +39,7 @@ public class DirectorService {
                 .orElseThrow(() -> new EntityNotFoundException(filmNotFoundMessage(filmId)));
         Person person = personRepository.findById(personId)
                 .orElseThrow(() -> new EntityNotFoundException(personNotFoundMessage(personId)));
-        film.getDirectors().add(person);
+        film.addDirector(person);
         filmRepository.save(film);
     }
 

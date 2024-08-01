@@ -95,6 +95,11 @@ public class Film {
         this.id = id;
     }
 
+    public void addDirector(Person director) {
+        directors.add(director);
+        director.getFilmsDirected().add(this);
+    }
+
     public void removeDirector(Person director) {
         directors.remove(director);
         director.getFilmsDirected().remove(this);
