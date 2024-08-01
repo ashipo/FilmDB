@@ -24,7 +24,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class RoleServiceTests extends ServiceTest {
+@DisplayName("RoleService")
+class RoleServiceTests extends ServiceTest {
 
     private RoleService roleService;
 
@@ -41,8 +42,8 @@ public class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Given existing ids, finds")
         void ExistingIds_Finds() {
-            final Long expectedFilmId = 11L;
-            final Long expectedPersonId = 11L;
+            final Long expectedFilmId = 1L;
+            final Long expectedPersonId = 2L;
             final Role expectedRole = new Role();
             given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(expectedRole));
 
@@ -169,7 +170,9 @@ public class RoleServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("updateCast")
     class UpdateCast {
+
         @Test
         @DisplayName("Given a cast that doesn't contain an existing role, deletes that role")
         void RoleToDelete_Deletes() {
@@ -228,7 +231,7 @@ public class RoleServiceTests extends ServiceTest {
 
     /* Utility */
 
-    private Film getFilmWithRole(long filmId, long actorId) {
+    private Film getFilmWithRole(Long filmId, Long actorId) {
         Film film = createFilm(filmId);
         Person person = createPerson(actorId);
         Role role = new Role(film, person, "Narrator");

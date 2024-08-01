@@ -32,7 +32,7 @@ public abstract class ServiceTest {
         return new Film("Shining", LocalDate.of(1980, 5, 23), "A family heads to an isolated hotel.");
     }
 
-    protected Film createFilm(long id) {
+    protected Film createFilm(Long id) {
         Film result = createFilmWithoutId();
         result.setId(id);
         return result;
@@ -44,7 +44,7 @@ public abstract class ServiceTest {
         return result;
     }
 
-    protected Person createPerson(long id) {
+    protected Person createPerson(Long id) {
         Person result = new Person("John Doe", LocalDate.of(1969, 2, 28));
         result.setId(id);
         return result;
