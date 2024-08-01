@@ -92,7 +92,7 @@ public class RoleService {
     }
 
     /**
-     * Replaces roles for the {@code film} with the given cast.
+     * Replaces {@code film} cast
      *
      * @param film must not be {@code null}.
      * @param newCast map of person and character description. Must not be {@code null}.
@@ -101,7 +101,7 @@ public class RoleService {
     @Transactional
     public Set<Role> updateCast(Film film, Map<Person, String> newCast) {
         Set<Long> newCastIds = newCast.keySet().stream().map(Person::getId).collect(Collectors.toSet());
-        film.getRoles().stream().
+        film.getCast().stream().
                 filter(r -> !newCastIds.contains(r.getPerson().getId())).
                 forEach(roleRepository::delete);
         Set<Role> result = new HashSet<>();

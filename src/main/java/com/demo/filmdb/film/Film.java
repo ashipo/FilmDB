@@ -36,7 +36,7 @@ public class Film {
     private Set<Person> directors = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "film")
-    private Set<Role> roles = new LinkedHashSet<>();
+    private Set<Role> cast = new LinkedHashSet<>();
 
     public Film() {
     }
@@ -55,12 +55,12 @@ public class Film {
         this.directors = directors;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public Set<Role> getCast() {
+        return cast;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setCast(Set<Role> cast) {
+        this.cast = cast;
     }
 
     public String getSynopsis() {

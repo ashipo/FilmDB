@@ -196,7 +196,7 @@ public class RoleServiceTests extends ServiceTest {
             String expectedCharacter = "Thanos";
             Map<Person, String> newCast = Map.of(createPerson(expectedPersonId), expectedCharacter);
             given(roleRepository.findByIds(expectedFilmId, expectedPersonId))
-                    .willReturn(film.getRoles().stream().findFirst());
+                    .willReturn(film.getCast().stream().findFirst());
 
             Set<Role> actualRoles = roleService.updateCast(film, newCast);
 
@@ -233,7 +233,7 @@ public class RoleServiceTests extends ServiceTest {
         Person person = createPerson(actorId);
         Role role = new Role(film, person, "Narrator");
         role.setId(new RoleKey(filmId, actorId));
-        film.setRoles(Set.of(role));
+        film.setCast(Set.of(role));
         return film;
     }
 }

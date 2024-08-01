@@ -231,7 +231,7 @@ public class FilmController {
     @GetMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> getCast(@PathVariable Long filmId) {
         Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Collection<Role> cast = film.getRoles();
+        Collection<Role> cast = film.getCast();
         return filmRoleModelAssembler.toCollectionModel(cast, film.getId());
     }
 
