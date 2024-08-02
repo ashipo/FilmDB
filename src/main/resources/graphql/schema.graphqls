@@ -40,6 +40,12 @@ type Mutation {
 
     "Delete a `Role`"
     deleteRole(input: DeleteRoleInput!): DeleteRolePayload
+
+    """
+    Set cast for a `Film`.
+    If `input.cast` is omitted or empty, cast is removed.
+    """
+    updateCast(input: UpdateCastInput): UpdateCastPayload
 }
 
 type Film {
@@ -65,6 +71,10 @@ type Role {
     character: String
 }
 
+#
+# Inputs
+#
+
 input FilmInput {
     title: NonBlankString!
     releaseDate: Date!
@@ -81,6 +91,15 @@ input RoleInput {
     id: CrewMemberID!
     character: NonBlankString!
 }
+
+input CastMemberInput {
+    personId: Long!
+    character: NonBlankString!
+}
+
+#
+# Mutation inputs and payloads
+#
 
 input SetDirectorInput {
     id: CrewMemberID!
@@ -107,4 +126,13 @@ input DeleteRoleInput {
 type DeleteRolePayload {
     filmId: Long!
     personId: Long!
+}
+
+input UpdateCastInput {
+    filmId: Long!
+    cast: [CastMemberInput!]
+}
+
+type UpdateCastPayload {
+    cast: [Role]
 }
