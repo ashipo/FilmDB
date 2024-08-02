@@ -4,6 +4,7 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
+import com.demo.filmdb.role.dtos.CastMember;
 import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.demo.filmdb.util.ErrorUtil.*;
@@ -116,6 +115,39 @@ public class RoleService {
             result.add(role);
         });
         return result;
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Role> updateCast(Long filmId, List<? extends CastMember> cast) throws EntityNotFoundException {
+        Film film = filmService.getFilm(filmId);
+        if (film == null) {
+            throw new EntityNotFoundException(filmNotFoundMessage(filmId));
+        }
+        // Remove roles that don't exist anymore
+        Set<Long> newCastIds = cast.stream().map(CastMember::getPersonId).collect(Collectors.toSet());
+        film.getCast().stream().
+                filter(role -> !newCastIds.contains(role.getPerson().getId())).
+                forEach(roleRepository::delete);
+        // Update existing and create new roles
+        List<Role> updatedCast = new ArrayList<>();
+        cast.forEach(role -> {
+            final Long personId = role.getPersonId();
+            Role roleToUpdate = getRole(filmId, personId);
+            Role updatedRole;
+            if (roleToUpdate == null) {
+                Person person = personService.getPerson(personId);
+                if (person == null) {
+                    throw new EntityNotFoundException(personNotFoundMessage(personId));
+                }
+                updatedRole = roleRepository.save(new Role(film, person, role.getCharacter()));
+            } else {
+                roleToUpdate.setCharacter(role.getCharacter());
+                updatedRole = roleRepository.save(roleToUpdate);
+            }
+            updatedCast.add(updatedRole);
+        });
+        return updatedCast;
     }
 
     /**
