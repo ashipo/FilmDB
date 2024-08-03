@@ -117,6 +117,14 @@ public class RoleService {
         return result;
     }
 
+    /**
+     * Replaces {@linkplain Film} cast
+     *
+     * @param filmId film id
+     * @param cast new cast
+     * @return updated cast
+     * @throws EntityNotFoundException if film or person could not be found
+     */
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public List<Role> updateCast(Long filmId, List<? extends CastMember> cast) throws EntityNotFoundException {

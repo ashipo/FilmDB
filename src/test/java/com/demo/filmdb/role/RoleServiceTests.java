@@ -3,6 +3,7 @@ package com.demo.filmdb.role;
 import com.demo.filmdb.ServiceTest;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.person.Person;
+import com.demo.filmdb.role.dtos.CastMember;
 import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,10 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -227,6 +227,121 @@ class RoleServiceTests extends ServiceTest {
             assertThat(savedRole.getValue().getPerson().getId()).isEqualTo(expectedPersonId);
             assertThat(savedRole.getValue().getCharacter()).isEqualTo(expectedCharacter);
         }
+
+        @Test
+        @DisplayName("Given a cast with a new role, creates that role")
+        void NewRole_Creates() {
+            final Long filmId = 15L;
+            final Long personId = 8L;
+            final String character = "Batman";
+            // film without cast
+            given(filmService.getFilm(filmId)).willReturn(createFilm(filmId));
+            given(personService.getPerson(personId)).willReturn(createPerson(personId));
+            when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
+
+            List<Role> actual = roleService.updateCast(filmId, List.of(createCastMember(personId, character)));
+
+            // assert that saved
+            ArgumentCaptor<Role> savedRole = ArgumentCaptor.forClass(Role.class);
+            verify(roleRepository).save(savedRole.capture());
+            assertThat(savedRole.getValue().getFilm().getId()).isEqualTo(filmId);
+            assertThat(savedRole.getValue().getPerson().getId()).isEqualTo(personId);
+            assertThat(savedRole.getValue().getCharacter()).isEqualTo(character);
+            // assert that returned
+            assertThatCollection(actual).anyMatch(role -> role.getPerson().getId().equals(personId)
+                    && role.getFilm().getId().equals(filmId)
+                    && role.getCharacter().equals(character)
+            );
+        }
+
+        @Test
+        @DisplayName("Given a cast with an existing  role, updates that role")
+        void ExistingRole_Updates() {
+            final Long filmId = 15L;
+            final Long personId = 8L;
+            final String character = "Batman";
+            Film film = createFilm(filmId);
+            Role oldRole = createRole(filmId, personId, "Joker");
+            film.setCast(Set.of(oldRole));
+            given(filmService.getFilm(filmId)).willReturn(film);
+            given(roleRepository.findByIds(filmId, personId)).willReturn(Optional.of(oldRole));
+            when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
+
+            List<Role> actual = roleService.updateCast(filmId, List.of(createCastMember(personId, character)));
+
+            // assert that saved
+            ArgumentCaptor<Role> savedRole = ArgumentCaptor.forClass(Role.class);
+            verify(roleRepository).save(savedRole.capture());
+            assertThat(savedRole.getValue().getFilm().getId()).isEqualTo(filmId);
+            assertThat(savedRole.getValue().getPerson().getId()).isEqualTo(personId);
+            assertThat(savedRole.getValue().getCharacter()).isEqualTo(character);
+            // assert that returned
+            assertThatCollection(actual).anyMatch(role -> role.getPerson().getId().equals(personId)
+                    && role.getFilm().getId().equals(filmId)
+                    && role.getCharacter().equals(character)
+            );
+        }
+
+        @Test
+        @DisplayName("Given a cast that doesn't contain an existing role, deletes that role")
+        void OutdatedRole_Deletes() {
+            final Long filmId = 15L;
+            final Long personId = 8L;
+            Film film = getFilmWithRole(filmId, personId);
+            given(filmService.getFilm(filmId)).willReturn(film);
+
+            List<Role> actual = roleService.updateCast(filmId, Collections.emptyList());
+
+            // assert that deleted
+            ArgumentCaptor<Role> deletedRole = ArgumentCaptor.forClass(Role.class);
+            verify(roleRepository).delete(deletedRole.capture());
+            assertThat(deletedRole.getValue().getFilm().getId()).isEqualTo(filmId);
+            assertThat(deletedRole.getValue().getPerson().getId()).isEqualTo(personId);
+            // assert that not returned
+            assertThatCollection(actual).noneMatch(role -> role.getPerson().getId().equals(personId)
+                    && role.getFilm().getId().equals(filmId)
+            );
+        }
+
+        @Test
+        @DisplayName("Null cast, deletes existing roles")
+        void NullCast_Deletes() {
+            final Long filmId = 15L;
+            final Long personId = 8L;
+            Film film = getFilmWithRole(filmId, personId);
+            given(filmService.getFilm(filmId)).willReturn(film);
+
+            List<Role> actual = roleService.updateCast(filmId, null);
+
+            // assert that deleted
+            ArgumentCaptor<Role> deletedRole = ArgumentCaptor.forClass(Role.class);
+            verify(roleRepository).delete(deletedRole.capture());
+            assertThat(deletedRole.getValue().getFilm().getId()).isEqualTo(filmId);
+            assertThat(deletedRole.getValue().getPerson().getId()).isEqualTo(personId);
+            // assert that empty collection is returned
+            assertThatCollection(actual).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Not existing film id, throws EntityNotFoundException")
+        void NotExistingFilmId_Throws() {
+            given(filmService.getFilm(anyLong())).willReturn(null);
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    roleService.updateCast(1L, createCast(1L))
+            );
+        }
+
+        @Test
+        @DisplayName("Not existing person id, throws EntityNotFoundException")
+        void NotExistingPersonId_Throws() {
+            given(filmService.getFilm(anyLong())).willReturn(new Film());
+            given(personService.getPerson(anyLong())).willReturn(null);
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    roleService.updateCast(1L, createCast(1L))
+            );
+        }
     }
 
     /* Utility */
@@ -238,5 +353,23 @@ class RoleServiceTests extends ServiceTest {
         role.setId(new RoleKey(filmId, actorId));
         film.setCast(Set.of(role));
         return film;
+    }
+
+    private CastMember createCastMember(Long personId, String character) {
+        return new CastMember() {
+            @Override
+            public Long getPersonId() {
+                return personId;
+            }
+
+            @Override
+            public String getCharacter() {
+                return character;
+            }
+        };
+    }
+
+    private List<CastMember> createCast(Long... peopleIds) {
+        return Arrays.stream(peopleIds).map(id -> createCastMember(id, "Character №" + id)).toList();
     }
 }
