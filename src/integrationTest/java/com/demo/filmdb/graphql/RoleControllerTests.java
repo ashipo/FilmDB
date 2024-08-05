@@ -3,25 +3,36 @@ package com.demo.filmdb.graphql;
 import com.demo.filmdb.graphql.payloads.DeleteRolePayload;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleService;
+import com.demo.filmdb.role.dtos.CastMember;
+import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.springframework.graphql.execution.ErrorType.NOT_FOUND;
 
 @GraphQlTest({RoleController.class, TestConfigurer.class})
 @DisplayName("GraphQL Role")
@@ -205,6 +216,79 @@ public class RoleControllerTests {
                     .documentName(DELETE_ROLE)
                     .variable(FILM_ID, filmId)
                     .variable(PERSON_ID, personId)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == ValidationError)
+                    .verify()
+                    .path(DATA)
+                    .pathDoesNotExist();
+        }
+    }
+
+    @Nested
+    @DisplayName(UPDATE_CAST)
+    class UpdateCast {
+
+        @Captor
+        ArgumentCaptor<List<? extends CastMember>> castCaptor;
+
+        @Test
+        @DisplayName("Valid input, updates correctly")
+        void ValidInput_UpdatesCorrectly() {
+            final Long filmId = 3999L;
+            List<Map<Object, Object>> cast = List.of(
+                    Map.of(PERSON_ID, 4L, CHARACTER, "Gandalf"),
+                    Map.of(PERSON_ID, 2L, CHARACTER, "Sauron")
+            );
+
+            graphQlTester
+                    .documentName(UPDATE_CAST)
+                    .variable(FILM_ID, filmId)
+                    .variable("cast", cast)
+                    .executeAndVerify();
+
+            ArgumentCaptor<Long> filmIdCaptor = ArgumentCaptor.forClass(Long.class);
+            verify(roleService).updateCast(filmIdCaptor.capture(), castCaptor.capture());
+            assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
+            assertThat(castCaptor.getValue().get(0)).matches(castMember ->
+                    castMember.getPersonId().equals(4L) && castMember.getCharacter().equals("Gandalf")
+            );
+            assertThat(castCaptor.getValue().get(1)).matches(castMember ->
+                    castMember.getPersonId().equals(2L) && castMember.getCharacter().equals("Sauron")
+            );
+        }
+
+        @Test
+        @DisplayName("Not existing ids, not found error")
+        void NotExistingIds_NotFoundError() {
+            given(roleService.updateCast(anyLong(), any())).willThrow(new EntityNotFoundException("Msg"));
+
+            graphQlTester
+                    .documentName(UPDATE_CAST)
+                    .variable(FILM_ID, 5L)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == NOT_FOUND)
+                    .verify()
+                    .path(UPDATE_CAST)
+                    .valueIsNull();
+        }
+
+        @ParameterizedTest(name = "{argumentsWithNames}")
+        @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
+        @DisplayName("Invalid input, validation error")
+        void InvalidInput_ValidationError(Object filmId, Object personId, Object character) {
+            List<Map<Object, Object>> cast = List.of(
+                    new HashMap<>() {{
+                        put(PERSON_ID, personId);
+                        put(CHARACTER, character);
+                    }}
+            );
+
+            graphQlTester
+                    .documentName(UPDATE_CAST)
+                    .variable(FILM_ID, filmId)
+                    .variable("cast", cast)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)

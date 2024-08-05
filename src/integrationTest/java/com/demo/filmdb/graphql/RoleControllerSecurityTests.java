@@ -168,5 +168,45 @@ public class RoleControllerSecurityTests {
                     .variable(PERSON_ID, 2L)
                     .executeAndVerify();
         }
+
+    }
+
+    @Nested
+    @DisplayName(UPDATE_CAST)
+    class UpdateCast {
+
+        @Test
+        @DisplayName("Not authenticated, unauthorized")
+        void NotAuthenticated_Unauthorized() {
+            graphQlTester
+                    .documentName(UPDATE_CAST)
+                    .variable(FILM_ID, 1L)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
+        }
+
+        @Test
+        @DisplayName("Authenticated as USER, forbidden")
+        @WithMockUser
+        void AuthenticatedUser_Forbidden() {
+            graphQlTester
+                    .documentName(UPDATE_CAST)
+                    .variable(FILM_ID, 1L)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
+        }
+
+        @Test
+        @DisplayName("Authenticated as ADMIN, authorized")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @DirtiesContext
+        void AuthenticatedAdmin_Authorized() {
+            graphQlTester
+                    .documentName(UPDATE_CAST)
+                    .variable(FILM_ID, 1L)
+                    .executeAndVerify();
+        }
     }
 }
