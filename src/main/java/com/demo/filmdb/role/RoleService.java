@@ -127,10 +127,15 @@ public class RoleService {
      */
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Role> updateCast(Long filmId, List<? extends CastMember> cast) throws EntityNotFoundException {
+    public List<Role> updateCast(Long filmId, @Nullable List<? extends CastMember> cast) throws EntityNotFoundException {
         Film film = filmService.getFilm(filmId);
         if (film == null) {
             throw new EntityNotFoundException(filmNotFoundMessage(filmId));
+        }
+        // If new cast is null or empty, delete all roles for the film
+        if (cast == null || cast.isEmpty()) {
+            film.getCast().forEach(roleRepository::delete);
+            return Collections.emptyList();
         }
         // Remove roles that don't exist anymore
         Set<Long> newCastIds = cast.stream().map(CastMember::getPersonId).collect(Collectors.toSet());
