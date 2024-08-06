@@ -13,10 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.demo.filmdb.util.ErrorUtil.*;
@@ -64,14 +61,14 @@ public class RoleService {
     }
 
     /**
-     * Returns a {@link Role} entity with the given ids or {@code null} if it doesn't exist
+     * Returns a {@linkplain Role} entity with the given ids or empty {@code Optional} if it doesn't exist
      *
      * @param filmId   must not be {@code null}
      * @param personId must not be {@code null}
-     * @return the found entity
+     * @return the found entity or empty {@code Optional}
      */
-    public @Nullable Role getRole(Long filmId, Long personId) {
-        return roleRepository.findByIds(filmId, personId).orElse(null);
+    public Optional<Role> getRole(Long filmId, Long personId) {
+        return roleRepository.findByIds(filmId, personId);
     }
 
     /**
@@ -119,7 +116,7 @@ public class RoleService {
         List<Role> updatedCast = new ArrayList<>();
         cast.forEach(role -> {
             final Long personId = role.getPersonId();
-            Role roleToUpdate = getRole(filmId, personId);
+            Role roleToUpdate = getRole(filmId, personId).orElse(null);
             Role updatedRole;
             if (roleToUpdate == null) {
                 Person person = personService.getPerson(personId).orElseThrow(() ->

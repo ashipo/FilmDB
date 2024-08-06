@@ -18,10 +18,7 @@ import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
@@ -98,7 +95,7 @@ public class RoleControllerTests {
             Long filmId = 12L;
             Long personId = 42L;
             Role expectedRole = createRole(filmId, personId);
-            given(roleService.getRole(filmId, personId)).willReturn(expectedRole);
+            given(roleService.getRole(filmId, personId)).willReturn(Optional.of(expectedRole));
 
             graphQlTester
                     .documentName(GET_ROLE)
@@ -115,7 +112,7 @@ public class RoleControllerTests {
         @Test
         @DisplayName("Non existing id, null response")
         void NotExistingId_NullResponse() {
-            given(roleService.getRole(anyLong(), anyLong())).willReturn(null);
+            given(roleService.getRole(anyLong(), anyLong())).willReturn(Optional.empty());
 
             graphQlTester
                     .documentName(GET_ROLE)

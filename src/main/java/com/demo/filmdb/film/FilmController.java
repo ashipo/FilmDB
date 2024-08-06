@@ -43,7 +43,6 @@ import java.util.List;
 
 import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
 import static com.demo.filmdb.util.ErrorUtil.roleNotFoundMessage;
-import static com.demo.filmdb.util.HttpUtil.require;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.FILM;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
@@ -307,7 +306,9 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/cast/{personId}")
     public RoleDto getRole(@PathVariable Long filmId, @PathVariable Long personId) {
-        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
+        Role role = roleService.getRole(filmId, personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, roleNotFoundMessage(filmId, personId))
+        );
         return roleModelAssembler.toModel(role);
     }
 

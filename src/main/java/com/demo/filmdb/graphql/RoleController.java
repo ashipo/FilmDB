@@ -34,7 +34,7 @@ public class RoleController {
 
     @QueryMapping
     public @Nullable Role role(@Argument CrewMemberId id) {
-        return roleService.getRole(id.filmId(), id.personId());
+        return roleService.getRole(id.filmId(), id.personId()).orElse(null);
     }
 
     @MutationMapping

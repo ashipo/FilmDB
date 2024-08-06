@@ -47,10 +47,11 @@ class RoleServiceTests extends ServiceTest {
             final Role expectedRole = new Role();
             given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(expectedRole));
 
-            Role actual = roleService.getRole(expectedFilmId, expectedPersonId);
+            var actual = roleService.getRole(expectedFilmId, expectedPersonId);
 
             verify(roleRepository).findByIds(expectedFilmId, expectedPersonId);
-            assertThat(actual).isEqualTo(expectedRole);
+            assert actual.isPresent();
+            assertThat(actual.get()).isEqualTo(expectedRole);
         }
 
         @Test
@@ -58,9 +59,9 @@ class RoleServiceTests extends ServiceTest {
         void NotExistingIds_ReturnsNull() {
             given(roleRepository.findByIds(anyLong(), anyLong())).willReturn(Optional.empty());
 
-            Role actual = roleService.getRole(11L, 11L);
+            var actual = roleService.getRole(11L, 11L);
 
-            assertThat(actual).isNull();
+            assertThat(actual).isEmpty();
         }
     }
 
