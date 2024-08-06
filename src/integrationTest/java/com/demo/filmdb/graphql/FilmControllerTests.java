@@ -1,5 +1,6 @@
 package com.demo.filmdb.graphql;
 
+import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.inputs.FilmInput;
@@ -45,6 +46,9 @@ public class FilmControllerTests {
 
     @MockBean
     private FilmService filmService;
+
+    @MockBean
+    private DirectorService directorService;
 
     @Nested
     @DisplayName(FILMS)
@@ -332,7 +336,7 @@ public class FilmControllerTests {
                     .executeAndVerify();
 
             ArgumentCaptor<Long> filmIdCaptor = ArgumentCaptor.forClass(Long.class);
-            verify(filmService).updateDirectors(filmIdCaptor.capture(), idsCaptor.capture());
+            verify(directorService).updateDirectors(filmIdCaptor.capture(), idsCaptor.capture());
             assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
             assertThat(idsCaptor.getValue()).isEqualTo(directorsIds);
         }
@@ -340,7 +344,7 @@ public class FilmControllerTests {
         @Test
         @DisplayName("Not existing ids, not found error")
         void NotExistingIds_NotFoundError() {
-            given(filmService.updateDirectors(anyLong(), anyCollection())).willThrow(new EntityNotFoundException("Msg"));
+            given(directorService.updateDirectors(anyLong(), anyCollection())).willThrow(new EntityNotFoundException("Msg"));
 
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)

@@ -1,5 +1,6 @@
 package com.demo.filmdb.film;
 
+import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.dtos.FilmDto;
 import com.demo.filmdb.film.dtos.FilmDtoInput;
 import com.demo.filmdb.film.specifications.FilmWithReleaseAfter;
@@ -54,6 +55,7 @@ public class FilmController {
 
     private final FilmService filmService;
     private final RoleService roleService;
+    private final DirectorService directorService;
     private final FilmModelAssembler filmModelAssembler;
     private final PersonModelAssembler personModelAssembler;
     private final FilmRoleModelAssembler filmRoleModelAssembler;
@@ -63,6 +65,7 @@ public class FilmController {
 
     public FilmController(FilmService filmService,
                           RoleService roleService,
+                          DirectorService directorService,
                           FilmModelAssembler filmModelAssembler,
                           PersonModelAssembler personModelAssembler,
                           FilmRoleModelAssembler filmRoleModelAssembler,
@@ -71,6 +74,7 @@ public class FilmController {
                           PagedResourcesAssembler<Film> pagedResourcesAssembler) {
         this.filmService = filmService;
         this.roleService = roleService;
+        this.directorService = directorService;
         this.filmModelAssembler = filmModelAssembler;
         this.personModelAssembler = personModelAssembler;
         this.filmRoleModelAssembler = filmRoleModelAssembler;
@@ -200,7 +204,7 @@ public class FilmController {
     @PutMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorsIds) {
         try {
-            Film updatedFilm = filmService.updateDirectors(filmId, directorsIds);
+            Film updatedFilm = directorService.updateDirectors(filmId, directorsIds);
             return personModelAssembler.directorsCollectionModel(updatedFilm.getDirectors(), filmId);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -216,7 +220,7 @@ public class FilmController {
     @DeleteMapping("/{filmId}/directors")
     public ResponseEntity<?> deleteDirectors(@PathVariable Long filmId) {
         try {
-            filmService.deleteDirectors(filmId);
+            directorService.deleteDirectors(filmId);
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

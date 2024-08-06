@@ -1,5 +1,6 @@
 package com.demo.filmdb.graphql;
 
+import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.inputs.FilmInput;
@@ -17,11 +18,14 @@ import java.util.List;
 public class FilmController {
 
     private final FilmService filmService;
+    private final DirectorService directorService;
 
     public FilmController(
-            FilmService filmService
+            FilmService filmService,
+            DirectorService directorService
     ) {
         this.filmService = filmService;
+        this.directorService = directorService;
     }
 
     @QueryMapping
@@ -58,7 +62,7 @@ public class FilmController {
 
     @MutationMapping
     public Film updateFilmDirectors(@Argument Long filmId, @Argument List<Long> directorsIds) {
-        return filmService.updateDirectors(filmId, directorsIds);
+        return directorService.updateDirectors(filmId, directorsIds);
     }
 
     private void updateFilmFromInput(Film film, FilmInput input) {
