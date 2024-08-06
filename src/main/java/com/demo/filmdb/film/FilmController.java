@@ -39,9 +39,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
-import static com.demo.filmdb.util.ErrorUtil.*;
+import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
+import static com.demo.filmdb.util.ErrorUtil.roleNotFoundMessage;
 import static com.demo.filmdb.util.HttpUtil.require;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.FILM;
@@ -243,16 +245,14 @@ public class FilmController {
             @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content),
     })
     @PutMapping("/{filmId}/cast")
-    public CollectionModel<FilmRoleDto> updateCast(@PathVariable Long filmId, @RequestBody @Valid Set<FilmRoleDtoInput> newRoleDtos) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Map<Person, String> newCast = new HashMap<>();
-        newRoleDtos.forEach(dto -> {
-            Long personId = dto.personId();
-            Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
-            newCast.put(person, dto.character());
-        });
-        Set<Role> updatedCast = roleService.updateCast(film, newCast);
-        return filmRoleModelAssembler.toCollectionModel(updatedCast, filmId);
+    public CollectionModel<FilmRoleDto> updateCast(@PathVariable Long filmId, @RequestBody @Valid List<FilmRoleDtoInput> newRoleDtos) {
+        try {
+            List<Role> updatedCast = roleService.updateCast(filmId, newRoleDtos);
+            return filmRoleModelAssembler.toCollectionModel(updatedCast, filmId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+
     }
 
     @Operation(summary = "Delete film cast", tags = TAG_ROLES)
