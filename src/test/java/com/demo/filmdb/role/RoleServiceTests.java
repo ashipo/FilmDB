@@ -174,61 +174,6 @@ class RoleServiceTests extends ServiceTest {
     class UpdateCast {
 
         @Test
-        @DisplayName("Given a cast that doesn't contain an existing role, deletes that role")
-        void RoleToDelete_Deletes() {
-            long expectedFilmId = 2;
-            long expectedPersonId = 1;
-            long newPersonId = expectedPersonId + 1;    //new actor's id, must be different from the old one
-            Film film = getFilmWithRole(expectedFilmId, expectedPersonId);
-            Map<Person, String> newCast = Map.of(createPerson(newPersonId), "Husk");
-
-            roleService.updateCast(film, newCast);
-
-            ArgumentCaptor<Role> deletedRole = ArgumentCaptor.forClass(Role.class);
-            verify(roleRepository).delete(deletedRole.capture());
-            assertThat(deletedRole.getValue().getFilm().getId()).isEqualTo(expectedFilmId);
-            assertThat(deletedRole.getValue().getPerson().getId()).isEqualTo(expectedPersonId);
-        }
-
-        @Test
-        @DisplayName("Given a cast that contains an existing role, updates the character for that role")
-        void RoleToUpdate_Updates() {
-            long expectedFilmId = 2;
-            long expectedPersonId = 1;
-            Film film = getFilmWithRole(expectedFilmId, expectedPersonId);
-            String expectedCharacter = "Thanos";
-            Map<Person, String> newCast = Map.of(createPerson(expectedPersonId), expectedCharacter);
-            given(roleRepository.findByIds(expectedFilmId, expectedPersonId))
-                    .willReturn(film.getCast().stream().findFirst());
-
-            Set<Role> actualRoles = roleService.updateCast(film, newCast);
-
-            Optional<Role> actualRole = actualRoles.stream().filter(r -> r.getPerson().getId() == expectedPersonId)
-                    .findFirst();
-            assertThat(actualRole).hasValueSatisfying(role ->
-                    assertThat(role.getCharacter()).isEqualTo(expectedCharacter)
-            );
-        }
-
-        @Test
-        @DisplayName("Given a cast with a new role, creates that role")
-        void RoleToCreate_Creates() {
-            long expectedFilmId = 2;
-            long expectedPersonId = 3;
-            Film film = getFilmWithRole(expectedFilmId, expectedPersonId + 1);
-            String expectedCharacter = "Thanos";
-            Map<Person, String> newCast = Map.of(createPerson(expectedPersonId), expectedCharacter);
-
-            roleService.updateCast(film, newCast);
-
-            ArgumentCaptor<Role> savedRole = ArgumentCaptor.forClass(Role.class);
-            verify(roleRepository).save(savedRole.capture());
-            assertThat(savedRole.getValue().getFilm().getId()).isEqualTo(expectedFilmId);
-            assertThat(savedRole.getValue().getPerson().getId()).isEqualTo(expectedPersonId);
-            assertThat(savedRole.getValue().getCharacter()).isEqualTo(expectedCharacter);
-        }
-
-        @Test
         @DisplayName("Given a cast with a new role, creates that role")
         void NewRole_Creates() {
             final Long filmId = 15L;

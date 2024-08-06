@@ -91,33 +91,6 @@ public class RoleService {
     }
 
     /**
-     * Replaces {@code film} cast
-     *
-     * @param film must not be {@code null}.
-     * @param newCast map of person and character description. Must not be {@code null}.
-     * @return the updated cast.
-     */
-    @Transactional
-    public Set<Role> updateCast(Film film, Map<Person, String> newCast) {
-        Set<Long> newCastIds = newCast.keySet().stream().map(Person::getId).collect(Collectors.toSet());
-        film.getCast().stream().
-                filter(r -> !newCastIds.contains(r.getPerson().getId())).
-                forEach(roleRepository::delete);
-        Set<Role> result = new HashSet<>();
-        newCast.forEach((person, character) -> {
-            Role role = roleRepository
-                    .findByIds(film.getId(), person.getId())
-                    .map(roleToEdit -> {
-                        roleToEdit.setCharacter(character);
-                        return roleToEdit;
-                    })
-                    .orElseGet(() -> roleRepository.save(new Role(film, person, character)));
-            result.add(role);
-        });
-        return result;
-    }
-
-    /**
      * Replaces {@linkplain Film} cast
      *
      * @param filmId film id
