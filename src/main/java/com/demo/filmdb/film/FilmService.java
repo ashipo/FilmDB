@@ -14,10 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -75,13 +72,13 @@ public class FilmService {
     }
 
     /**
-     * Returns a {@link Film} entity with the given id or null if it doesn't exist.
+     * Returns a {@linkplain Film} entity with the given id or empty {@code Optional} if it doesn't exist
      *
-     * @param filmId must not be {@code null}.
-     * @return the found entity.
+     * @param filmId must not be {@code null}
+     * @return the found entity or empty {@code Optional}
      */
-    public @Nullable Film getFilm(Long filmId) {
-        return filmRepository.findById(filmId).orElse(null);
+    public Optional<Film> getFilm(Long filmId) {
+        return filmRepository.findById(filmId);
     }
 
     /**
@@ -122,10 +119,9 @@ public class FilmService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public Film updateDirectors(Long filmId, @Nullable Collection<Long> directorsIds) throws EntityNotFoundException {
-        Film film = getFilm(filmId);
-        if (film == null) {
-            throw new EntityNotFoundException(filmNotFoundMessage(filmId));
-        }
+        Film film = getFilm(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
         if (directorsIds == null || directorsIds.isEmpty()) {
             film.getDirectors().clear();
             return saveFilm(film);

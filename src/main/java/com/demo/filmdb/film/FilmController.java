@@ -7,7 +7,6 @@ import com.demo.filmdb.film.specifications.FilmWithReleaseBefore;
 import com.demo.filmdb.film.specifications.FilmWithTitle;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonModelAssembler;
-import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.person.dtos.PersonDto;
 import com.demo.filmdb.role.FilmRoleModelAssembler;
 import com.demo.filmdb.role.Role;
@@ -55,7 +54,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class FilmController {
 
     private final FilmService filmService;
-    private final PersonService personService;
     private final RoleService roleService;
     private final FilmModelAssembler filmModelAssembler;
     private final PersonModelAssembler personModelAssembler;
@@ -65,7 +63,6 @@ public class FilmController {
     private final PagedResourcesAssembler<Film> pagedResourcesAssembler;
 
     public FilmController(FilmService filmService,
-                          PersonService personService,
                           RoleService roleService,
                           FilmModelAssembler filmModelAssembler,
                           PersonModelAssembler personModelAssembler,
@@ -74,7 +71,6 @@ public class FilmController {
                           FilmMapper filmMapper,
                           PagedResourcesAssembler<Film> pagedResourcesAssembler) {
         this.filmService = filmService;
-        this.personService = personService;
         this.roleService = roleService;
         this.filmModelAssembler = filmModelAssembler;
         this.personModelAssembler = personModelAssembler;
@@ -138,7 +134,9 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}")
     public FilmDto getFilm(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        Film film = filmService.getFilm(filmId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
+        );
         return filmModelAssembler.toModel(film);
     }
 
@@ -169,7 +167,9 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}")
     public ResponseEntity<?> deleteFilm(@PathVariable Long filmId) {
-        require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        filmService.getFilm(filmId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
+        );
         filmService.deleteFilm(filmId);
         return ResponseEntity.noContent().build();
     }
@@ -184,7 +184,9 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> getDirectors(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        Film film = filmService.getFilm(filmId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
+        );
         Collection<Person> directors = film.getDirectors();
         return personModelAssembler.directorsCollectionModel(directors, filmId);
     }
@@ -232,7 +234,9 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> getCast(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        Film film = filmService.getFilm(filmId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
+        );
         Collection<Role> cast = film.getCast();
         return filmRoleModelAssembler.toCollectionModel(cast, film.getId());
     }
@@ -263,7 +267,9 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/cast")
     public ResponseEntity<?> deleteCast(@PathVariable Long filmId) {
-        require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        filmService.getFilm(filmId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
+        );
         filmService.deleteCast(filmId);
         return ResponseEntity.noContent().build();
     }

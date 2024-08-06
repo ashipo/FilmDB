@@ -82,11 +82,11 @@ class FilmServiceTests extends ServiceTest {
             final long expectedFilmId = 9L;
             given(filmRepository.findById(expectedFilmId)).willReturn(Optional.of(createFilm(expectedFilmId)));
 
-            Film actual = filmService.getFilm(expectedFilmId);
+            var actual = filmService.getFilm(expectedFilmId);
 
             verify(filmRepository).findById(expectedFilmId);
-            assert actual != null;
-            assertThat(actual.getId()).isEqualTo(expectedFilmId);
+            assert actual.isPresent();
+            assertThat(actual.get().getId()).isEqualTo(expectedFilmId);
         }
 
         @Test
@@ -94,9 +94,9 @@ class FilmServiceTests extends ServiceTest {
         void NotExistingId_ReturnsNull() {
             given(filmRepository.findById(anyLong())).willReturn(Optional.empty());
 
-            Film actual = filmService.getFilm(9L);
+            var actual = filmService.getFilm(9L);
 
-            assertThat(actual).isNull();
+            assertThat(actual).isEmpty();
         }
     }
 

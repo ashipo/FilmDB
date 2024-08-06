@@ -13,7 +13,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.demo.filmdb.util.ErrorUtil.*;
@@ -48,10 +51,9 @@ public class RoleService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public Role createRole(Long filmId, Long personId, String character) throws EntityNotFoundException, EntityAlreadyExistsException {
-        Film film = filmService.getFilm(filmId);
-        if (film == null) {
-            throw new EntityNotFoundException(filmNotFoundMessage(filmId));
-        }
+        Film film = filmService.getFilm(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
         Person person = personService.getPerson(personId);
         if (person == null) {
             throw new EntityNotFoundException(personNotFoundMessage(personId));
@@ -101,10 +103,9 @@ public class RoleService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public List<Role> updateCast(Long filmId, @Nullable List<? extends CastMember> cast) throws EntityNotFoundException {
-        Film film = filmService.getFilm(filmId);
-        if (film == null) {
-            throw new EntityNotFoundException(filmNotFoundMessage(filmId));
-        }
+        Film film = filmService.getFilm(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
         // If new cast is null or empty, delete all roles for the film
         if (cast == null || cast.isEmpty()) {
             film.getCast().forEach(roleRepository::delete);

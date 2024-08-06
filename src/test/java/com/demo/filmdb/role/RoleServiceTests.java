@@ -91,7 +91,7 @@ class RoleServiceTests extends ServiceTest {
             Long expectedFilmId = 2L;
             Long expectedPersonId = 3L;
             String expectedCharacter = "butler";
-            given(filmService.getFilm(anyLong())).willReturn(createFilm(expectedFilmId));
+            given(filmService.getFilm(anyLong())).willReturn(Optional.of(createFilm(expectedFilmId)));
             given(personService.getPerson(anyLong())).willReturn(createPerson(expectedPersonId));
             given(roleRepository.findById(any())).willReturn(Optional.empty());
             when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
@@ -106,7 +106,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing film id, throws EntityNotFoundException")
         void NotExistingFilmId_Throws() {
-            given(filmService.getFilm(anyLong())).willReturn(null);
+            given(filmService.getFilm(anyLong())).willReturn(Optional.empty());
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                     roleService.createRole(1L, 1L, "Char")
@@ -116,7 +116,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing person id, throws EntityNotFoundException")
         void NotExistingPersonId_Throws() {
-            given(filmService.getFilm(anyLong())).willReturn(new Film());
+            given(filmService.getFilm(anyLong())).willReturn(Optional.of(new Film()));
             given(personService.getPerson(anyLong())).willReturn(null);
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
@@ -127,7 +127,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Existing role, throws EntityAlreadyExistsException")
         void ExistingRole_Throws() {
-            given(filmService.getFilm(anyLong())).willReturn(new Film());
+            given(filmService.getFilm(anyLong())).willReturn(Optional.of(new Film()));
             given(personService.getPerson(anyLong())).willReturn(new Person());
             given(roleRepository.findById(any())).willReturn(Optional.of(new Role()));
 
@@ -180,7 +180,7 @@ class RoleServiceTests extends ServiceTest {
             final Long personId = 8L;
             final String character = "Batman";
             // film without cast
-            given(filmService.getFilm(filmId)).willReturn(createFilm(filmId));
+            given(filmService.getFilm(filmId)).willReturn(Optional.of(createFilm(filmId)));
             given(personService.getPerson(personId)).willReturn(createPerson(personId));
             when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
 
@@ -208,7 +208,7 @@ class RoleServiceTests extends ServiceTest {
             Film film = createFilm(filmId);
             Role oldRole = createRole(filmId, personId, "Joker");
             film.setCast(Set.of(oldRole));
-            given(filmService.getFilm(filmId)).willReturn(film);
+            given(filmService.getFilm(filmId)).willReturn(Optional.of(film));
             given(roleRepository.findByIds(filmId, personId)).willReturn(Optional.of(oldRole));
             when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
 
@@ -233,7 +233,7 @@ class RoleServiceTests extends ServiceTest {
             final Long filmId = 15L;
             final Long personId = 8L;
             Film film = getFilmWithRole(filmId, personId);
-            given(filmService.getFilm(filmId)).willReturn(film);
+            given(filmService.getFilm(filmId)).willReturn(Optional.of(film));
 
             List<Role> actual = roleService.updateCast(filmId, Collections.emptyList());
 
@@ -254,7 +254,7 @@ class RoleServiceTests extends ServiceTest {
             final Long filmId = 15L;
             final Long personId = 8L;
             Film film = getFilmWithRole(filmId, personId);
-            given(filmService.getFilm(filmId)).willReturn(film);
+            given(filmService.getFilm(filmId)).willReturn(Optional.of(film));
 
             List<Role> actual = roleService.updateCast(filmId, null);
 
@@ -270,7 +270,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing film id, throws EntityNotFoundException")
         void NotExistingFilmId_Throws() {
-            given(filmService.getFilm(anyLong())).willReturn(null);
+            given(filmService.getFilm(anyLong())).willReturn(Optional.empty());
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                     roleService.updateCast(1L, createCast(1L))
@@ -280,7 +280,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing person id, throws EntityNotFoundException")
         void NotExistingPersonId_Throws() {
-            given(filmService.getFilm(anyLong())).willReturn(new Film());
+            given(filmService.getFilm(anyLong())).willReturn(Optional.of(new Film()));
             given(personService.getPerson(anyLong())).willReturn(null);
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->

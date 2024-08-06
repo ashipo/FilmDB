@@ -22,10 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
@@ -125,7 +122,7 @@ public class FilmControllerTests {
         void ExistingId_CorrectResponse() {
             Long id = 37L;
             Film expectedFilm = createFilm(id);
-            given(filmService.getFilm(anyLong())).willReturn(expectedFilm);
+            given(filmService.getFilm(anyLong())).willReturn(Optional.of(expectedFilm));
 
             graphQlTester
                     .documentName(GET_FILM)
@@ -142,7 +139,7 @@ public class FilmControllerTests {
         @Test
         @DisplayName("Non existing id, null response")
         void NotExistingId_NullResponse() {
-            given(filmService.getFilm(anyLong())).willReturn(null);
+            given(filmService.getFilm(anyLong())).willReturn(Optional.empty());
 
             graphQlTester
                     .documentName(GET_FILM)

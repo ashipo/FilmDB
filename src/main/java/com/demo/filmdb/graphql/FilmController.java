@@ -32,7 +32,7 @@ public class FilmController {
 
     @QueryMapping
     public @Nullable Film film(@Argument Long id) {
-        return filmService.getFilm(id);
+        return filmService.getFilm(id).orElse(null);
     }
 
     @MutationMapping
