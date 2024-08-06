@@ -79,7 +79,7 @@ class FilmServiceTests extends ServiceTest {
         @Test
         @DisplayName("Existing id, finds and returns the found Entity")
         void ExistingId_ReturnsFilm() {
-            final long expectedFilmId = 9L;
+            final Long expectedFilmId = 9L;
             given(filmRepository.findById(expectedFilmId)).willReturn(Optional.of(createFilm(expectedFilmId)));
 
             var actual = filmService.getFilm(expectedFilmId);
@@ -183,7 +183,7 @@ class FilmServiceTests extends ServiceTest {
             for (Long id : directorsIds) {
                 directors.add(createPerson(id));
             }
-            given(filmRepository.findById(anyLong())).willReturn(Optional.of(createFilm(filmId)));
+            given(filmRepository.findById(filmId)).willReturn(Optional.of(createFilm(filmId)));
             given(personService.getPeople(any())).willReturn(directors);
 
             filmService.updateDirectors(filmId, directorsIds);
@@ -238,7 +238,7 @@ class FilmServiceTests extends ServiceTest {
     class DeleteCast {
         @Test
         public void ExistingId_Deletes() {
-            final long expectedFilmId = 1L;
+            final Long expectedFilmId = 1L;
 
             filmService.deleteCast(expectedFilmId);
 

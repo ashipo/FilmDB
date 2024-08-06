@@ -69,12 +69,14 @@ public class PersonServiceTests extends ServiceTest {
         @Test
         @DisplayName("Finds existing person by id")
         void ExistingId_Finds() {
-            final long expectedPersonId = 11L;
-            given(personRepository.findById(anyLong())).willReturn(Optional.of(new Person()));
+            final Long expectedPersonId = 11L;
+            given(personRepository.findById(expectedPersonId)).willReturn(Optional.of(createPerson(expectedPersonId)));
 
-            personService.getPerson(expectedPersonId);
+            var actual = personService.getPerson(expectedPersonId);
 
             verify(personRepository).findById(expectedPersonId);
+            assert actual.isPresent();
+            assertThat(actual.get().getId()).isEqualTo(expectedPersonId);
         }
 
         @Test
@@ -82,9 +84,9 @@ public class PersonServiceTests extends ServiceTest {
         void NotExistingId_ReturnsNull() {
             given(personRepository.findById(anyLong())).willReturn(Optional.empty());
 
-            Person actual = personService.getPerson(11L);
+            var actual = personService.getPerson(11L);
 
-            assertThat(actual).isNull();
+            assertThat(actual).isEmpty();
         }
     }
 
@@ -93,7 +95,7 @@ public class PersonServiceTests extends ServiceTest {
         @Test
         @DisplayName("Deletes existing person")
         void ExistingId_Deletes() {
-            final long expectedPersonId = 11L;
+            final Long expectedPersonId = 11L;
             Person expected = new Person();
             expected.setId(expectedPersonId);
 

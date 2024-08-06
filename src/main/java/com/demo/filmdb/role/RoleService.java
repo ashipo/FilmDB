@@ -54,10 +54,9 @@ public class RoleService {
         Film film = filmService.getFilm(filmId).orElseThrow(() ->
                 new EntityNotFoundException(filmNotFoundMessage(filmId))
         );
-        Person person = personService.getPerson(personId);
-        if (person == null) {
-            throw new EntityNotFoundException(personNotFoundMessage(personId));
-        }
+        Person person = personService.getPerson(personId).orElseThrow(() ->
+                new EntityNotFoundException(personNotFoundMessage(personId))
+        );
         if (roleExists(filmId, personId)) {
             throw new EntityAlreadyExistsException("Role for filmId " + filmId + " and personId " + personId + " already exists.");
         }
@@ -123,10 +122,9 @@ public class RoleService {
             Role roleToUpdate = getRole(filmId, personId);
             Role updatedRole;
             if (roleToUpdate == null) {
-                Person person = personService.getPerson(personId);
-                if (person == null) {
-                    throw new EntityNotFoundException(personNotFoundMessage(personId));
-                }
+                Person person = personService.getPerson(personId).orElseThrow(() ->
+                        new EntityNotFoundException(personNotFoundMessage(personId))
+                );
                 updatedRole = roleRepository.save(new Role(film, person, role.getCharacter()));
             } else {
                 roleToUpdate.setCharacter(role.getCharacter());

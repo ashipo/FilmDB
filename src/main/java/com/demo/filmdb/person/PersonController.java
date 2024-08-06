@@ -25,14 +25,15 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
 import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
-import static com.demo.filmdb.util.HttpUtil.require;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.PEOPLE;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
@@ -117,7 +118,9 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/{personId}")
     public PersonDto getPerson(@PathVariable Long personId) {
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+        Person person = personService.getPerson(personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
+        );
         return personModelAssembler.toModel(person);
     }
 
@@ -130,7 +133,9 @@ public class PersonController {
     })
     @PutMapping("/{personId}")
     public PersonDto updatePerson(@PathVariable Long personId, @Valid @RequestBody PersonDtoInput personDtoInput) {
-        Person personToUpdate = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+        Person personToUpdate = personService.getPerson(personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
+        );
         Person updatedPerson = personMapper.updatePersonFromPersonDtoInput(personDtoInput, personToUpdate);
         Person savedPerson = personService.savePerson(updatedPerson);
         return personModelAssembler.toModel(savedPerson);
@@ -144,7 +149,9 @@ public class PersonController {
     })
     @DeleteMapping("/{personId}")
     public ResponseEntity<?> deletePerson(@PathVariable Long personId) {
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+        Person person = personService.getPerson(personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
+        );
         personService.deletePerson(person);
         return ResponseEntity.noContent().build();
     }
@@ -157,7 +164,9 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/{personId}/films_directed")
     public CollectionModel<FilmDto> getFilmsDirected(@PathVariable Long personId) {
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+        Person person = personService.getPerson(personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
+        );
         Collection<Film> directed = person.getFilmsDirected();
         return filmModelAssembler.directedFilmsCollectionModel(directed, personId);
     }
@@ -170,7 +179,9 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/{personId}/roles")
     public CollectionModel<ActorRoleDto> getRoles(@PathVariable Long personId) {
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+        Person person = personService.getPerson(personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
+        );
         Collection<Role> roles = person.getRoles();
         return roleModelAssembler.toCollectionModel(roles, personId);
     }

@@ -4,12 +4,12 @@ import com.demo.filmdb.role.RoleRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PersonService {
@@ -65,13 +65,13 @@ public class PersonService {
     }
 
     /**
-     * Returns a {@link Person} entity with the given id or {@code null} if it doesn't exist.
+     * Returns a {@linkplain Person} entity with the given id or empty {@code Optional} if it doesn't exist
      *
-     * @param personId must not be {@code null}.
-     * @return the found entity.
+     * @param personId must not be {@code null}
+     * @return the found entity or empty {@code Optional}
      */
-    public @Nullable Person getPerson(Long personId) {
-        return personRepository.findById(personId).orElse(null);
+    public Optional<Person> getPerson(Long personId) {
+        return personRepository.findById(personId);
     }
 
     /**
