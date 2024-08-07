@@ -94,7 +94,7 @@ class RoleServiceTests extends ServiceTest {
             String expectedCharacter = "butler";
             given(filmService.getFilm(expectedFilmId)).willReturn(Optional.of(createFilm(expectedFilmId)));
             given(personService.getPerson(expectedPersonId)).willReturn(Optional.of(createPerson(expectedPersonId)));
-            given(roleRepository.findById(any())).willReturn(Optional.empty());
+            given(roleRepository.existsById(any())).willReturn(false);
             when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
 
             Role actual = roleService.createRole(expectedFilmId, expectedPersonId, expectedCharacter);
@@ -130,7 +130,7 @@ class RoleServiceTests extends ServiceTest {
         void ExistingRole_Throws() {
             given(filmService.getFilm(anyLong())).willReturn(Optional.of(new Film()));
             given(personService.getPerson(anyLong())).willReturn(Optional.of(new Person()));
-            given(roleRepository.findById(any())).willReturn(Optional.of(new Role()));
+            given(roleRepository.existsById(any())).willReturn(true);
 
             assertThatExceptionOfType(EntityAlreadyExistsException.class).isThrownBy(() ->
                     roleService.createRole(1L, 1L, "Char")
@@ -179,7 +179,7 @@ class RoleServiceTests extends ServiceTest {
         void ExistingRole_ReturnsTrue() {
             final Long filmId = 1L;
             final Long personId = 2L;
-            given(roleRepository.findById(any())).willReturn(Optional.of(new Role()));
+            given(roleRepository.existsById(any())).willReturn(true);
 
             boolean actual = roleService.roleExists(filmId, personId);
 
@@ -191,7 +191,7 @@ class RoleServiceTests extends ServiceTest {
         void NotExistingRole_ReturnsFalse() {
             final Long filmId = 1L;
             final Long personId = 2L;
-            given(roleRepository.findById(any())).willReturn(Optional.empty());
+            given(roleRepository.existsById(any())).willReturn(false);
 
             boolean actual = roleService.roleExists(filmId, personId);
 

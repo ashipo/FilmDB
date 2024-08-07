@@ -101,7 +101,7 @@ public class RoleService {
     }
 
     /**
-     * Returns whether a {@link Role} with the given ids exist.
+     * Returns whether a {@link Role} with the given ids exists
      *
      * @param filmId must not be {@code null}.
      * @param personId must not be {@code null}.
@@ -109,7 +109,7 @@ public class RoleService {
      */
     public boolean roleExists(Long filmId, Long personId) {
         RoleKey key = new RoleKey(filmId, personId);
-        return roleRepository.findById(key).isPresent();
+        return roleRepository.existsById(key);
     }
 
     /**
