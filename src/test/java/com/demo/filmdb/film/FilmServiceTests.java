@@ -135,18 +135,4 @@ class FilmServiceTests extends ServiceTest {
             verify(roleRepository).deleteById_FilmId(expectedId);
         }
     }
-
-    /* Cast */
-
-    @Nested
-    class DeleteCast {
-        @Test
-        public void ExistingId_Deletes() {
-            final Long expectedFilmId = 1L;
-
-            filmService.deleteCast(expectedFilmId);
-
-            verify(roleRepository).deleteById_FilmId(expectedFilmId);
-        }
-    }
 }

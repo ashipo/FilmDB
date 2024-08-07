@@ -94,13 +94,4 @@ public class FilmService {
         roleRepository.deleteById_FilmId(filmId);
         filmRepository.deleteById(filmId);
     }
-
-    /**
-     * Deletes all roles for a {@link Film} with the given {@code filmId}.
-     *
-     * @param filmId must not be {@code null}.
-     */
-    public void deleteCast(Long filmId) {
-        roleRepository.deleteById_FilmId(filmId);
-    }
 }

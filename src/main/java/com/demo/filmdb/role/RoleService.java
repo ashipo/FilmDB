@@ -89,6 +89,30 @@ public class RoleService {
     }
 
     /**
+     * Deletes a {@link Role} entity for the given ids
+     *
+     * @param filmId    role film
+     * @param personId  role person
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteRole(Long filmId, Long personId) {
+        RoleKey roleKey = new RoleKey(filmId, personId);
+        roleRepository.deleteById(roleKey);
+    }
+
+    /**
+     * Returns whether a {@link Role} with the given ids exist.
+     *
+     * @param filmId must not be {@code null}.
+     * @param personId must not be {@code null}.
+     * @return true if exists, false otherwise.
+     */
+    public boolean roleExists(Long filmId, Long personId) {
+        RoleKey key = new RoleKey(filmId, personId);
+        return roleRepository.findById(key).isPresent();
+    }
+
+    /**
      * Replaces {@linkplain Film} cast
      *
      * @param filmId film id
@@ -133,26 +157,12 @@ public class RoleService {
     }
 
     /**
-     * Deletes a {@link Role} entity for the given ids
+     * Deletes all roles for a {@link Film}
      *
-     * @param filmId    role film
-     * @param personId  role person
+     * @param filmId must not be {@code null}
      */
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteRole(Long filmId, Long personId) {
-        RoleKey roleKey = new RoleKey(filmId, personId);
-        roleRepository.deleteById(roleKey);
-    }
-
-    /**
-     * Returns whether a {@link Role} with the given ids exist.
-     *
-     * @param filmId must not be {@code null}.
-     * @param personId must not be {@code null}.
-     * @return true if exists, false otherwise.
-     */
-    public boolean roleExists(Long filmId, Long personId) {
-        RoleKey key = new RoleKey(filmId, personId);
-        return roleRepository.findById(key).isPresent();
+    public void deleteCast(Long filmId) {
+        roleRepository.deleteById_FilmId(filmId);
     }
 }

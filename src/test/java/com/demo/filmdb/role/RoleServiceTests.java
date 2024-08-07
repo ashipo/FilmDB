@@ -170,6 +170,8 @@ class RoleServiceTests extends ServiceTest {
         }
     }
 
+    /* Cast */
+
     @Nested
     @DisplayName("updateCast")
     class UpdateCast {
@@ -287,6 +289,21 @@ class RoleServiceTests extends ServiceTest {
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                     roleService.updateCast(1L, createCast(1L))
             );
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteCast")
+    class DeleteCast {
+
+        @Test
+        @DisplayName("")
+        public void ExistingId_Deletes() {
+            final Long expectedFilmId = 1L;
+
+            roleService.deleteCast(expectedFilmId);
+
+            verify(roleRepository).deleteById_FilmId(expectedFilmId);
         }
     }
 

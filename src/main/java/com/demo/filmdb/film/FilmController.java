@@ -273,7 +273,7 @@ public class FilmController {
         filmService.getFilm(filmId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
         );
-        filmService.deleteCast(filmId);
+        roleService.deleteCast(filmId);
         return ResponseEntity.noContent().build();
     }
 
