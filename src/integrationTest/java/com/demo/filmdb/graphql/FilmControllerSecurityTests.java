@@ -11,8 +11,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static com.demo.filmdb.Utils.NOT_EXISTING_ID;
 import static com.demo.filmdb.Utils.ROLE_ADMIN;
 import static com.demo.filmdb.graphql.Util.*;
@@ -169,48 +167,6 @@ public class FilmControllerSecurityTests {
                     .documentName(UPDATE_FILM)
                     .variable("id", 1)
                     .variable("filmInput", getValidFilmInput())
-                    .executeAndVerify();
-        }
-    }
-
-    @Nested
-    @DisplayName(UPDATE_DIRECTORS)
-    class UpdateFilmDirectors {
-
-        @Test
-        @DisplayName("Not authenticated, unauthorized")
-        void NotAuthenticated_Unauthorized() {
-            graphQlTester
-                    .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", NOT_EXISTING_ID)
-                    .variable("directorsIds", List.of(NOT_EXISTING_ID))
-                    .execute()
-                    .errors()
-                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
-        }
-
-        @Test
-        @DisplayName("Authenticated as USER, forbidden")
-        @WithMockUser
-        void AuthenticatedUser_Forbidden() {
-            graphQlTester
-                    .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", NOT_EXISTING_ID)
-                    .variable("directorsIds", List.of(NOT_EXISTING_ID))
-                    .execute()
-                    .errors()
-                    .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
-        }
-
-        @Test
-        @DisplayName("Authenticated as ADMIN, authorized")
-        @WithMockUser(roles = {ROLE_ADMIN})
-        @Transactional
-        void AuthenticatedAdmin_Authorized() {
-            graphQlTester
-                    .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", 1)
-                    .variable("directorsIds", List.of(3L))
                     .executeAndVerify();
         }
     }

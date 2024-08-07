@@ -13,7 +13,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,7 +30,8 @@ import static graphql.ErrorType.ValidationError;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -316,66 +316,9 @@ public class FilmControllerTests {
         }
     }
 
-    @Nested
-    @DisplayName(UPDATE_DIRECTORS)
-    class UpdateDirectors {
-
-        @Captor
-        ArgumentCaptor<List<Long>> idsCaptor;
-
-        @Test
-        @DisplayName("Valid input, updates correctly")
-        void ValidInput_CorrectResponse() {
-            Long filmId = 5L;
-            List<Long> directorsIds = List.of(3L, 7L);
-
-            graphQlTester
-                    .documentName(UPDATE_DIRECTORS)
-                    .variable(FILM_ID, filmId)
-                    .variable("directorsIds", directorsIds)
-                    .executeAndVerify();
-
-            ArgumentCaptor<Long> filmIdCaptor = ArgumentCaptor.forClass(Long.class);
-            verify(directorService).updateDirectors(filmIdCaptor.capture(), idsCaptor.capture());
-            assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
-            assertThat(idsCaptor.getValue()).isEqualTo(directorsIds);
-        }
-
-        @Test
-        @DisplayName("Not existing ids, not found error")
-        void NotExistingIds_NotFoundError() {
-            given(directorService.updateDirectors(anyLong(), anyCollection())).willThrow(new EntityNotFoundException("Msg"));
-
-            graphQlTester
-                    .documentName(UPDATE_DIRECTORS)
-                    .variable(FILM_ID, 5L)
-                    .variable("directorsIds", List.of(3L))
-                    .execute()
-                    .errors()
-                    .expect(responseError -> responseError.getErrorType() == NOT_FOUND)
-                    .verify()
-                    .path(UPDATE_DIRECTORS)
-                    .valueIsNull();
-        }
-
-        @Test
-        @DisplayName("Invalid input, validation error")
-        void InvalidInput_ValidationError() {
-            graphQlTester
-                    .documentName(UPDATE_DIRECTORS)
-                    .variable("directorsIds", List.of(3L))
-                    .execute()
-                    .errors()
-                    .expect(responseError -> responseError.getErrorType() == ValidationError)
-                    .verify()
-                    .path(DATA)
-                    .pathDoesNotExist();
-        }
-    }
-
     private static Stream<Arguments> validFilmInputs() {
         final String title = "Forrest Gump";
-        final LocalDate date = LocalDate.now();
+        final LocalDate date = LocalDate.of(1994, 7, 6);
         final String synopsis = "Life was like a box of chocolates";
         return Stream.of(
                 arguments(named("All fields", new FilmInput(title, date, synopsis))),
@@ -385,7 +328,7 @@ public class FilmControllerTests {
 
     private static Stream<Arguments> invalidFilmInputs() {
         final String title = "Alien";
-        final LocalDate date = LocalDate.now();
+        final LocalDate date = LocalDate.of(1979, 6, 22);
         final String synopsis = "In space, no can hear you scream";
         return Stream.of(
                 arguments(named("Null title", new FilmInput(null, date, synopsis))),

@@ -1,6 +1,5 @@
 package com.demo.filmdb.graphql;
 
-import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.inputs.FilmInput;
@@ -12,20 +11,15 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
-
 @Controller("graphqlFilmController")
 public class FilmController {
 
     private final FilmService filmService;
-    private final DirectorService directorService;
 
     public FilmController(
-            FilmService filmService,
-            DirectorService directorService
+            FilmService filmService
     ) {
         this.filmService = filmService;
-        this.directorService = directorService;
     }
 
     @QueryMapping
@@ -58,11 +52,6 @@ public class FilmController {
         film.setId(id);
         updateFilmFromInput(film, input);
         return filmService.updateFilm(film);
-    }
-
-    @MutationMapping
-    public Film updateFilmDirectors(@Argument Long filmId, @Argument List<Long> directorsIds) {
-        return directorService.updateDirectors(filmId, directorsIds);
     }
 
     private void updateFilmFromInput(Film film, FilmInput input) {
