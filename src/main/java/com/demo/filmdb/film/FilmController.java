@@ -170,9 +170,9 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}")
     public ResponseEntity<?> deleteFilm(@PathVariable Long filmId) {
-        filmService.getFilm(filmId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
-        );
+        if (!filmService.filmExists(filmId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId));
+        }
         filmService.deleteFilm(filmId);
         return ResponseEntity.noContent().build();
     }
@@ -270,9 +270,9 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/cast")
     public ResponseEntity<?> deleteCast(@PathVariable Long filmId) {
-        filmService.getFilm(filmId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
-        );
+        if (!filmService.filmExists(filmId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId));
+        }
         roleService.deleteCast(filmId);
         return ResponseEntity.noContent().build();
     }

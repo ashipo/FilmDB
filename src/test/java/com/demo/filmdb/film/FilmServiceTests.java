@@ -135,4 +135,31 @@ class FilmServiceTests extends ServiceTest {
             verify(roleRepository).deleteById_FilmId(expectedId);
         }
     }
+
+    @Nested
+    @DisplayName("filmExists")
+    class FilmExists {
+
+        @Test
+        @DisplayName("Existing film, returns true")
+        void ExistingFilm_ReturnsTrue() {
+            final Long filmId = 1L;
+            given(filmRepository.existsById(filmId)).willReturn(true);
+
+            boolean actual = filmService.filmExists(filmId);
+
+            assertThat(actual).isTrue();
+        }
+
+        @Test
+        @DisplayName("Not existing role, returns false")
+        void NotExistingRole_ReturnsFalse() {
+            final Long filmId = 1L;
+            given(filmRepository.existsById(filmId)).willReturn(false);
+
+            boolean actual = filmService.filmExists(filmId);
+
+            assertThat(actual).isFalse();
+        }
+    }
 }

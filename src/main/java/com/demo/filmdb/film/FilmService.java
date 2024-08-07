@@ -94,4 +94,14 @@ public class FilmService {
         roleRepository.deleteById_FilmId(filmId);
         filmRepository.deleteById(filmId);
     }
+
+    /**
+     * Returns whether a {@link Film} with the given id exists
+     *
+     * @param filmId must not be {@code null}
+     * @return true if exists, false otherwise
+     */
+    public boolean filmExists(Long filmId) {
+        return filmRepository.existsById(filmId);
+    }
 }
