@@ -170,6 +170,35 @@ class RoleServiceTests extends ServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("roleExists")
+    class RoleExists {
+
+        @Test
+        @DisplayName("Existing role, returns true")
+        void ExistingRole_ReturnsTrue() {
+            final Long filmId = 1L;
+            final Long personId = 2L;
+            given(roleRepository.findById(any())).willReturn(Optional.of(new Role()));
+
+            boolean actual = roleService.roleExists(filmId, personId);
+
+            assertThat(actual).isTrue();
+        }
+
+        @Test
+        @DisplayName("Not existing role, returns false")
+        void NotExistingRole_ReturnsFalse() {
+            final Long filmId = 1L;
+            final Long personId = 2L;
+            given(roleRepository.findById(any())).willReturn(Optional.empty());
+
+            boolean actual = roleService.roleExists(filmId, personId);
+
+            assertThat(actual).isFalse();
+        }
+    }
+
     /* Cast */
 
     @Nested
