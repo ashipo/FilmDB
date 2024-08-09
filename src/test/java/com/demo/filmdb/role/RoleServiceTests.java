@@ -329,7 +329,7 @@ class RoleServiceTests extends ServiceTest {
     class DeleteCast {
 
         @Test
-        @DisplayName("")
+        @DisplayName("Deletes correctly")
         public void ExistingId_Deletes() {
             final Long expectedFilmId = 1L;
 
