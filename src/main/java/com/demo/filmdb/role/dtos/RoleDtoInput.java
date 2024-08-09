@@ -1,13 +1,11 @@
 package com.demo.filmdb.role.dtos;
 
-import com.demo.filmdb.role.Role;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serializable;
 
 /**
- * A DTO for the {@link Role} entity.
- * Intended use: request partial update.
+ * An input DTO for a Role update
  */
-public record RoleDtoInput(@NotEmpty String character) implements Serializable {
+public record RoleDtoInput(@NotBlank String character) implements Serializable {
 }

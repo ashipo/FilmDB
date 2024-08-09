@@ -182,13 +182,18 @@ public class RoleIntegrationTests {
                     jsonPath("$._links.self.href").value(containsString(expectedUri)));
         }
 
-        @Test
-        @DisplayName("Existing film id, existing person id, invalid request, expect 400")
+        @ParameterizedTest(name = "{arguments}")
+        @ValueSource(strings = {
+                "{}",
+                "{ \"character\" : \"\"}",
+                "{ \"character\" : \"   \"}"
+        })
+        @DisplayName("Existing ids, invalid request, expect 400")
         @WithMockUser(roles = {ROLE_ADMIN})
-        public void InvalidRequest_Response400() throws Exception {
+        public void InvalidInput_Response400(String request) throws Exception {
             String uri = API_PREFIX + "/films/3/cast/3";
 
-            mockMvc.perform(patch(uri).content("{\"title\": \"Title\"}"))
+            mockMvc.perform(patch(uri).content(request))
                     .andExpect(status().isBadRequest());
         }
 
