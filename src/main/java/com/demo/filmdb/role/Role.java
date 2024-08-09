@@ -3,7 +3,7 @@ package com.demo.filmdb.role;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.person.Person;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -22,7 +22,7 @@ public class Role {
     @JoinColumn(name = "person_id")
     private Person person;
 
-    @NotEmpty
+    @NotBlank
     @Column(nullable = false)
     private String character;
 
