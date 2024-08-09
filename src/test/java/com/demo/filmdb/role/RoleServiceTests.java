@@ -21,8 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("RoleService")
 class RoleServiceTests extends ServiceTest {
@@ -237,9 +236,9 @@ class RoleServiceTests extends ServiceTest {
             final Long filmId = 15L;
             final Long personId = 8L;
             final String character = "Batman";
-            Film film = createFilm(filmId);
-            Role oldRole = createRole(filmId, personId, "Joker");
-            film.setCast(Set.of(oldRole));
+            final Role oldRole = createRole(filmId, personId, "Joker");
+            Film film = mock(Film.class);
+            when(film.getCast()).thenReturn(Set.of(oldRole));
             given(filmService.getFilm(filmId)).willReturn(Optional.of(film));
             given(roleRepository.findByIds(filmId, personId)).willReturn(Optional.of(oldRole));
             when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
@@ -264,7 +263,9 @@ class RoleServiceTests extends ServiceTest {
         void OutdatedRole_Deletes() {
             final Long filmId = 15L;
             final Long personId = 8L;
-            Film film = getFilmWithRole(filmId, personId);
+            final Role oldRole = createRole(filmId, personId, "Catwoman");
+            Film film = mock(Film.class);
+            when(film.getCast()).thenReturn(Set.of(oldRole));
             given(filmService.getFilm(filmId)).willReturn(Optional.of(film));
 
             List<Role> actual = roleService.updateCast(filmId, Collections.emptyList());
@@ -285,7 +286,9 @@ class RoleServiceTests extends ServiceTest {
         void NullCast_Deletes() {
             final Long filmId = 15L;
             final Long personId = 8L;
-            Film film = getFilmWithRole(filmId, personId);
+            final Role oldRole = createRole(filmId, personId, "Bane");
+            Film film = mock(Film.class);
+            when(film.getCast()).thenReturn(Set.of(oldRole));
             given(filmService.getFilm(filmId)).willReturn(Optional.of(film));
 
             List<Role> actual = roleService.updateCast(filmId, null);
@@ -337,15 +340,6 @@ class RoleServiceTests extends ServiceTest {
     }
 
     /* Utility */
-
-    private Film getFilmWithRole(Long filmId, Long actorId) {
-        Film film = createFilm(filmId);
-        Person person = createPerson(actorId);
-        Role role = new Role(film, person, "Narrator");
-        role.setId(new RoleKey(filmId, actorId));
-        film.setCast(Set.of(role));
-        return film;
-    }
 
     private CastMember createCastMember(Long personId, String character) {
         return new CastMember() {
