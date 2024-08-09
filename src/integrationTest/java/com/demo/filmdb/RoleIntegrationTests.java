@@ -96,13 +96,13 @@ public class RoleIntegrationTests {
                     .andExpect(status().isConflict());
         }
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "{arguments}")
         @ValueSource(strings = {
-                "{}",
-                "{ \"personId\" : 1}",
-                "{ \"character\" : \"test\"}",
-                "{ \"personId\" :, \"character\" : \"test\"}",
-                "{ \"personId\" : 1, \"character\" :}"
+                "[]",
+                "[{\"personId\":, \"character\":\"test\"}]",
+                "[{\"personId\":one, \"character\":\"test\"}]",
+                "[{\"personId\":1, \"character\":}]",
+                "[{\"personId\":1, \"character\":\"   \"}]"
         })
         @DisplayName("Existing film id, invalid request, expect 400")
         @WithMockUser(roles = {ROLE_ADMIN})

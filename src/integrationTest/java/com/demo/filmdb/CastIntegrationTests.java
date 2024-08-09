@@ -4,6 +4,8 @@ import com.demo.filmdb.role.dtos.FilmRoleDtoInput;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -123,13 +125,21 @@ public class CastIntegrationTests {
                     .andExpect(status().isOk());
         }
 
-        @Test
+        @ParameterizedTest(name = "{arguments}")
+        @ValueSource(strings = {
+                "{}",
+                "{ \"personId\" : 1}",
+                "{ \"character\" : \"test\"}",
+                "{ \"personId\" :, \"character\" : \"test\"}",
+                "{ \"personId\" : 1, \"character\" :}",
+                "{ \"personId\" : 1, \"character\" : \"   \"}"
+        })
         @WithMockUser(roles = {ROLE_ADMIN})
         @DisplayName("Existing id, invalid request, expect 400")
-        public void PutCastURI_InvalidRequest_Response400() throws Exception {
+        public void PutCastURI_InvalidRequest_Response400(String request) throws Exception {
             final String uri = API_PREFIX + "/films/1/cast";
 
-            mockMvc.perform(put(uri).content("[1, 2]"))
+            mockMvc.perform(put(uri).content(request))
                     .andExpect(status().isBadRequest());
         }
 
