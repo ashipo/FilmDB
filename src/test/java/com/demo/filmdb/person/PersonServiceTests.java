@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,10 +24,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PersonServiceTests extends ServiceTest {
 
@@ -53,6 +55,31 @@ public class PersonServiceTests extends ServiceTest {
         personService.getAllPeople(expectedPageable);
 
         verify(personRepository).findAll(expectedPageable);
+    }
+
+    @Nested
+    @DisplayName("createPerson")
+    class CreatePerson {
+
+        @Test
+        @DisplayName("Valid input, saves and returns")
+        void ValidInput_Creates() {
+            var name = "Bruce Willis";
+            var dateOfBirth = LocalDate.of(1955, 3, 19);
+            PersonInfo input = createPersonInfo(name, dateOfBirth);
+            when(personRepository.save(any(Person.class))).then(AdditionalAnswers.returnsFirstArg());
+
+            Person actual = personService.createPerson(input);
+
+            // assert saved
+            var savedPerson = ArgumentCaptor.forClass(Person.class);
+            verify(personRepository).save(savedPerson.capture());
+            assertThat(savedPerson.getValue().getName()).isEqualTo(name);
+            assertThat(savedPerson.getValue().getDob()).isEqualTo(dateOfBirth);
+            // assert returned
+            assertThat(actual.getName()).isEqualTo(name);
+            assertThat(actual.getDob()).isEqualTo(dateOfBirth);
+        }
     }
 
     @Test
@@ -151,5 +178,19 @@ public class PersonServiceTests extends ServiceTest {
                 Arguments.arguments(List.of(1L, 2L, 3L), List.of(3L)),
                 Arguments.arguments(List.of(1L, 2L, 3L), List.of())
         );
+    }
+
+    private PersonInfo createPersonInfo(String name, LocalDate dateOfBirth) {
+        return new PersonInfo() {
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public LocalDate getDateOfBirth() {
+                return dateOfBirth;
+            }
+        };
     }
 }

@@ -45,7 +45,7 @@ public abstract class ServiceTest {
     }
 
     protected Person createPerson(Long id) {
-        Person result = new Person("John Doe", LocalDate.of(1969, 2, 28));
+        Person result = new Person("John Doe " + id, LocalDate.of(1969, 2, 28));
         result.setId(id);
         return result;
     }

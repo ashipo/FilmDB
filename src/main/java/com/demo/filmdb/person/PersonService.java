@@ -4,6 +4,7 @@ import com.demo.filmdb.role.RoleRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +53,18 @@ public class PersonService {
      */
     public List<Person> getPeople(Collection<Long> peopleIds) {
         return personRepository.findAllById(peopleIds);
+    }
+
+    /**
+     * Create a {@link Person}
+     *
+     * @param personInfo person info
+     * @return created entity
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Person createPerson(PersonInfo personInfo) {
+        final Person person = new Person(personInfo.getName(), personInfo.getDateOfBirth());
+        return personRepository.save(person);
     }
 
     /**
