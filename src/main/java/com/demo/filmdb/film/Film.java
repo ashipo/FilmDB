@@ -3,16 +3,20 @@ package com.demo.filmdb.film;
 import com.demo.filmdb.annotations.Sortable;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "film")
 public class Film {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -20,6 +24,7 @@ public class Film {
     private Long id;
 
     @Column(name = "title", nullable = false)
+    @NotBlank
     @Sortable
     private String title;
 
@@ -28,6 +33,7 @@ public class Film {
     private LocalDate releaseDate;
 
     @Column(name = "synopsis")
+    @Nullable
     private String synopsis;
 
     @ManyToMany
@@ -61,11 +67,12 @@ public class Film {
         return cast;
     }
 
+    @Nullable
     public String getSynopsis() {
         return synopsis;
     }
 
-    public void setSynopsis(String synopsis) {
+    public void setSynopsis(@Nullable String synopsis) {
         this.synopsis = synopsis;
     }
 
@@ -111,5 +118,17 @@ public class Film {
                 ", release date=" + releaseDate +
                 ", synopsis='" + synopsis + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Film film)) return false;
+        return Objects.equals(title, film.title) && Objects.equals(releaseDate, film.releaseDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, releaseDate);
     }
 }
