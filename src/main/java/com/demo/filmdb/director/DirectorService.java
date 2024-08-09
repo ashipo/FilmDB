@@ -92,7 +92,7 @@ public class DirectorService {
             List<Long> notFoundIds = notFoundIds(directorsIds, directors);
             throw new EntityNotFoundException("Could not find people with ids " + notFoundIds);
         }
-        film.setDirectors(new HashSet<>(directors));
+        film.setDirectors(directors);
         return filmRepository.save(film);
     }
 

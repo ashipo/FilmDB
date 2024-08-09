@@ -6,6 +6,7 @@ import com.demo.filmdb.role.Role;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ public class Film {
     @JoinTable(name = "film_person_directed",
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "person_id"))
-    private Set<Person> directors = new LinkedHashSet<>();
+    private final Set<Person> directors = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "film")
     private Set<Role> cast = new LinkedHashSet<>();
@@ -51,8 +52,9 @@ public class Film {
         return directors;
     }
 
-    public void setDirectors(Set<Person> directors) {
-        this.directors = directors;
+    public void setDirectors(Collection<Person> directors) {
+        this.directors.clear();
+        this.directors.addAll(directors);
     }
 
     public Set<Role> getCast() {

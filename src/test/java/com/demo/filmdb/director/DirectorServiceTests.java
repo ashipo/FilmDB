@@ -84,9 +84,7 @@ public class DirectorServiceTests extends ServiceTest {
             final Long personId = 2L;
             Film film = createFilm(filmId);
             Person director = createPerson(personId);
-            Set<Person> directors = new HashSet<>();
-            directors.add(director);
-            film.setDirectors(directors);
+            film.setDirectors(List.of(director));
             given(filmRepository.findById(filmId)).willReturn(Optional.of(film));
             given(personRepository.findById(personId)).willReturn(Optional.of(director));
 
