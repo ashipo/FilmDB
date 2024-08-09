@@ -259,7 +259,8 @@ public class FilmIntegrationTests {
         return Stream.of(
                 arguments(named("Null title", new FilmDtoInput(null, LocalDate.now(), "Sy"))),
                 arguments(named("Null release date", new FilmDtoInput("Title", null, "Sy"))),
-                arguments(named("Empty title", new FilmDtoInput("", LocalDate.now(), "Sy")))
+                arguments(named("Empty title", new FilmDtoInput("", LocalDate.now(), "Sy"))),
+                arguments(named("Blank title", new FilmDtoInput("   ", LocalDate.now(), "Sy")))
         );
     }
 }
