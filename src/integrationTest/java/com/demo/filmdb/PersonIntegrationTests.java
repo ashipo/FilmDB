@@ -4,6 +4,9 @@ import com.demo.filmdb.person.dtos.PersonDtoInput;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -12,9 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
 import static com.demo.filmdb.Utils.*;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -86,9 +92,10 @@ public class PersonIntegrationTests {
         @DisplayName("Valid request, expect 201")
         public void PostPeopleURI_ValidBody_Response201() throws Exception {
             final String uri = API_PREFIX + "/people";
+            final String expectedName = "Yuriy Nikulin";
+            final LocalDate expectedDob = LocalDate.of(1921, 12, 18);
 
-            PersonDtoInput expectedPerson = new PersonDtoInput("Yuriy Nikulin",
-                    LocalDate.of(1921, 12, 18));
+            PersonDtoInput expectedPerson = new PersonDtoInput(expectedName, expectedDob);
             String requestBody = objectMapper.writeValueAsString(expectedPerson);
 
             mockMvc.perform(post(uri).content(requestBody)).andExpectAll(
@@ -96,16 +103,17 @@ public class PersonIntegrationTests {
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.id").value(6),
                     jsonPath("$.name").value(expectedPerson.name()),
-                    jsonPath("$.['date of birth']").value(expectedPerson.dob().toString()));
+                    jsonPath("$.['date of birth']").value(expectedDob.toString()));
         }
 
-        @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("com.demo.filmdb.PersonIntegrationTests#invalidPersonInput")
         @DisplayName("Invalid request, expect 400")
-        public void PostPeopleURI_InvalidBody_Response400() throws Exception {
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void InvalidBody_Response400(String request) throws Exception {
             final String uri = API_PREFIX + "/people";
 
-            mockMvc.perform(post(uri).content("{\"first name\": \"Yuriy\"}"))
+            mockMvc.perform(post(uri).content(request))
                     .andExpect(status().isBadRequest());
         }
 
@@ -149,18 +157,14 @@ public class PersonIntegrationTests {
                     jsonPath("$.['date of birth']").value(expectedBirthday));
         }
 
-        @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("com.demo.filmdb.PersonIntegrationTests#invalidPersonInput")
         @DisplayName("Existing id, invalid request, expect 400")
-        public void PutPeopleURI_InvalidRequest_Response400() throws Exception {
-            long personId = 2L;
-            String uri = API_PREFIX + "/people/" + personId;
-            String requestBody = objectMapper.createObjectNode()
-                    .put("id", personId + 1)
-                    .put("not_a_field", "random_data")
-                    .toString();
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void InvalidRequest_Response400(String request) throws Exception {
+            String uri = API_PREFIX + "/people/1";
 
-            mockMvc.perform(put(uri).content(requestBody))
+            mockMvc.perform(put(uri).content(request))
                     .andExpect(status().isBadRequest());
         }
 
@@ -224,5 +228,15 @@ public class PersonIntegrationTests {
             mockMvc.perform(delete(uri))
                     .andExpect(status().isForbidden());
         }
+    }
+
+    private static Stream<Arguments> invalidPersonInput() {
+        return Stream.of(
+                arguments(named("Empty request", "{}")),
+                arguments(named("Empty name", "{ \"name\":\"\", \"dob\" : \"1921-12-18\"}")),
+                arguments(named("Blank name", "{ \"name\":\"   \", \"dob\" : \"1921-12-18\"}")),
+                arguments(named("Missing name", "{ \"dob\" : \"1921-12-18\"}")),
+                arguments(named("Invalid date of birth", "{ \"name\":\"Yuriy\", \"dob\" : \"some\"}"))
+        );
     }
 }
