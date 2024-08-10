@@ -1,0 +1,7 @@
+mutation createPerson($name: NonBlankString!, $dateOfBirth: Date) {
+    createPerson(input: {person: {name: $name, dateOfBirth: $dateOfBirth}}) {
+        person {
+            id, name, dob
+        }
+    }
+}
