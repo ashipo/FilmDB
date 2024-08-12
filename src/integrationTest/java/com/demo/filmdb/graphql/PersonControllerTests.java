@@ -2,6 +2,7 @@ package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
+import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,9 @@ import static graphql.ErrorType.ValidationError;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.graphql.execution.ErrorType.NOT_FOUND;
 
 @GraphQlTest({PersonController.class, TestConfigurer.class})
 @DisplayName("GraphQL Person")
@@ -63,6 +66,68 @@ public class PersonControllerTests {
         void InvalidInput_ValidationError(Object name, Object dateOfBirth) {
             graphQlTester
                     .documentName(CREATE_PERSON)
+                    .variable(NAME, name)
+                    .variable(DATE_OF_BIRTH, dateOfBirth)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == ValidationError)
+                    .verify()
+                    .path(DATA)
+                    .pathDoesNotExist();
+        }
+    }
+
+    @Nested
+    @DisplayName(UPDATE_PERSON)
+    class UpdatePerson {
+
+        @Test
+        @DisplayName("Valid input, correct response")
+        void ValidInput_CorrectResponse() {
+            final Long personId = 1L;
+            final String name = "Margot Robbie";
+            final LocalDate dateOfBirth = LocalDate.of(1961, 6, 9);
+            given(personService.updatePerson(anyLong(), any())).willReturn(createPerson(personId, name, dateOfBirth));
+
+            graphQlTester
+                    .documentName(UPDATE_PERSON)
+                    .variable(PERSON_ID, personId)
+                    .variable(NAME, name)
+                    .variable(DATE_OF_BIRTH, dateOfBirth)
+                    .execute()
+                    .path(UPDATE_PERSON + ".person")
+                    .entity(Person.class)
+                    .matches(person -> Objects.equals(person.getId(), personId))
+                    .matches(person -> Objects.equals(person.getName(), name))
+                    .matches(person -> Objects.equals(person.getDob(), dateOfBirth));
+
+        }
+
+        @Test
+        @DisplayName("Not existing id, not found error")
+        void NotExistingId_NotFoundError() {
+            given(personService.updatePerson(anyLong(), any())).willThrow(new EntityNotFoundException("404"));
+
+            graphQlTester
+                    .documentName(UPDATE_PERSON)
+                    .variable(PERSON_ID, 1L)
+                    .variable(NAME, "Leonardo DiCaprio")
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == NOT_FOUND)
+                    .verify()
+                    .path(UPDATE_PERSON)
+                    .valueIsNull();
+
+        }
+
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#invalidPersonInputs")
+        @DisplayName("Invalid input, validation error")
+        void InvalidInput_ValidationError(Object name, Object dateOfBirth) {
+            graphQlTester
+                    .documentName(UPDATE_PERSON)
+                    .variable(PERSON_ID, 1L)
                     .variable(NAME, name)
                     .variable(DATE_OF_BIRTH, dateOfBirth)
                     .execute()

@@ -11,8 +11,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.demo.filmdb.Utils.ROLE_ADMIN;
-import static com.demo.filmdb.graphql.Util.CREATE_PERSON;
-import static com.demo.filmdb.graphql.Util.NAME;
+import static com.demo.filmdb.graphql.Util.*;
 import static org.springframework.graphql.execution.ErrorType.FORBIDDEN;
 import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 
@@ -59,6 +58,48 @@ public class PersonControllerSecurityTests {
             graphQlTester
                     .documentName(CREATE_PERSON)
                     .variable(NAME, "Scott Glenn")
+                    .executeAndVerify();
+        }
+    }
+
+    @Nested
+    @DisplayName(UPDATE_PERSON)
+    class UpdatePerson {
+
+        @Test
+        @DisplayName("Not authenticated, unauthorized")
+        void NotAuthenticated_Unauthorized() {
+            graphQlTester
+                    .documentName(UPDATE_PERSON)
+                    .variable(PERSON_ID, 6)
+                    .variable(NAME, "Chris Tucker")
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
+        }
+
+        @Test
+        @DisplayName("Authenticated as USER, forbidden")
+        @WithMockUser
+        void AuthenticatedUser_Forbidden() {
+            graphQlTester
+                    .documentName(UPDATE_PERSON)
+                    .variable(PERSON_ID, 7)
+                    .variable(NAME, "Ian Holm")
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
+        }
+
+        @Test
+        @DisplayName("Authenticated as ADMIN, authorized")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @Transactional
+        void AuthenticatedAdmin_Authorized() {
+            graphQlTester
+                    .documentName(UPDATE_PERSON)
+                    .variable(PERSON_ID, 3)
+                    .variable(NAME, "Luke Perry")
                     .executeAndVerify();
         }
     }

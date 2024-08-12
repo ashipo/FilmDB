@@ -29,6 +29,7 @@ class Util {
     static final String DELETE_ROLE = "deleteRole";
     static final String UPDATE_CAST = "updateCast";
     static final String CREATE_PERSON = "createPerson";
+    static final String UPDATE_PERSON = "updatePerson";
     // variables
     static final String FILM_ID = "filmId";
     static final String PERSON_ID = "personId";
@@ -60,12 +61,12 @@ class Util {
         return result;
     }
 
-    private static Person createPersonWithoutId() {
-        return new Person("Arnold Schwarzenegger", LocalDate.of(1947, 7, 30));
+    static Person createPerson(Long id) {
+        return createPerson(id, "Arnold Schwarzenegger", LocalDate.of(1947, 7, 30));
     }
 
-    static Person createPerson(Long id) {
-        Person result = createPersonWithoutId();
+    static Person createPerson(Long id, String name, LocalDate dateOfBirth) {
+        Person result = new Person(name, dateOfBirth);
         result.setId(id);
         return result;
     }

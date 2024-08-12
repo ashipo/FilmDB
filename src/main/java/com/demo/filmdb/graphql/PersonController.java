@@ -1,7 +1,9 @@
 package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.graphql.inputs.CreatePersonInput;
+import com.demo.filmdb.graphql.inputs.UpdatePersonInput;
 import com.demo.filmdb.graphql.payloads.CreatePersonPayload;
+import com.demo.filmdb.graphql.payloads.UpdatePersonPayload;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -21,5 +23,11 @@ public class PersonController {
     public CreatePersonPayload createPerson(@Argument CreatePersonInput input) {
         final Person createdPerson = personService.createPerson(input.person());
         return new CreatePersonPayload(createdPerson);
+    }
+
+    @MutationMapping
+    public UpdatePersonPayload updatePerson(@Argument UpdatePersonInput input) {
+        final Person updatedPerson = personService.updatePerson(input.personId(), input.person());
+        return new UpdatePersonPayload(updatedPerson);
     }
 }
