@@ -105,8 +105,8 @@ public class PersonController {
     })
     @PostMapping
     public ResponseEntity<PersonDto> createPerson(@RequestBody @Valid PersonDtoInput personDtoInput) {
-        Person person = personMapper.personDtoInputToPerson(personDtoInput);
-        PersonDto newPersonDto = personModelAssembler.toModel(personService.savePerson(person));
+        Person createdPerson = personService.createPerson(personDtoInput);
+        PersonDto newPersonDto = personModelAssembler.toModel(createdPerson);
         return ResponseEntity.created(newPersonDto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(newPersonDto);
     }
 
