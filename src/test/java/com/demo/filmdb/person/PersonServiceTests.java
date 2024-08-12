@@ -2,6 +2,7 @@ package com.demo.filmdb.person;
 
 import com.demo.filmdb.ServiceTest;
 import com.demo.filmdb.person.specifications.PersonWithName;
+import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -79,6 +81,45 @@ public class PersonServiceTests extends ServiceTest {
             // assert returned
             assertThat(actual.getName()).isEqualTo(name);
             assertThat(actual.getDob()).isEqualTo(dateOfBirth);
+        }
+    }
+
+    @Nested
+    @DisplayName("updatePerson")
+    class UpdatePerson {
+
+        @Test
+        @DisplayName("Existing id, updates")
+        void ExistingId_Updates() {
+            Long personId = 5L;
+            var name = "Milla Jovovich";
+            var dateOfBirth = LocalDate.of(1975, 12, 17);
+            given(personRepository.findById(personId)).willReturn(Optional.of(createPerson(personId, name, dateOfBirth)));
+            when(personRepository.save(any(Person.class))).then(AdditionalAnswers.returnsFirstArg());
+
+            Person actual = personService.updatePerson(personId, createPersonInfo(name, dateOfBirth));
+
+            // assert saved
+            var updatedPersonCaptor = ArgumentCaptor.forClass(Person.class);
+            verify(personRepository).save(updatedPersonCaptor.capture());
+            Person updatedPerson = updatedPersonCaptor.getValue();
+            assertThat(updatedPerson.getId()).isEqualTo(personId);
+            assertThat(updatedPerson.getName()).isEqualTo(name);
+            assertThat(updatedPerson.getDob()).isEqualTo(dateOfBirth);
+            // assert returned
+            assertThat(actual.getId()).isEqualTo(personId);
+            assertThat(actual.getName()).isEqualTo(name);
+            assertThat(actual.getDob()).isEqualTo(dateOfBirth);
+        }
+
+        @Test
+        @DisplayName("Not existing id, throws EntityNotFoundException")
+        void NotExistingId_Throws() {
+            given(personRepository.findById(anyLong())).willReturn(Optional.empty());
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    personService.updatePerson(1L, createPersonInfo("Gary Oldman", LocalDate.of(1958, 3, 21)))
+            );
         }
     }
 

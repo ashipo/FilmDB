@@ -1,6 +1,7 @@
 package com.demo.filmdb.person;
 
 import com.demo.filmdb.role.RoleRepository;
+import com.demo.filmdb.util.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
 
 @Service
 public class PersonService {
@@ -85,6 +88,24 @@ public class PersonService {
      */
     public Optional<Person> getPerson(Long personId) {
         return personRepository.findById(personId);
+    }
+
+    /**
+     * Update a {@link Person}
+     *
+     * @param personId person to update
+     * @param personInfo person info
+     * @return the updated entity
+     * @throws EntityNotFoundException if person could not be found
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Person updatePerson(Long personId, PersonInfo personInfo) throws EntityNotFoundException {
+        Person personToUpdate = personRepository.findById(personId).orElseThrow(() ->
+                new EntityNotFoundException(personNotFoundMessage(personId))
+        );
+        personToUpdate.setName(personInfo.getName());
+        personToUpdate.setDob(personInfo.getDateOfBirth());
+        return personRepository.save(personToUpdate);
     }
 
     /**
