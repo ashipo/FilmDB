@@ -20,10 +20,12 @@ public class PersonService {
 
     private final PersonRepository personRepository;
     private final RoleRepository roleRepository;
+    private final PersonMapper personMapper;
 
-    public PersonService(PersonRepository personRepository, RoleRepository roleRepository) {
+    public PersonService(PersonRepository personRepository, RoleRepository roleRepository, PersonMapper personMapper) {
         this.personRepository = personRepository;
         this.roleRepository = roleRepository;
+        this.personMapper = personMapper;
     }
 
     /**
@@ -93,8 +95,7 @@ public class PersonService {
         Person personToUpdate = personRepository.findById(personId).orElseThrow(() ->
                 new EntityNotFoundException(personNotFoundMessage(personId))
         );
-        personToUpdate.setName(personInfo.getName());
-        personToUpdate.setDob(personInfo.getDateOfBirth());
+        personMapper.updatePersonFromPersonInfo(personInfo, personToUpdate);
         return personRepository.save(personToUpdate);
     }
 

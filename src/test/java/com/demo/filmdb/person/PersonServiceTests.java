@@ -10,11 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mapstruct.factory.Mappers;
 import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -26,6 +28,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -35,9 +38,11 @@ public class PersonServiceTests extends ServiceTest {
 
     private PersonService personService;
 
+    private final PersonMapper personMapper = Mappers.getMapper(PersonMapper.class);
+
     @BeforeEach
     void setUp() {
-        personService = new PersonService(personRepository, roleRepository);
+        personService = new PersonService(personRepository, roleRepository, personMapper);
     }
 
     @Test
@@ -88,28 +93,30 @@ public class PersonServiceTests extends ServiceTest {
     @DisplayName("updatePerson")
     class UpdatePerson {
 
-        @Test
+        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.person.PersonServiceTests#updatePersonProvider")
         @DisplayName("Existing id, updates")
-        void ExistingId_Updates() {
-            Long personId = 5L;
-            var name = "Milla Jovovich";
-            var dateOfBirth = LocalDate.of(1975, 12, 17);
-            given(personRepository.findById(personId)).willReturn(Optional.of(createPerson(personId, name, dateOfBirth)));
+        void ExistingId_Updates(String expectedName, LocalDate expectedDateOfBirth) {
+            final Long personId = 5L;
+            final Person existingPerson = createPerson(personId, "Leeloo", LocalDate.of(1, 1, 1));
+            // find existing person
+            given(personRepository.findById(personId)).willReturn(Optional.of(existingPerson));
+            // return updated person
             when(personRepository.save(any(Person.class))).then(AdditionalAnswers.returnsFirstArg());
 
-            Person actual = personService.updatePerson(personId, createPersonInfo(name, dateOfBirth));
+            Person actual = personService.updatePerson(personId, createPersonInfo(expectedName, expectedDateOfBirth));
 
             // assert saved
             var updatedPersonCaptor = ArgumentCaptor.forClass(Person.class);
             verify(personRepository).save(updatedPersonCaptor.capture());
             Person updatedPerson = updatedPersonCaptor.getValue();
             assertThat(updatedPerson.getId()).isEqualTo(personId);
-            assertThat(updatedPerson.getName()).isEqualTo(name);
-            assertThat(updatedPerson.getDob()).isEqualTo(dateOfBirth);
+            assertThat(updatedPerson.getName()).isEqualTo(expectedName);
+            assertThat(updatedPerson.getDob()).isEqualTo(expectedDateOfBirth);
             // assert returned
             assertThat(actual.getId()).isEqualTo(personId);
-            assertThat(actual.getName()).isEqualTo(name);
-            assertThat(actual.getDob()).isEqualTo(dateOfBirth);
+            assertThat(actual.getName()).isEqualTo(expectedName);
+            assertThat(actual.getDob()).isEqualTo(expectedDateOfBirth);
         }
 
         @Test
@@ -212,7 +219,15 @@ public class PersonServiceTests extends ServiceTest {
         );
     }
 
-    private PersonInfo createPersonInfo(String name, LocalDate dateOfBirth) {
+    private static Stream<Arguments> updatePersonProvider() {
+        final String name = "Milla Jovovich";
+        return Stream.of(
+                Arguments.arguments(name, LocalDate.of(1975, 12, 17)),
+                Arguments.arguments(name, null)
+        );
+    }
+
+    private PersonInfo createPersonInfo(String name, @Nullable LocalDate dateOfBirth) {
         return new PersonInfo() {
             @Override
             public String getName() {
