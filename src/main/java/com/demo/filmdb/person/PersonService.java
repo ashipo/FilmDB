@@ -71,16 +71,6 @@ public class PersonService {
     }
 
     /**
-     * Saves the given {@link Person} entity.
-     *
-     * @param person must not be {@code null}.
-     * @return the saved entity.
-     */
-    public Person savePerson(Person person) {
-        return personRepository.save(person);
-    }
-
-    /**
      * Returns a {@linkplain Person} entity with the given id or empty {@code Optional} if it doesn't exist
      *
      * @param personId must not be {@code null}

@@ -123,15 +123,6 @@ public class PersonServiceTests extends ServiceTest {
         }
     }
 
-    @Test
-    void savePerson_ValidPerson_Saves() {
-        Person expectedPerson = new Person("Ivan Ivanoff", LocalDate.of(1977, 7, 7));
-
-        personService.savePerson(expectedPerson);
-
-        verify(personRepository).save(expectedPerson);
-    }
-
     @Nested
     class GetPerson {
         @Test
