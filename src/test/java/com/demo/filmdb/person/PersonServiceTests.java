@@ -131,9 +131,11 @@ public class PersonServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("getPerson")
     class GetPerson {
+
         @Test
-        @DisplayName("Finds existing person by id")
+        @DisplayName("Existing id, finds and returns")
         void ExistingId_Finds() {
             final Long expectedPersonId = 11L;
             given(personRepository.findById(expectedPersonId)).willReturn(Optional.of(createPerson(expectedPersonId)));
@@ -146,7 +148,7 @@ public class PersonServiceTests extends ServiceTest {
         }
 
         @Test
-        @DisplayName("Given not existing id returns null")
+        @DisplayName("Not existing id, returns empty Optional")
         void NotExistingId_ReturnsNull() {
             given(personRepository.findById(anyLong())).willReturn(Optional.empty());
 

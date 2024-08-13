@@ -7,9 +7,14 @@ scalar NonBlankString
 
 type Query {
     login(username: String!, password: String!): String!
+
     "Get a `Film`"
     film(id: Long!): Film
     films(page: Int = 0, pageSize: Int = 10): [Film]
+
+    "Get a `Person`"
+    person(id: Long!): Person
+
     "Get a `Role`"
     role(id: CrewMemberID!): Role
 }

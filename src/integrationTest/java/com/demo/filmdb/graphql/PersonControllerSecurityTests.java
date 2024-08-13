@@ -63,6 +63,20 @@ public class PersonControllerSecurityTests {
     }
 
     @Nested
+    @DisplayName(GET_PERSON)
+    class GetPerson {
+
+        @Test
+        @DisplayName("Not authenticated, authorized")
+        void NotAuthenticated_Authorized() {
+            graphQlTester
+                    .documentName(GET_PERSON)
+                    .variable("id", 1)
+                    .executeAndVerify();
+        }
+    }
+
+    @Nested
     @DisplayName(UPDATE_PERSON)
     class UpdatePerson {
 

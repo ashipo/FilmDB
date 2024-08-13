@@ -16,6 +16,7 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
@@ -74,6 +75,43 @@ public class PersonControllerTests {
                     .verify()
                     .path(DATA)
                     .pathDoesNotExist();
+        }
+    }
+
+    @Nested
+    @DisplayName(GET_PERSON)
+    class GetPerson {
+
+        @Test
+        @DisplayName("Existing id, correct response")
+        void ExistingId_CorrectResponse() {
+            final Long id = 20L;
+            final String name = "Jonah Hill";
+            final LocalDate dateOfBirth = LocalDate.of(1983, 12, 20);
+            given(personService.getPerson(id)).willReturn(Optional.of(createPerson(id, name, dateOfBirth)));
+
+            graphQlTester
+                    .documentName(GET_PERSON)
+                    .variable("id", id)
+                    .execute()
+                    .path(GET_PERSON)
+                    .entity(Person.class)
+                    .matches(person -> Objects.equals(person.getId(), id))
+                    .matches(person -> Objects.equals(person.getName(), name))
+                    .matches(person -> Objects.equals(person.getDob(), dateOfBirth));
+        }
+
+        @Test
+        @DisplayName("Not existing id, returns null")
+        void NotExistingId_ReturnsNull() {
+            given(personService.getPerson(anyLong())).willReturn(Optional.empty());
+
+            graphQlTester
+                    .documentName(GET_PERSON)
+                    .variable("id", 1L)
+                    .execute()
+                    .path(GET_PERSON)
+                    .valueIsNull();
         }
     }
 
