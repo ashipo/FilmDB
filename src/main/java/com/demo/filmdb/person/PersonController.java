@@ -11,6 +11,7 @@ import com.demo.filmdb.person.specifications.PersonWithName;
 import com.demo.filmdb.role.ActorRoleModelAssembler;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.dtos.ActorRoleDto;
+import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.utils.SortUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -47,20 +48,17 @@ public class PersonController {
     private final PersonModelAssembler personModelAssembler;
     private final FilmModelAssembler filmModelAssembler;
     private final ActorRoleModelAssembler roleModelAssembler;
-    private final PersonMapper personMapper;
     private final PagedResourcesAssembler<Person> pagedResourcesAssembler;
 
     public PersonController(PersonService personService,
                             PersonModelAssembler personModelAssembler,
                             FilmModelAssembler filmModelAssembler,
                             ActorRoleModelAssembler roleModelAssembler,
-                            PersonMapper personMapper,
                             PagedResourcesAssembler<Person> pagedResourcesAssembler) {
         this.personService = personService;
         this.personModelAssembler = personModelAssembler;
         this.filmModelAssembler = filmModelAssembler;
         this.roleModelAssembler = roleModelAssembler;
-        this.personMapper = personMapper;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
@@ -133,12 +131,12 @@ public class PersonController {
     })
     @PutMapping("/{personId}")
     public PersonDto updatePerson(@PathVariable Long personId, @Valid @RequestBody PersonDtoInput personDtoInput) {
-        Person personToUpdate = personService.getPerson(personId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
-        );
-        Person updatedPerson = personMapper.updatePersonFromPersonDtoInput(personDtoInput, personToUpdate);
-        Person savedPerson = personService.savePerson(updatedPerson);
-        return personModelAssembler.toModel(savedPerson);
+        try {
+            Person updatedPerson = personService.updatePerson(personId, personDtoInput);
+            return personModelAssembler.toModel(updatedPerson);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Delete a person", tags = TAG_PEOPLE)
