@@ -86,4 +86,11 @@ public class Person {
                 ", date of birth=" + dob +
                 '}';
     }
+
+    public void removeFilmsDirected() {
+        for (Film film : filmsDirected) {
+            film.getDirectors().remove(this);
+        }
+        filmsDirected.clear();
+    }
 }
