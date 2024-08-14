@@ -141,7 +141,7 @@ class FilmServiceTests extends ServiceTest {
     class FilmExists {
 
         @Test
-        @DisplayName("Existing film, returns true")
+        @DisplayName("Existing film id, returns true")
         void ExistingFilm_ReturnsTrue() {
             final Long filmId = 1L;
             given(filmRepository.existsById(filmId)).willReturn(true);
@@ -152,8 +152,8 @@ class FilmServiceTests extends ServiceTest {
         }
 
         @Test
-        @DisplayName("Not existing role, returns false")
-        void NotExistingRole_ReturnsFalse() {
+        @DisplayName("Not existing film id, returns false")
+        void NotExistingId_ReturnsFalse() {
             final Long filmId = 1L;
             given(filmRepository.existsById(filmId)).willReturn(false);
 

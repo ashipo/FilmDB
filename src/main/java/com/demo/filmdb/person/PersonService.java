@@ -125,4 +125,14 @@ public class PersonService {
             personRepository.deleteById(personId);
         });
     }
+
+    /**
+     * Returns whether a {@link Person} with the given id exists
+     *
+     * @param personId must not be {@code null}
+     * @return true if exists, false otherwise
+     */
+    public boolean personExists(Long personId) {
+        return personRepository.existsById(personId);
+    }
 }

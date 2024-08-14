@@ -220,6 +220,33 @@ public class PersonServiceTests extends ServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("personExists")
+    class PersonExists {
+
+        @Test
+        @DisplayName("Existing person id, returns true")
+        void ExistingId_ReturnsTrue() {
+            final Long id = 1L;
+            given(personRepository.existsById(id)).willReturn(true);
+
+            boolean actual = personService.personExists(id);
+
+            assertThat(actual).isTrue();
+        }
+
+        @Test
+        @DisplayName("Not existing person id, returns false")
+        void NotExistingId_ReturnsFalse() {
+            final Long id = 1L;
+            given(personRepository.existsById(id)).willReturn(false);
+
+            boolean actual = personService.personExists(id);
+
+            assertThat(actual).isFalse();
+        }
+    }
+
     /* Utility */
 
     private List<Person> createPeoplesWithIds(List<Long> ids) {
