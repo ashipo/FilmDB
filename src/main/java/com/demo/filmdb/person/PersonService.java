@@ -110,4 +110,19 @@ public class PersonService {
         roleRepository.deleteById_PersonId(person.getId());
         personRepository.delete(person);
     }
+
+    /**
+     * Deletes the {@link Person} with the given id
+     *
+     * @param personId person id
+     */
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deletePerson(Long personId) {
+        getPerson(personId).ifPresent(person -> {
+            person.removeFilmsDirected();
+            roleRepository.deleteById_PersonId(personId);
+            personRepository.deleteById(personId);
+        });
+    }
 }

@@ -31,8 +31,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PersonServiceTests extends ServiceTest {
 
@@ -159,7 +158,9 @@ public class PersonServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("deletePerson")
     class DeletePerson {
+
         @Test
         @DisplayName("Deletes existing person")
         void ExistingId_Deletes() {
@@ -171,6 +172,22 @@ public class PersonServiceTests extends ServiceTest {
 
             verify(personRepository).delete(expected);
             verify(roleRepository).deleteById_PersonId(expectedPersonId);
+        }
+
+        @Test
+        @DisplayName("Existing Id, deletes correctly")
+        void ExistingId_DeletesCorrectly() {
+            final Long id = 11L;
+            Person person = mock(Person.class);
+            given(personRepository.findById(id)).willReturn(Optional.of(person));
+
+            personService.deletePerson(id);
+
+            // assert director associations are deleted
+            verify(person).removeFilmsDirected();
+            // assert roles are deleted
+            verify(roleRepository).deleteById_PersonId(id);
+            verify(personRepository).deleteById(id);
         }
     }
 
