@@ -31,7 +31,9 @@ class Util {
     static final String CREATE_PERSON = "createPerson";
     static final String GET_PERSON = "person";
     static final String UPDATE_PERSON = "updatePerson";
+    static final String DELETE_PERSON = "deletePerson";
     // variables
+    static final String VAR_ID = "id";
     static final String FILM_ID = "filmId";
     static final String PERSON_ID = "personId";
     static final String CHARACTER = "character";

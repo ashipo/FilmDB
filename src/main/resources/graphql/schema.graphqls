@@ -30,6 +30,9 @@ type Mutation {
     "Update a `Person`"
     updatePerson(input: UpdatePersonInput!): UpdatePersonPayload
 
+    "Delete a `Person`"
+    deletePerson(input: DeletePersonInput!): DeletePersonPayload
+
     "Set a `Person` as a director for a `Film`"
     setDirector(input: SetDirectorInput!): SetDirectorPayload
 
@@ -132,6 +135,14 @@ input UpdatePersonInput {
 
 type UpdatePersonPayload {
     person: Person
+}
+
+input DeletePersonInput {
+    id: Long!
+}
+
+type DeletePersonPayload {
+    id: Long!
 }
 
 input SetDirectorInput {

@@ -1,8 +1,10 @@
 package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.graphql.inputs.CreatePersonInput;
+import com.demo.filmdb.graphql.inputs.DeletePersonInput;
 import com.demo.filmdb.graphql.inputs.UpdatePersonInput;
 import com.demo.filmdb.graphql.payloads.CreatePersonPayload;
+import com.demo.filmdb.graphql.payloads.DeletePersonPayload;
 import com.demo.filmdb.graphql.payloads.UpdatePersonPayload;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
@@ -36,5 +38,12 @@ public class PersonController {
     public UpdatePersonPayload updatePerson(@Argument UpdatePersonInput input) {
         final Person updatedPerson = personService.updatePerson(input.personId(), input.person());
         return new UpdatePersonPayload(updatedPerson);
+    }
+
+    @MutationMapping
+    public DeletePersonPayload deletePerson(@Argument DeletePersonInput input) {
+        final Long personId = input.id();
+        personService.deletePerson(personId);
+        return new DeletePersonPayload(personId);
     }
 }

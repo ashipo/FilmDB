@@ -1,0 +1,5 @@
+mutation deletePerson($id: Long!) {
+    deletePerson(input: {id: $id}) {
+        id
+    }
+}

@@ -117,4 +117,43 @@ public class PersonControllerSecurityTests {
                     .executeAndVerify();
         }
     }
+
+    @Nested
+    @DisplayName(DELETE_PERSON)
+    class DeletePerson {
+
+        @Test
+        @DisplayName("Not authenticated, unauthorized")
+        void NotAuthenticated_Unauthorized() {
+            graphQlTester
+                    .documentName(DELETE_PERSON)
+                    .variable(VAR_ID, 1)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
+        }
+
+        @Test
+        @DisplayName("Authenticated as USER, forbidden")
+        @WithMockUser
+        void AuthenticatedUser_Forbidden() {
+            graphQlTester
+                    .documentName(DELETE_PERSON)
+                    .variable(VAR_ID, 1)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
+        }
+
+        @Test
+        @DisplayName("Authenticated as ADMIN, authorized")
+        @WithMockUser(roles = {ROLE_ADMIN})
+        @Transactional
+        void AuthenticatedAdmin_Authorized() {
+            graphQlTester
+                    .documentName(DELETE_PERSON)
+                    .variable(VAR_ID, 1)
+                    .executeAndVerify();
+        }
+    }
 }

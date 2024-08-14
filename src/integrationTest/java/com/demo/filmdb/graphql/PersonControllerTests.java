@@ -1,5 +1,6 @@
 package com.demo.filmdb.graphql;
 
+import com.demo.filmdb.graphql.payloads.DeletePersonPayload;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.util.EntityNotFoundException;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,6 +23,7 @@ import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
@@ -168,6 +171,46 @@ public class PersonControllerTests {
                     .variable(PERSON_ID, 1L)
                     .variable(NAME, name)
                     .variable(DATE_OF_BIRTH, dateOfBirth)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == ValidationError)
+                    .verify()
+                    .path(DATA)
+                    .pathDoesNotExist();
+        }
+    }
+
+    @Nested
+    @DisplayName(DELETE_PERSON)
+    class DeletePerson {
+
+        @Test
+        @DisplayName("Valid input, correct response")
+        void ValidInput_CorrectResponse() {
+            Long expectedId = 1L;
+
+            graphQlTester
+                    .documentName(DELETE_PERSON)
+                    .variable(VAR_ID, expectedId)
+                    .execute()
+                    .path(DELETE_PERSON)
+                    .entity(DeletePersonPayload.class)
+                    .matches(payload -> Objects.equals(payload.id(), expectedId));
+        }
+
+        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        // Valid: "mutation { deletePerson(input: {id: 1}) { id } }"
+        @ValueSource(strings = {
+                "mutation { deletePerson(input: {id: 1}) }",
+                "mutation { deletePerson(input: null) { id } }",
+                "mutation { deletePerson(input: {}) { id } }",
+                "mutation { deletePerson(input: {id: null}) { id } }",
+                "mutation { deletePerson(input: {id: \"one\"}) { id } }",
+        })
+        @DisplayName("Invalid input, validation error")
+        void InvalidInput_ValidationError(String document) {
+            graphQlTester
+                    .document(document)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
