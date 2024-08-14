@@ -162,19 +162,6 @@ public class PersonServiceTests extends ServiceTest {
     class DeletePerson {
 
         @Test
-        @DisplayName("Deletes existing person")
-        void ExistingId_Deletes() {
-            final Long expectedPersonId = 11L;
-            Person expected = new Person();
-            expected.setId(expectedPersonId);
-
-            personService.deletePerson(expected);
-
-            verify(personRepository).delete(expected);
-            verify(roleRepository).deleteById_PersonId(expectedPersonId);
-        }
-
-        @Test
         @DisplayName("Existing Id, deletes correctly")
         void ExistingId_DeletesCorrectly() {
             final Long id = 11L;

@@ -100,18 +100,6 @@ public class PersonService {
     }
 
     /**
-     * Deletes the given {@link Person} entity.
-     *
-     * @param person to delete.
-     */
-    @Transactional
-    public void deletePerson(Person person) {
-        person.getFilmsDirected().forEach(f -> f.getDirectors().remove(person));
-        roleRepository.deleteById_PersonId(person.getId());
-        personRepository.delete(person);
-    }
-
-    /**
      * Deletes the {@link Person} with the given id
      *
      * @param personId person id
