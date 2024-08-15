@@ -58,11 +58,6 @@ public class Film {
         return directors;
     }
 
-    public void setDirectors(Collection<Person> directors) {
-        this.directors.clear();
-        this.directors.addAll(directors);
-    }
-
     public Set<Role> getCast() {
         return cast;
     }
@@ -100,18 +95,35 @@ public class Film {
         this.id = id;
     }
 
+    /**
+     * Updates directors for this film for the both sides of the association
+     */
+    public void setDirectors(Collection<Person> newDirectors) {
+        removeDirectors();
+        for (Person director : newDirectors) {
+            director.getFilmsDirected().add(this);
+        }
+        directors.addAll(newDirectors);
+    }
+
+    /**
+     * Add director for this film for the both sides of the association
+     */
     public void addDirector(Person director) {
         directors.add(director);
         director.getFilmsDirected().add(this);
     }
 
+    /**
+     * Remove director from this film for the both sides of the association
+     */
     public void removeDirector(Person director) {
         directors.remove(director);
         director.getFilmsDirected().remove(this);
     }
 
     /**
-     * Removes directors for this film for the both sides of the association
+     * Removes directors from this film for the both sides of the association
      */
     public void removeDirectors() {
         for (Person director : directors) {
