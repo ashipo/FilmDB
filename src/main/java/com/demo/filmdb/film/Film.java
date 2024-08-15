@@ -110,6 +110,16 @@ public class Film {
         director.getFilmsDirected().remove(this);
     }
 
+    /**
+     * Removes directors for this film for the both sides of the association
+     */
+    public void removeDirectors() {
+        for (Person director : directors) {
+            director.getFilmsDirected().remove(this);
+        }
+        directors.clear();
+    }
+
     @Override
     public String toString() {
         return "Film{" +
