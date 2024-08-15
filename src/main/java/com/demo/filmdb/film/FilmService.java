@@ -19,11 +19,13 @@ public class FilmService {
 
     private final FilmRepository filmRepository;
     private final RoleRepository roleRepository;
+    private final FilmMapper filmMapper;
 
     @Autowired
-    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository) {
+    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository, FilmMapper filmMapper) {
         this.filmRepository = filmRepository;
         this.roleRepository = roleRepository;
+        this.filmMapper = filmMapper;
     }
 
     /**
@@ -81,6 +83,23 @@ public class FilmService {
             throw new EntityNotFoundException(filmNotFoundMessage(film.getId()));
         }
         return filmRepository.save(film);
+    }
+
+    /**
+     * Update a {@link Film}
+     *
+     * @param filmId film to update
+     * @param filmInfo film info
+     * @return the updated entity
+     * @throws EntityNotFoundException if film could not be found
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Film updateFilm(Long filmId, FilmInfo filmInfo) throws EntityNotFoundException {
+        Film filmToUpdate = filmRepository.findById(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
+        filmMapper.updateFilmFromFilmInfo(filmInfo, filmToUpdate);
+        return filmRepository.save(filmToUpdate);
     }
 
     /**

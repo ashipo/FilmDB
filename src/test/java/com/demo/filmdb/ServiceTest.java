@@ -28,20 +28,18 @@ public abstract class ServiceTest {
     @Mock
     protected FilmService filmService;
 
-    private Film createFilmWithoutId() {
-        return new Film("Shining", LocalDate.of(1980, 5, 23), "A family heads to an isolated hotel.");
-    }
-
-    protected Film createFilm(Long id) {
-        Film result = createFilmWithoutId();
+    protected Film createFilm(Long id, String title, LocalDate releaseDate, String synopsis) {
+        Film result = new Film(title, releaseDate, synopsis);
         result.setId(id);
         return result;
     }
 
+    protected Film createFilm(Long id) {
+        return createFilm(id, "Shining", LocalDate.of(1980, 5, 23), "A family heads to an isolated hotel.");
+    }
+
     protected Film createFilm() {
-        Film result = createFilmWithoutId();
-        result.setId(42L);
-        return result;
+        return createFilm(42L);
     }
 
     protected Person createPerson(Long id) {

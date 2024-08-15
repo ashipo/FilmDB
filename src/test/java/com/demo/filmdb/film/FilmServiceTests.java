@@ -7,15 +7,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mapstruct.factory.Mappers;
 import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 
+import java.time.LocalDate;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -26,10 +35,11 @@ import static org.mockito.Mockito.when;
 class FilmServiceTests extends ServiceTest {
 
     private FilmService filmService;
+    private final FilmMapper filmMapper = Mappers.getMapper(FilmMapper.class);
 
     @BeforeEach
     void setUp() {
-        filmService = new FilmService(filmRepository, roleRepository);
+        filmService = new FilmService(filmRepository, roleRepository, filmMapper);
     }
 
     @Test
@@ -118,6 +128,44 @@ class FilmServiceTests extends ServiceTest {
                     filmService.updateFilm(createFilm())
             );
         }
+
+        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.film.FilmServiceTests#updateFilmProvider")
+        @DisplayName("Existing id, saves")
+        void ExistingId_Updates(String expectedTitle, LocalDate expectedReleaseDate, String expectedSynopsis) {
+            final Long filmId = 1L;
+            final Film existingFilm = createFilm(filmId, "Tenet", LocalDate.of(2020, 8, 26), "Armed with only the word \"Tenet\"");
+            // find existing person
+            given(filmRepository.findById(filmId)).willReturn(Optional.of(existingFilm));
+            // return updated person
+            when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
+
+            Film actual = filmService.updateFilm(filmId, createFilmInfo(expectedTitle, expectedReleaseDate, expectedSynopsis));
+
+            // assert saved
+            var updatedFilmCaptor = ArgumentCaptor.forClass(Film.class);
+            verify(filmRepository).save(updatedFilmCaptor.capture());
+            Film updatedFilm = updatedFilmCaptor.getValue();
+            assertThat(updatedFilm.getId()).isEqualTo(filmId);
+            assertThat(updatedFilm.getTitle()).isEqualTo(expectedTitle);
+            assertThat(updatedFilm.getReleaseDate()).isEqualTo(expectedReleaseDate);
+            assertThat(updatedFilm.getSynopsis()).isEqualTo(expectedSynopsis);
+            // assert returned
+            assertThat(actual.getId()).isEqualTo(filmId);
+            assertThat(actual.getTitle()).isEqualTo(expectedTitle);
+            assertThat(actual.getReleaseDate()).isEqualTo(expectedReleaseDate);
+            assertThat(actual.getSynopsis()).isEqualTo(expectedSynopsis);
+        }
+
+        @Test
+        @DisplayName("Not existing id, throws EntityNotFoundException")
+        void NotExistingId_Throws() {
+            given(filmRepository.findById(anyLong())).willReturn(Optional.empty());
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    filmService.updateFilm(1L, createFilmInfo("Interstellar", LocalDate.of(2014, 10, 26), "When Earth becomes uninhabitable"))
+            );
+        }
     }
 
     @Nested
@@ -161,5 +209,36 @@ class FilmServiceTests extends ServiceTest {
 
             assertThat(actual).isFalse();
         }
+    }
+
+    // Util
+
+    private static Stream<Arguments> updateFilmProvider() {
+        final String title = "Inception";
+        final LocalDate releaseDate = LocalDate.of(2010, 7, 8);
+        final String synopsis = "A thief who steals";
+        return Stream.of(
+                Arguments.arguments(title, releaseDate, synopsis),
+                Arguments.arguments(title, releaseDate, null)
+        );
+    }
+
+    private FilmInfo createFilmInfo(String title, LocalDate releaseDate, @Nullable String synopsis) {
+        return new FilmInfo() {
+            @Override
+            public String getTitle() {
+                return title;
+            }
+
+            @Override
+            public LocalDate getReleaseDate() {
+                return releaseDate;
+            }
+
+            @Override
+            public String getSynopsis() {
+                return synopsis;
+            }
+        };
     }
 }
