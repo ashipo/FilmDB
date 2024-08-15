@@ -32,6 +32,7 @@ import static graphql.ErrorType.ValidationError;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -131,7 +132,7 @@ public class FilmControllerTests {
 
             graphQlTester
                     .documentName(GET_FILM)
-                    .variable("id", id)
+                    .variable(VAR_ID, id)
                     .execute()
                     .path(GET_FILM)
                     .entity(Film.class)
@@ -148,7 +149,7 @@ public class FilmControllerTests {
 
             graphQlTester
                     .documentName(GET_FILM)
-                    .variable("id", 1)
+                    .variable(VAR_ID, 1)
                     .execute()
                     .path(GET_FILM)
                     .valueIsNull();
@@ -159,7 +160,7 @@ public class FilmControllerTests {
         void InvalidInput_ValidationError() {
             graphQlTester
                     .documentName(GET_FILM)
-                    .variable("id", "Invalid ID")
+                    .variable(VAR_ID, "Invalid ID")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -247,8 +248,12 @@ public class FilmControllerTests {
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#invalidFilmInputs")
         @DisplayName("Invalid input, validation error")
-        void InvalidInput_ValidationError(FilmInput input) {
-            Map<String, Object> filmInput = getFilmInputMap(input);
+        void InvalidInput_ValidationError(Object title, Object releaseDate, Object synopsis) {
+            Map<String, Object> filmInput = new HashMap<>() {{
+                put("title", title);
+                put("releaseDate", releaseDate);
+                put("synopsis", synopsis);
+            }};
 
             graphQlTester
                     .documentName(CREATE_FILM)
@@ -268,20 +273,22 @@ public class FilmControllerTests {
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#validFilmInputs")
-        @DisplayName("Valid input, saves correctly")
+        @DisplayName("Valid input, correct response")
         void ValidInput_SavesCorrectly(FilmInput input) {
-            Map<String, Object> filmInput = getFilmInputMap(input);
-            Long expectedId = 1L;
-            when(filmService.updateFilm(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
+            final Long id = 1L;
+            given(filmService.updateFilm(anyLong(), any()))
+                    .willReturn(createFilm(id, input.getTitle(), input.releaseDate(), input.synopsis()));
 
             graphQlTester
                     .documentName(UPDATE_FILM)
-                    .variable("id", expectedId)
-                    .variable(FILM_INPUT, filmInput)
+                    .variable(VAR_ID, id)
+                    .variable(TITLE, input.title())
+                    .variable(RELEASE_DATE, input.releaseDate())
+                    .variable(SYNOPSIS, input.synopsis())
                     .execute()
-                    .path(UPDATE_FILM)
+                    .path(UPDATE_FILM + ".film")
                     .entity(Film.class)
-                    .matches(film -> Objects.equals(film.getId(), expectedId))
+                    .matches(film -> Objects.equals(film.getId(), id))
                     .matches(film -> Objects.equals(film.getTitle(), input.title()))
                     .matches(film -> Objects.equals(film.getReleaseDate(), input.releaseDate()))
                     .matches(film -> Objects.equals(film.getSynopsis(), input.synopsis()));
@@ -290,13 +297,13 @@ public class FilmControllerTests {
         @Test
         @DisplayName("Not existing id, not found error")
         void NotExistingId_NotFoundError() {
-            Map<String, Object> filmInput = getFilmInputMap(getValidFilmInput());
-            given(filmService.updateFilm(any(Film.class))).willThrow(new EntityNotFoundException("404"));
+            given(filmService.updateFilm(anyLong(), any())).willThrow(new EntityNotFoundException("404"));
 
             graphQlTester
                     .documentName(UPDATE_FILM)
-                    .variable("id", 1L)
-                    .variable(FILM_INPUT, filmInput)
+                    .variable(VAR_ID, 1)
+                    .variable(TITLE, "The Truman Show")
+                    .variable(RELEASE_DATE, "1998-06-01")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == NOT_FOUND)
@@ -305,16 +312,16 @@ public class FilmControllerTests {
                     .valueIsNull();
         }
 
-        @ParameterizedTest(name = "{0}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#invalidFilmInputs")
         @DisplayName("Invalid input, validation error")
-        void InvalidInput_ValidationError(FilmInput input) {
-            Map<String, Object> filmInput = getFilmInputMap(input);
-
+        void InvalidInput_ValidationError(Object title, Object releaseDate, Object synopsis) {
             graphQlTester
                     .documentName(UPDATE_FILM)
-                    .variable("id", 1)
-                    .variable(FILM_INPUT, filmInput)
+                    .variable(VAR_ID, 1)
+                    .variable(TITLE, title)
+                    .variable(RELEASE_DATE, releaseDate)
+                    .variable(SYNOPSIS, synopsis)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -329,19 +336,21 @@ public class FilmControllerTests {
         final LocalDate date = LocalDate.of(1994, 7, 6);
         final String synopsis = "Life was like a box of chocolates";
         return Stream.of(
-                arguments(named("All fields", new FilmInput(title, date, synopsis))),
-                arguments(named("Null synopsis", new FilmInput(title, date, null)))
+                arguments(named("[All fields]", new FilmInput(title, date, synopsis))),
+                arguments(named("[Null synopsis]", new FilmInput(title, date, null)))
         );
     }
 
     private static Stream<Arguments> invalidFilmInputs() {
         final String title = "Alien";
         final LocalDate date = LocalDate.of(1979, 6, 22);
-        final String synopsis = "In space, no can hear you scream";
+        final String synopsis = "In space, no one can hear you scream";
         return Stream.of(
-                arguments(named("Null title", new FilmInput(null, date, synopsis))),
-                arguments(named("Null release date", new FilmInput(title, null, synopsis))),
-                arguments(named("Empty title", new FilmInput("", date, synopsis)))
+                arguments(named("[Null title]", null), date, synopsis),
+                arguments(named("[Empty title]", ""), date, synopsis),
+                arguments(named("[Blank title]", "  "), date, synopsis),
+                arguments(title, named("[Null release date]", null), synopsis),
+                arguments(title, named("[Invalid release date]", "1999-66-99"), synopsis)
         );
     }
 }

@@ -4,7 +4,9 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.inputs.DeleteFilmInput;
 import com.demo.filmdb.graphql.inputs.FilmInput;
+import com.demo.filmdb.graphql.inputs.UpdateFilmInput;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
+import com.demo.filmdb.graphql.payloads.UpdateFilmPayload;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -43,11 +45,9 @@ public class FilmController {
     }
 
     @MutationMapping
-    public Film updateFilm(@Argument Long id, @Argument FilmInput input) {
-        final Film film = new Film();
-        film.setId(id);
-        updateFilmFromInput(film, input);
-        return filmService.updateFilm(film);
+    public UpdateFilmPayload updateFilm(@Argument UpdateFilmInput input) {
+        Film updatedFilm = filmService.updateFilm(input.id(), input.filmInput());
+        return new UpdateFilmPayload(updatedFilm);
     }
 
     @MutationMapping

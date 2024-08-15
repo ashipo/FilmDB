@@ -139,7 +139,8 @@ public class FilmControllerSecurityTests {
             graphQlTester
                     .documentName(UPDATE_FILM)
                     .variable(VAR_ID, NOT_EXISTING_ID)
-                    .variable(FILM_INPUT, getValidFilmInput())
+                    .variable(TITLE, "La Femme Nikita")
+                    .variable(RELEASE_DATE, "1990-02-21")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -152,7 +153,8 @@ public class FilmControllerSecurityTests {
             graphQlTester
                     .documentName(UPDATE_FILM)
                     .variable(VAR_ID, NOT_EXISTING_ID)
-                    .variable(FILM_INPUT, getValidFilmInput())
+                    .variable(TITLE, "The Fifth Element")
+                    .variable(RELEASE_DATE, "1997-05-07")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -166,7 +168,8 @@ public class FilmControllerSecurityTests {
             graphQlTester
                     .documentName(UPDATE_FILM)
                     .variable(VAR_ID, 1)
-                    .variable(FILM_INPUT, getValidFilmInput())
+                    .variable(TITLE, "Léon: The Professional")
+                    .variable(RELEASE_DATE, "1994-09-14")
                     .executeAndVerify();
         }
     }

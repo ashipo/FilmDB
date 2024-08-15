@@ -4,6 +4,7 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.graphql.inputs.FilmInput;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
+import jakarta.annotation.Nullable;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.time.LocalDate;
@@ -40,6 +41,9 @@ class Util {
     static final String NAME = "name";
     static final String DATE_OF_BIRTH = "dateOfBirth";
     static final String FILM_INPUT = "filmInput";
+    static final String TITLE = "title";
+    static final String RELEASE_DATE = "releaseDate";
+    static final String SYNOPSIS = "synopsis";
 
     public static final String DATA = "data";
 
@@ -55,21 +59,21 @@ class Util {
         }};
     }
 
-    private static Film createFilmWithoutId() {
-        return new Film("Terminator", LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
+    static Film createFilm(Long id, String title, LocalDate releaseDate, @Nullable String synopsis) {
+        Film result = new Film(title, releaseDate, synopsis);
+        result.setId(id);
+        return result;
     }
 
     static Film createFilm(Long id) {
-        Film result = createFilmWithoutId();
-        result.setId(id);
-        return result;
+        return createFilm(id, "Terminator", LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
     }
 
     static Person createPerson(Long id) {
         return createPerson(id, "Arnold Schwarzenegger", LocalDate.of(1947, 7, 30));
     }
 
-    static Person createPerson(Long id, String name, LocalDate dateOfBirth) {
+    static Person createPerson(Long id, String name, @Nullable LocalDate dateOfBirth) {
         Person result = new Person(name, dateOfBirth);
         result.setId(id);
         return result;

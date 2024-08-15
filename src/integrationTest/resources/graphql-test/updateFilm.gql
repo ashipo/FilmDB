@@ -1,8 +1,7 @@
-mutation updateFilm($id: Long!, $filmInput: FilmInput!) {
-    updateFilm(id: $id, input: $filmInput) {
-        id
-        title
-        releaseDate
-        synopsis
+mutation updateFilm($id: Long!, $title: NonBlankString!, $releaseDate: Date!, $synopsis: String) {
+    updateFilm(input: {id: $id, filmInput: {title: $title, releaseDate: $releaseDate, synopsis: $synopsis}}) {
+        film {
+            id, title, releaseDate, synopsis
+        }
     }
 }

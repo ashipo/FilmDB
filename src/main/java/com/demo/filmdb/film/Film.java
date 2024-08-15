@@ -48,7 +48,7 @@ public class Film {
     public Film() {
     }
 
-    public Film(String title, LocalDate releaseDate, String synopsis) {
+    public Film(String title, LocalDate releaseDate, @Nullable String synopsis) {
         this.title = title;
         this.releaseDate = releaseDate;
         this.synopsis = synopsis;
