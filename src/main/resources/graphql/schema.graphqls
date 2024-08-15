@@ -22,7 +22,9 @@ type Query {
 type Mutation {
     createFilm(input: FilmInput!): Film
     updateFilm(id: Long!, input: FilmInput!): Film
-    deleteFilm(id: Long!): Long
+
+    "Delete a `Film`"
+    deleteFilm(input: DeleteFilmInput!): DeleteFilmPayload
 
     "Create a `Person`"
     createPerson(input: CreatePersonInput!): CreatePersonPayload
@@ -119,6 +121,14 @@ input CastMemberInput {
 #
 # Mutation inputs and payloads
 #
+
+input DeleteFilmInput {
+    id: Long!
+}
+
+type DeleteFilmPayload {
+    id: Long!
+}
 
 input CreatePersonInput {
     person: PersonInput!

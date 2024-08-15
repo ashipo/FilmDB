@@ -1,3 +1,5 @@
 mutation deleteFilm($id: Long!) {
-    deleteFilm(id: $id)
+    deleteFilm(input: {id: $id}) {
+        id
+    }
 }

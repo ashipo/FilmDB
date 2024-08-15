@@ -46,7 +46,7 @@ public class FilmControllerSecurityTests {
         void NotAuthenticated_Authorized() {
             graphQlTester
                     .documentName(GET_FILM)
-                    .variable("id", 1)
+                    .variable(VAR_ID, 1)
                     .executeAndVerify();
         }
     }
@@ -60,7 +60,7 @@ public class FilmControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(DELETE_FILM)
-                    .variable("id", NOT_EXISTING_ID)
+                    .variable(VAR_ID, NOT_EXISTING_ID)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -72,7 +72,7 @@ public class FilmControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(DELETE_FILM)
-                    .variable("id", NOT_EXISTING_ID)
+                    .variable(VAR_ID, NOT_EXISTING_ID)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -85,7 +85,7 @@ public class FilmControllerSecurityTests {
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(DELETE_FILM)
-                    .variable("id", 1)
+                    .variable(VAR_ID, 1)
                     .executeAndVerify();
         }
     }
@@ -99,7 +99,7 @@ public class FilmControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable("filmInput", getValidFilmInput())
+                    .variable(FILM_INPUT, getValidFilmInput())
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -111,7 +111,7 @@ public class FilmControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable("filmInput", getValidFilmInput())
+                    .variable(FILM_INPUT, getValidFilmInput())
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -124,7 +124,7 @@ public class FilmControllerSecurityTests {
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable("filmInput", getValidFilmInput())
+                    .variable(FILM_INPUT, getValidFilmInput())
                     .executeAndVerify();
         }
     }
@@ -138,8 +138,8 @@ public class FilmControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(UPDATE_FILM)
-                    .variable("id", NOT_EXISTING_ID)
-                    .variable("filmInput", getValidFilmInput())
+                    .variable(VAR_ID, NOT_EXISTING_ID)
+                    .variable(FILM_INPUT, getValidFilmInput())
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -151,8 +151,8 @@ public class FilmControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(UPDATE_FILM)
-                    .variable("id", NOT_EXISTING_ID)
-                    .variable("filmInput", getValidFilmInput())
+                    .variable(VAR_ID, NOT_EXISTING_ID)
+                    .variable(FILM_INPUT, getValidFilmInput())
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -165,8 +165,8 @@ public class FilmControllerSecurityTests {
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(UPDATE_FILM)
-                    .variable("id", 1)
-                    .variable("filmInput", getValidFilmInput())
+                    .variable(VAR_ID, 1)
+                    .variable(FILM_INPUT, getValidFilmInput())
                     .executeAndVerify();
         }
     }

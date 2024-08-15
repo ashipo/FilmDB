@@ -4,6 +4,7 @@ import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.inputs.FilmInput;
+import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -115,8 +118,6 @@ public class FilmControllerTests {
         }
     }
 
-    private final String FILM_INPUT = "filmInput";
-
     @Nested
     @DisplayName(GET_FILM)
     class GetFilm {
@@ -179,19 +180,26 @@ public class FilmControllerTests {
 
             graphQlTester
                     .documentName(DELETE_FILM)
-                    .variable("id", expectedId)
+                    .variable(VAR_ID, expectedId)
                     .execute()
                     .path(DELETE_FILM)
-                    .entity(Long.class)
-                    .isEqualTo(expectedId);
+                    .entity(DeleteFilmPayload.class)
+                    .matches(payload -> Objects.equals(payload.id(), expectedId));
         }
 
-        @Test
+        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        // Valid: "mutation { deleteFilm(input: {id: 1}) { id } }"
+        @ValueSource(strings = {
+                "mutation { deleteFilm(input: {id: 1}) }",
+                "mutation { deleteFilm(input: null) { id } }",
+                "mutation { deleteFilm(input: {}) { id } }",
+                "mutation { deleteFilm(input: {id: null}) { id } }",
+                "mutation { deleteFilm(input: {id: \"one\"}) { id } }",
+        })
         @DisplayName("Invalid input, validation error")
-        void InvalidInput_ValidationError() {
+        void InvalidInput_ValidationError(String document) {
             graphQlTester
-                    .documentName(DELETE_FILM)
-                    .variable("id", "five")
+                    .document(document)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)

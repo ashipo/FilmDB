@@ -39,6 +39,7 @@ class Util {
     static final String CHARACTER = "character";
     static final String NAME = "name";
     static final String DATE_OF_BIRTH = "dateOfBirth";
+    static final String FILM_INPUT = "filmInput";
 
     public static final String DATA = "data";
 
