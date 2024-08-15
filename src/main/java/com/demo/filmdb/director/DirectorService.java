@@ -10,7 +10,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -83,7 +86,7 @@ public class DirectorService {
                 new EntityNotFoundException(filmNotFoundMessage(filmId))
         );
         if (directorsIds == null || directorsIds.isEmpty()) {
-            film.getDirectors().clear();
+            film.removeDirectors();
             return filmRepository.save(film);
         }
 
