@@ -41,10 +41,12 @@ public class DirectorService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public void setDirector(Long filmId, Long personId) throws EntityNotFoundException {
-        Film film = filmRepository.findById(filmId)
-                .orElseThrow(() -> new EntityNotFoundException(filmNotFoundMessage(filmId)));
-        Person person = personRepository.findById(personId)
-                .orElseThrow(() -> new EntityNotFoundException(personNotFoundMessage(personId)));
+        Film film = filmRepository.findById(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
+        Person person = personRepository.findById(personId).orElseThrow(() ->
+                new EntityNotFoundException(personNotFoundMessage(personId))
+        );
         film.addDirector(person);
         filmRepository.save(film);
     }

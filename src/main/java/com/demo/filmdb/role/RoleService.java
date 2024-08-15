@@ -82,8 +82,9 @@ public class RoleService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public Role updateRole(Long filmId, Long personId, String character) throws EntityNotFoundException {
-        Role roleToUpdate = roleRepository.findByIds(filmId, personId)
-                .orElseThrow(() -> new EntityNotFoundException(roleNotFoundMessage(filmId, personId)));
+        Role roleToUpdate = roleRepository.findByIds(filmId, personId).orElseThrow(() ->
+                new EntityNotFoundException(roleNotFoundMessage(filmId, personId))
+        );
         roleToUpdate.setCharacter(character);
         return roleRepository.save(roleToUpdate);
     }
