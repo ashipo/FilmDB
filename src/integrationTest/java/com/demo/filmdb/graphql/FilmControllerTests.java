@@ -3,7 +3,6 @@ package com.demo.filmdb.graphql;
 import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
-import com.demo.filmdb.graphql.inputs.FilmInput;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
@@ -24,7 +22,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
@@ -38,7 +39,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.graphql.execution.ErrorType.NOT_FOUND;
 
 @GraphQlTest({FilmController.class, TestConfigurer.class})
@@ -227,37 +227,34 @@ public class FilmControllerTests {
     @DisplayName(CREATE_FILM)
     class CreateFilm {
 
-        @ParameterizedTest(name = "{0}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#validFilmInputs")
         @DisplayName("Valid input, correct response")
-        void ValidInput_CorrectResponse(FilmInput input) {
-            Map<String, Object> filmInput = getFilmInputMap(input);
-            when(filmService.saveFilm(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
+        void ValidInput_CorrectResponse(String title, LocalDate releaseDate, String synopsis) {
+            given(filmService.createFilm(any())).willReturn(new Film(title, releaseDate, synopsis));
 
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable(FILM_INPUT, filmInput)
+                    .variable(TITLE, title)
+                    .variable(RELEASE_DATE, releaseDate)
+                    .variable(SYNOPSIS, synopsis)
                     .execute()
-                    .path(CREATE_FILM)
+                    .path(CREATE_FILM + ".film")
                     .entity(Film.class)
-                    .matches(film -> Objects.equals(film.getTitle(), input.title()))
-                    .matches(film -> Objects.equals(film.getReleaseDate(), input.releaseDate()))
-                    .matches(film -> Objects.equals(film.getSynopsis(), input.synopsis()));
+                    .matches(film -> Objects.equals(film.getTitle(), title))
+                    .matches(film -> Objects.equals(film.getReleaseDate(), releaseDate))
+                    .matches(film -> Objects.equals(film.getSynopsis(), synopsis));
         }
 
-        @ParameterizedTest(name = "{0}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#invalidFilmInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object title, Object releaseDate, Object synopsis) {
-            Map<String, Object> filmInput = new HashMap<>() {{
-                put("title", title);
-                put("releaseDate", releaseDate);
-                put("synopsis", synopsis);
-            }};
-
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable(FILM_INPUT, filmInput)
+                    .variable(TITLE, title)
+                    .variable(RELEASE_DATE, releaseDate)
+                    .variable(SYNOPSIS, synopsis)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -271,27 +268,26 @@ public class FilmControllerTests {
     @DisplayName(UPDATE_FILM)
     class UpdateFilm {
 
-        @ParameterizedTest(name = "{0}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#validFilmInputs")
         @DisplayName("Valid input, correct response")
-        void ValidInput_SavesCorrectly(FilmInput input) {
+        void ValidInput_SavesCorrectly(String title, LocalDate releaseDate, String synopsis) {
             final Long id = 1L;
-            given(filmService.updateFilm(anyLong(), any()))
-                    .willReturn(createFilm(id, input.getTitle(), input.releaseDate(), input.synopsis()));
+            given(filmService.updateFilm(anyLong(), any())).willReturn(createFilm(id, title, releaseDate, synopsis));
 
             graphQlTester
                     .documentName(UPDATE_FILM)
                     .variable(VAR_ID, id)
-                    .variable(TITLE, input.title())
-                    .variable(RELEASE_DATE, input.releaseDate())
-                    .variable(SYNOPSIS, input.synopsis())
+                    .variable(TITLE, title)
+                    .variable(RELEASE_DATE, releaseDate)
+                    .variable(SYNOPSIS, synopsis)
                     .execute()
                     .path(UPDATE_FILM + ".film")
                     .entity(Film.class)
                     .matches(film -> Objects.equals(film.getId(), id))
-                    .matches(film -> Objects.equals(film.getTitle(), input.title()))
-                    .matches(film -> Objects.equals(film.getReleaseDate(), input.releaseDate()))
-                    .matches(film -> Objects.equals(film.getSynopsis(), input.synopsis()));
+                    .matches(film -> Objects.equals(film.getTitle(), title))
+                    .matches(film -> Objects.equals(film.getReleaseDate(), releaseDate))
+                    .matches(film -> Objects.equals(film.getSynopsis(), synopsis));
         }
 
         @Test
@@ -336,8 +332,8 @@ public class FilmControllerTests {
         final LocalDate date = LocalDate.of(1994, 7, 6);
         final String synopsis = "Life was like a box of chocolates";
         return Stream.of(
-                arguments(named("[All fields]", new FilmInput(title, date, synopsis))),
-                arguments(named("[Null synopsis]", new FilmInput(title, date, null)))
+                arguments(title, date, synopsis),
+                arguments(title, date, named("[Null synopsis]", null))
         );
     }
 

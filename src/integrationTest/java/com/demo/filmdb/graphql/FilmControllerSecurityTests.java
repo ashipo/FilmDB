@@ -99,7 +99,8 @@ public class FilmControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable(FILM_INPUT, getValidFilmInput())
+                    .variable(TITLE, "The Godfather")
+                    .variable(RELEASE_DATE, "1972-03-14")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -111,7 +112,8 @@ public class FilmControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable(FILM_INPUT, getValidFilmInput())
+                    .variable(TITLE, "The Godfather Part II")
+                    .variable(RELEASE_DATE, "1974-12-12")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -124,7 +126,8 @@ public class FilmControllerSecurityTests {
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(CREATE_FILM)
-                    .variable(FILM_INPUT, getValidFilmInput())
+                    .variable(TITLE, "The Godfather Part III")
+                    .variable(RELEASE_DATE, "1990-12-20")
                     .executeAndVerify();
         }
     }

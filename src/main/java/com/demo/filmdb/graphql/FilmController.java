@@ -2,9 +2,10 @@ package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
+import com.demo.filmdb.graphql.inputs.CreateFilmInput;
 import com.demo.filmdb.graphql.inputs.DeleteFilmInput;
-import com.demo.filmdb.graphql.inputs.FilmInput;
 import com.demo.filmdb.graphql.inputs.UpdateFilmInput;
+import com.demo.filmdb.graphql.payloads.CreateFilmPayload;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.graphql.payloads.UpdateFilmPayload;
 import org.springframework.data.domain.PageRequest;
@@ -38,10 +39,9 @@ public class FilmController {
     }
 
     @MutationMapping
-    public Film createFilm(@Argument FilmInput input) {
-        Film film = new Film();
-        updateFilmFromInput(film, input);
-        return filmService.saveFilm(film);
+    public CreateFilmPayload createFilm(@Argument CreateFilmInput input) {
+        final Film createdFilm = filmService.createFilm(input.filmInput());
+        return new CreateFilmPayload(createdFilm);
     }
 
     @MutationMapping
@@ -55,11 +55,5 @@ public class FilmController {
         final Long filmId = input.id();
         filmService.deleteFilm(filmId);
         return new DeleteFilmPayload(filmId);
-    }
-
-    private void updateFilmFromInput(Film film, FilmInput input) {
-        film.setTitle(input.title());
-        film.setReleaseDate(input.releaseDate());
-        film.setSynopsis(input.synopsis());
     }
 }

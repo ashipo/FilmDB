@@ -20,7 +20,8 @@ type Query {
 }
 
 type Mutation {
-    createFilm(input: FilmInput!): Film
+    "Create a `Film`"
+    createFilm(input: CreateFilmInput!): CreateFilmPayload
 
     "Update a `Film`"
     updateFilm(input: UpdateFilmInput!): UpdateFilmPayload
@@ -123,6 +124,14 @@ input CastMemberInput {
 #
 # Mutation inputs and payloads
 #
+
+input CreateFilmInput {
+    filmInput: FilmInput!
+}
+
+type CreateFilmPayload {
+    film: Film
+}
 
 input UpdateFilmInput {
     id: Long!
