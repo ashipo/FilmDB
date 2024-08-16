@@ -61,6 +61,18 @@ public class FilmService {
     }
 
     /**
+     * Create a {@link Film}
+     *
+     * @param filmInfo film info
+     * @return the created entity
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Film createFilm(FilmInfo filmInfo) {
+        final Film film = filmMapper.filmInfoToFilm(filmInfo);
+        return filmRepository.save(film);
+    }
+
+    /**
      * Returns a {@linkplain Film} entity with the given id or empty {@code Optional} if it doesn't exist
      *
      * @param filmId must not be {@code null}

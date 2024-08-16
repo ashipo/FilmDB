@@ -76,6 +76,33 @@ class FilmServiceTests extends ServiceTest {
     }
 
     @Nested
+    @DisplayName("createFilm")
+    class CreateFilm {
+
+        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.film.FilmServiceTests#validFilmInfoProvider")
+        @DisplayName("Valid input, creates and returns")
+        void ValidInput_Creates(String expectedTitle, LocalDate expectedReleaseDate, String expectedSynopsis) {
+            FilmInfo input = createFilmInfo(expectedTitle, expectedReleaseDate, expectedSynopsis);
+            when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
+
+            Film actual = filmService.createFilm(input);
+
+            // assert saved
+            var createdFilmCaptor = ArgumentCaptor.forClass(Film.class);
+            verify(filmRepository).save(createdFilmCaptor.capture());
+            Film createdFilm = createdFilmCaptor.getValue();
+            assertThat(createdFilm.getTitle()).isEqualTo(expectedTitle);
+            assertThat(createdFilm.getReleaseDate()).isEqualTo(expectedReleaseDate);
+            assertThat(createdFilm.getSynopsis()).isEqualTo(expectedSynopsis);
+            // assert returned
+            assertThat(actual.getTitle()).isEqualTo(expectedTitle);
+            assertThat(actual.getReleaseDate()).isEqualTo(expectedReleaseDate);
+            assertThat(actual.getSynopsis()).isEqualTo(expectedSynopsis);
+        }
+    }
+
+    @Nested
     @DisplayName("getFilm")
     class GetFilm {
 
@@ -108,8 +135,8 @@ class FilmServiceTests extends ServiceTest {
     class UpdateFilm {
 
         @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.film.FilmServiceTests#updateFilmProvider")
-        @DisplayName("Existing id, saves")
+        @MethodSource("com.demo.filmdb.film.FilmServiceTests#validFilmInfoProvider")
+        @DisplayName("Existing id, updates")
         void ExistingId_Updates(String expectedTitle, LocalDate expectedReleaseDate, String expectedSynopsis) {
             final Long filmId = 1L;
             final Film existingFilm = createFilm(filmId, "Tenet", LocalDate.of(2020, 8, 26), "Armed with only the word \"Tenet\"");
@@ -191,7 +218,7 @@ class FilmServiceTests extends ServiceTest {
 
     // Util
 
-    private static Stream<Arguments> updateFilmProvider() {
+    private static Stream<Arguments> validFilmInfoProvider() {
         final String title = "Inception";
         final LocalDate releaseDate = LocalDate.of(2010, 7, 8);
         final String synopsis = "A thief who steals";
