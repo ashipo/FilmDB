@@ -71,21 +71,6 @@ public class FilmService {
     }
 
     /**
-     * Saves the given {@link Film} entity if its {@code id} already exists
-     *
-     * @param film entity to update
-     * @return updated entity
-     * @throws EntityNotFoundException if the given {@code film} contains {@code id} that doesn't exist
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    public Film updateFilm(Film film) throws EntityNotFoundException {
-        if (!filmRepository.existsById(film.getId())) {
-            throw new EntityNotFoundException(filmNotFoundMessage(film.getId()));
-        }
-        return filmRepository.save(film);
-    }
-
-    /**
      * Update a {@link Film}
      *
      * @param filmId film to update

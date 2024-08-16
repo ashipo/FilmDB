@@ -107,28 +107,6 @@ class FilmServiceTests extends ServiceTest {
     @DisplayName("updateFilm")
     class UpdateFilm {
 
-        @Test
-        @DisplayName("Existing id, saves")
-        void ExistingId_Saves() {
-            given(filmRepository.existsById(anyLong())).willReturn(true);
-            when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
-            Film expected = createFilm();
-
-            Film actual = filmService.updateFilm(expected);
-
-            assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
-        }
-
-        @Test
-        @DisplayName("Not existing id, throws EntityNotFoundException")
-        void NotExistingId_Saves() {
-            given(filmRepository.existsById(anyLong())).willReturn(false);
-
-            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
-                    filmService.updateFilm(createFilm())
-            );
-        }
-
         @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.film.FilmServiceTests#updateFilmProvider")
         @DisplayName("Existing id, saves")
