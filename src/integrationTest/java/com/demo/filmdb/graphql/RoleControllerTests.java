@@ -149,7 +149,7 @@ public class RoleControllerTests {
         void ValidInput_CorrectResponse() {
             final Long filmId = 1L;
             final Long personId = 4L;
-            final String character = "Frodo";
+            final String character = "Bilbo";
             final Role expectedRole = createRole(filmId, personId, character);
             given(roleService.updateRole(filmId, personId, character)).willReturn(expectedRole);
 

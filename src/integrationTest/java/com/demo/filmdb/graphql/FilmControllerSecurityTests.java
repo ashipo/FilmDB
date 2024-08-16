@@ -28,6 +28,7 @@ public class FilmControllerSecurityTests {
     @Nested
     @DisplayName(FILMS)
     class Films {
+
         @Test
         @DisplayName("Not authenticated, authorized")
         void NotAuthenticated_Authorized() {

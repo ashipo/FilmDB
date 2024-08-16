@@ -1,15 +1,12 @@
 package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.film.Film;
-import com.demo.filmdb.graphql.inputs.FilmInput;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
 import jakarta.annotation.Nullable;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -40,24 +37,11 @@ class Util {
     static final String CHARACTER = "character";
     static final String NAME = "name";
     static final String DATE_OF_BIRTH = "dateOfBirth";
-    static final String FILM_INPUT = "filmInput";
     static final String TITLE = "title";
     static final String RELEASE_DATE = "releaseDate";
     static final String SYNOPSIS = "synopsis";
 
     public static final String DATA = "data";
-
-    static FilmInput getValidFilmInput() {
-        return new FilmInput("Mission: Impossible", LocalDate.now(), "There is a mission.");
-    }
-
-    static Map<String, Object> getFilmInputMap(FilmInput input) {
-        return new HashMap<>() {{
-            put("title", input.title());
-            put("releaseDate", input.releaseDate());
-            put("synopsis", input.synopsis());
-        }};
-    }
 
     static Film createFilm(Long id, String title, LocalDate releaseDate, @Nullable String synopsis) {
         Film result = new Film(title, releaseDate, synopsis);

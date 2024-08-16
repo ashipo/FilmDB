@@ -1,6 +1,5 @@
 package com.demo.filmdb.graphql;
 
-import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
@@ -50,9 +49,6 @@ public class FilmControllerTests {
 
     @MockBean
     private FilmService filmService;
-
-    @MockBean
-    private DirectorService directorService;
 
     @Nested
     @DisplayName(FILMS)
@@ -155,12 +151,18 @@ public class FilmControllerTests {
                     .valueIsNull();
         }
 
-        @Test
+        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        // Valid: "query { film(id: 1) { id } }"
+        @ValueSource(strings = {
+                "query { film(id: 1) }",
+                "query { film { id } }",
+                "query { film(id: null) { id } }",
+                "query { film(id: \"one\") { id } }"
+        })
         @DisplayName("Invalid input, validation error")
-        void InvalidInput_ValidationError() {
+        void InvalidInput_ValidationError(String document) {
             graphQlTester
-                    .documentName(GET_FILM)
-                    .variable(VAR_ID, "Invalid ID")
+                    .document(document)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -201,19 +203,6 @@ public class FilmControllerTests {
         void InvalidInput_ValidationError(String document) {
             graphQlTester
                     .document(document)
-                    .execute()
-                    .errors()
-                    .expect(responseError -> responseError.getErrorType() == ValidationError)
-                    .verify()
-                    .path(DATA)
-                    .pathDoesNotExist();
-        }
-
-        @Test
-        @DisplayName("Missing input, validation error")
-        void MissingInput_ValidationError() {
-            graphQlTester
-                    .documentName(DELETE_FILM)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
