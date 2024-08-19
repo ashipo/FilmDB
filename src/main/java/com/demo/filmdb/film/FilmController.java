@@ -60,7 +60,6 @@ public class FilmController {
     private final PersonModelAssembler personModelAssembler;
     private final FilmRoleModelAssembler filmRoleModelAssembler;
     private final RoleModelAssembler roleModelAssembler;
-    private final FilmMapper filmMapper;
     private final PagedResourcesAssembler<Film> pagedResourcesAssembler;
 
     public FilmController(FilmService filmService,
@@ -70,7 +69,6 @@ public class FilmController {
                           PersonModelAssembler personModelAssembler,
                           FilmRoleModelAssembler filmRoleModelAssembler,
                           RoleModelAssembler roleModelAssembler,
-                          FilmMapper filmMapper,
                           PagedResourcesAssembler<Film> pagedResourcesAssembler) {
         this.filmService = filmService;
         this.roleService = roleService;
@@ -79,7 +77,6 @@ public class FilmController {
         this.personModelAssembler = personModelAssembler;
         this.filmRoleModelAssembler = filmRoleModelAssembler;
         this.roleModelAssembler = roleModelAssembler;
-        this.filmMapper = filmMapper;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
@@ -124,9 +121,9 @@ public class FilmController {
     })
     @PostMapping
     public ResponseEntity<FilmDto> createFilm(@RequestBody @Valid FilmDtoInput filmDtoInput) {
-        Film film = filmMapper.filmDtoInputToFilm(filmDtoInput);
-        FilmDto newFilmDto = filmModelAssembler.toModel(filmService.saveFilm(film));
-        return ResponseEntity.created(newFilmDto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(newFilmDto);
+        Film createdFilm = filmService.createFilm(filmDtoInput);
+        FilmDto createdFilmDto = filmModelAssembler.toModel(createdFilm);
+        return ResponseEntity.created(createdFilmDto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(createdFilmDto);
     }
 
     @Operation(summary = "Get a film", tags = TAG_FILMS)
