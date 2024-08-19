@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -322,7 +321,7 @@ public class FilmControllerTests {
         final String synopsis = "Life was like a box of chocolates";
         return Stream.of(
                 arguments(title, date, synopsis),
-                arguments(title, date, named("[Null synopsis]", null))
+                arguments(title, date, NULL)
         );
     }
 
@@ -331,11 +330,11 @@ public class FilmControllerTests {
         final LocalDate date = LocalDate.of(1979, 6, 22);
         final String synopsis = "In space, no one can hear you scream";
         return Stream.of(
-                arguments(named("[Null title]", null), date, synopsis),
-                arguments(named("[Empty title]", ""), date, synopsis),
-                arguments(named("[Blank title]", "  "), date, synopsis),
-                arguments(title, named("[Null release date]", null), synopsis),
-                arguments(title, named("[Invalid release date]", "1999-66-99"), synopsis)
+                arguments(NULL, date, synopsis),
+                arguments(EMPTY_STRING, date, synopsis),
+                arguments(BLANK_STRING, date, synopsis),
+                arguments(title, NULL, synopsis),
+                arguments(title, INVALID_DATE, synopsis)
         );
     }
 }

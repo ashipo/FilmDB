@@ -45,11 +45,10 @@ public class PersonControllerTests {
     @DisplayName(CREATE_PERSON)
     class CreatePerson {
 
-        @Test
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#validPersonInputs")
         @DisplayName("Valid input, correct response")
-        void ValidInput_CorrectResponse() {
-            final String name = "Anne Hathaway";
-            final LocalDate dateOfBirth = LocalDate.of(1982, 11, 12);
+        void ValidInput_CorrectResponse(String name, LocalDate dateOfBirth) {
             given(personService.createPerson(any())).willReturn(new Person(name, dateOfBirth));
 
             graphQlTester
@@ -122,23 +121,22 @@ public class PersonControllerTests {
     @DisplayName(UPDATE_PERSON)
     class UpdatePerson {
 
-        @Test
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#validPersonInputs")
         @DisplayName("Valid input, correct response")
-        void ValidInput_CorrectResponse() {
-            final Long personId = 1L;
-            final String name = "Margot Robbie";
-            final LocalDate dateOfBirth = LocalDate.of(1961, 6, 9);
-            given(personService.updatePerson(anyLong(), any())).willReturn(createPerson(personId, name, dateOfBirth));
+        void ValidInput_CorrectResponse(String name, LocalDate dateOfBirth) {
+            final Long id = 1L;
+            given(personService.updatePerson(anyLong(), any())).willReturn(createPerson(id, name, dateOfBirth));
 
             graphQlTester
                     .documentName(UPDATE_PERSON)
-                    .variable(PERSON_ID, personId)
+                    .variable(PERSON_ID, id)
                     .variable(NAME, name)
                     .variable(DATE_OF_BIRTH, dateOfBirth)
                     .execute()
                     .path(UPDATE_PERSON + ".person")
                     .entity(Person.class)
-                    .matches(person -> Objects.equals(person.getId(), personId))
+                    .matches(person -> Objects.equals(person.getId(), id))
                     .matches(person -> Objects.equals(person.getName(), name))
                     .matches(person -> Objects.equals(person.getDateOfBirth(), dateOfBirth));
 
@@ -220,13 +218,23 @@ public class PersonControllerTests {
         }
     }
 
+    private static Stream<Arguments> validPersonInputs() {
+        final String name = "Anne Hathaway";
+        final LocalDate dateOfBirth = LocalDate.of(1982, 11, 12);
+        return Stream.of(
+                arguments(name, dateOfBirth),
+                arguments(name, NULL)
+        );
+    }
+
     private static Stream<Arguments> invalidPersonInputs() {
         final String name = "Matthew McConaughey";
         final LocalDate dateOfBirth = LocalDate.of(1969, 11, 4);
         return Stream.of(
-                arguments(name, "Not a LocalDate"),
-                arguments("", dateOfBirth),
-                arguments("   ", dateOfBirth)
+                arguments(name, INVALID_DATE),
+                arguments(NULL, dateOfBirth),
+                arguments(EMPTY_STRING, dateOfBirth),
+                arguments(BLANK_STRING, dateOfBirth)
         );
     }
 }

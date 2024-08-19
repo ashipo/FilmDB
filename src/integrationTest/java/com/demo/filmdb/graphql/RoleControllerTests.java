@@ -298,10 +298,11 @@ public class RoleControllerTests {
     private static Stream<Arguments> invalidRoleInputs() {
         final String character = "Boromir";
         return Stream.of(
-                arguments(null, 1L, character),
-                arguments(1L, null, character),
-                arguments(1L, 1L, null),
-                arguments(1L, 1L, "")
+                arguments(NULL, 1L, character),
+                arguments(1L, NULL, character),
+                arguments(1L, 1L, NULL),
+                arguments(1L, 1L, EMPTY_STRING),
+                arguments(1L, 1L, BLANK_STRING)
         );
     }
 }

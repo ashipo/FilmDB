@@ -4,11 +4,13 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
 import jakarta.annotation.Nullable;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class Util {
@@ -40,6 +42,11 @@ class Util {
     static final String TITLE = "title";
     static final String RELEASE_DATE = "releaseDate";
     static final String SYNOPSIS = "synopsis";
+    // named arguments
+    static final Named<Object> NULL = named("[Null]", null);
+    static final Named<String> EMPTY_STRING = named("[Empty]", "");
+    static final Named<String> BLANK_STRING = named("[Blank]", "  ");
+    static final Named<String> INVALID_DATE = named("[Invalid]", "2000-20-20");
 
     public static final String DATA = "data";
 
