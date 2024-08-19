@@ -8,6 +8,8 @@ public interface PersonMapper {
 
     PersonDto personToPersonDto(Person person);
 
+    Person personInfoToPerson(PersonInfo personInfo);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
     void updatePersonFromPersonInfo(PersonInfo personInfo, @MappingTarget Person person);
 }

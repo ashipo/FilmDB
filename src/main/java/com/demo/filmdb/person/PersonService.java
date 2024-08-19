@@ -68,7 +68,7 @@ public class PersonService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public Person createPerson(PersonInfo personInfo) {
-        final Person person = new Person(personInfo.getName(), personInfo.getDateOfBirth());
+        final Person person = personMapper.personInfoToPerson(personInfo);
         return personRepository.save(person);
     }
 
