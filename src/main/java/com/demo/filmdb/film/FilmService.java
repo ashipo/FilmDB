@@ -50,17 +50,6 @@ public class FilmService {
     }
 
     /**
-     * Saves the given {@link Film} entity.
-     *
-     * @param film must not be {@code null}.
-     * @return the saved entity.
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    public Film saveFilm(Film film) {
-        return filmRepository.save(film);
-    }
-
-    /**
      * Create a {@link Film}
      *
      * @param filmInfo film info

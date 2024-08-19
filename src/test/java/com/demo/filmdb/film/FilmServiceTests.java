@@ -63,18 +63,6 @@ class FilmServiceTests extends ServiceTest {
         verify(filmRepository).findAll(expectedPageable);
     }
 
-    @Test
-    @DisplayName("saveFilm - saves and returns the saved Entity")
-    void saveFilm_ValidFilm_SavesFilm() {
-        Film expected = createFilm();
-        when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
-
-        Film actual = filmService.saveFilm(expected);
-
-        verify(filmRepository).save(expected);
-        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
-    }
-
     @Nested
     @DisplayName("createFilm")
     class CreateFilm {
