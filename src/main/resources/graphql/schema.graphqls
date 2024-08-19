@@ -6,6 +6,7 @@ scalar Long
 scalar NonBlankString
 
 type Query {
+    "Get authentication JWT"
     login(username: String!, password: String!): String!
 
     "Get a `Film`"
@@ -52,7 +53,7 @@ type Mutation {
     updateFilmDirectors(filmId: Long!, directorsIds: [Long!]): Film
 
     "Create a `Role`"
-    createRole(roleInput: RoleInput!): Role
+    createRole(input: CreateRoleInput!): CreateRolePayload
 
     "Update a `Role`"
     updateRole(roleInput: RoleInput!): Role
@@ -191,6 +192,15 @@ input DeleteDirectorInput {
 type DeleteDirectorPayload {
     filmId: Long
     personId: Long
+}
+
+input CreateRoleInput {
+    id: CrewMemberID!
+    character: NonBlankString!
+}
+
+type CreateRolePayload {
+    role: Role
 }
 
 input DeleteRoleInput {

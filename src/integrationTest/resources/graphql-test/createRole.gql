@@ -1,11 +1,9 @@
 mutation createRole($filmId: Long!, $personId: Long!, $character: NonBlankString!) {
-    createRole(roleInput: {id: {filmId: $filmId, personId: $personId}, character: $character}) {
-        film {
-            id
+    createRole(input: {id: {filmId: $filmId, personId: $personId}, character: $character}) {
+        role {
+            film { id }
+            person { id }
+            character
         }
-        person {
-            id
-        }
-        character
     }
 }

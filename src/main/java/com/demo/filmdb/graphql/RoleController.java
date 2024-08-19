@@ -1,9 +1,7 @@
 package com.demo.filmdb.graphql;
 
-import com.demo.filmdb.graphql.inputs.CrewMemberId;
-import com.demo.filmdb.graphql.inputs.DeleteRoleInput;
-import com.demo.filmdb.graphql.inputs.RoleInput;
-import com.demo.filmdb.graphql.inputs.UpdateCastInput;
+import com.demo.filmdb.graphql.inputs.*;
+import com.demo.filmdb.graphql.payloads.CreateRolePayload;
 import com.demo.filmdb.graphql.payloads.DeleteRolePayload;
 import com.demo.filmdb.graphql.payloads.UpdateCastPayload;
 import com.demo.filmdb.role.Role;
@@ -28,8 +26,9 @@ public class RoleController {
     }
 
     @MutationMapping
-    public Role createRole(@Argument RoleInput roleInput) {
-        return roleService.createRole(roleInput.id().filmId(), roleInput.id().personId(), roleInput.character());
+    public CreateRolePayload createRole(@Argument CreateRoleInput input) {
+        final Role createdRole = roleService.createRole(input.id().filmId(), input.id().personId(), input.character());
+        return new CreateRolePayload(createdRole);
     }
 
     @QueryMapping
