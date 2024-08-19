@@ -60,7 +60,7 @@ public class PersonControllerTests {
                     .path(CREATE_PERSON + ".person")
                     .entity(Person.class)
                     .matches(person -> Objects.equals(person.getName(), name))
-                    .matches(person -> Objects.equals(person.getDob(), dateOfBirth));
+                    .matches(person -> Objects.equals(person.getDateOfBirth(), dateOfBirth));
 
         }
 
@@ -101,7 +101,7 @@ public class PersonControllerTests {
                     .entity(Person.class)
                     .matches(person -> Objects.equals(person.getId(), id))
                     .matches(person -> Objects.equals(person.getName(), name))
-                    .matches(person -> Objects.equals(person.getDob(), dateOfBirth));
+                    .matches(person -> Objects.equals(person.getDateOfBirth(), dateOfBirth));
         }
 
         @Test
@@ -140,7 +140,7 @@ public class PersonControllerTests {
                     .entity(Person.class)
                     .matches(person -> Objects.equals(person.getId(), personId))
                     .matches(person -> Objects.equals(person.getName(), name))
-                    .matches(person -> Objects.equals(person.getDob(), dateOfBirth));
+                    .matches(person -> Objects.equals(person.getDateOfBirth(), dateOfBirth));
 
         }
 

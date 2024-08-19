@@ -26,10 +26,10 @@ public class Person {
     @Sortable
     private String name;
 
-    @Column(name = "dob")
+    @Column(name = "date_of_birth")
     @Nullable
     @Sortable
-    private LocalDate dob;
+    private LocalDate dateOfBirth;
 
     @ManyToMany(mappedBy = "directors")
     private final Set<Film> filmsDirected = new LinkedHashSet<>();
@@ -40,9 +40,9 @@ public class Person {
     public Person() {
     }
 
-    public Person(String name, @Nullable LocalDate dob) {
+    public Person(String name, @Nullable LocalDate dateOfBirth) {
         this.name = name;
-        this.dob = dob;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public Set<Film> getFilmsDirected() {
@@ -54,12 +54,12 @@ public class Person {
     }
 
     @Nullable
-    public LocalDate getDob() {
-        return dob;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setDob(@Nullable LocalDate dob) {
-        this.dob = dob;
+    public void setDateOfBirth(@Nullable LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getName() {
@@ -83,7 +83,7 @@ public class Person {
         return "Person{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", date of birth=" + dob +
+                ", date of birth=" + dateOfBirth +
                 '}';
     }
 

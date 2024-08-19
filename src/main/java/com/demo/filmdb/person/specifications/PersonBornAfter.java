@@ -23,6 +23,6 @@ public class PersonBornAfter implements Specification<Person> {
         if (bornAfter == null) {
             return null;
         }
-        return builder.greaterThan(root.get("dob"), bornAfter);
+        return builder.greaterThan(root.get("dateOfBirth"), bornAfter);
     }
 }

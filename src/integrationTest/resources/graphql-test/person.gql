@@ -2,6 +2,6 @@ query person($id: Long!) {
     person(id: $id) {
         id
         name
-        dob
+        dateOfBirth
     }
 }

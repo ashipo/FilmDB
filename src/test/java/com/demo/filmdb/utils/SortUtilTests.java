@@ -40,10 +40,10 @@ public class SortUtilTests {
         return Stream.of(
                 Arguments.arguments(named("Film", Film.class),
                         List.of("id", "title", "releaseDate"),
-                        new String[]{"id", "title", "releaseDate", "synopsis", "directors", "cast", "roles", "dob", "name"}),
+                        new String[]{"id", "title", "releaseDate", "synopsis", "directors", "cast", "roles", "dateOfBirth", "name"}),
                 Arguments.arguments(named("Person", Person.class),
-                        List.of("id", "name", "dob"),
-                        new String[]{"id", "name", "dob", "filmsDirected", "roles", "releaseDate", "title"})
+                        List.of("id", "name", "dateOfBirth"),
+                        new String[]{"id", "name", "dateOfBirth", "filmsDirected", "roles", "releaseDate", "title"})
         );
     }
 }

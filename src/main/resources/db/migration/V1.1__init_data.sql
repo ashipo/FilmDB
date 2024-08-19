@@ -6,7 +6,7 @@ COPY film (id, release_date, synopsis, title) FROM stdin;
 3	2019-09-08	A young German boy in the Hitler Youth whose hero and imaginary friend is the country's dictator is shocked to discover that his mother is hiding a Jewish girl in their home.	Jojo Rabbit
 \.
 
-COPY person (id, dob, name) FROM stdin;
+COPY person (id, date_of_birth, name) FROM stdin;
 1	1984-11-22	Scarlett Johansson
 2	1967-11-22	Mark Ruffalo
 3	1975-08-16	Taika Waititi

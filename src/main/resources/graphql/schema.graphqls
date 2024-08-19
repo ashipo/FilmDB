@@ -79,7 +79,7 @@ type Film {
 type Person {
     id: Long
     name: String
-    dob: Date
+    dateOfBirth: Date
     filmsDirected: [Film]
     roles: [Role]
 }

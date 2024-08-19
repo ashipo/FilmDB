@@ -93,9 +93,9 @@ public class PersonIntegrationTests {
         public void PostPeopleURI_ValidBody_Response201() throws Exception {
             final String uri = API_PREFIX + "/people";
             final String expectedName = "Yuriy Nikulin";
-            final LocalDate expectedDob = LocalDate.of(1921, 12, 18);
+            final LocalDate expectedDateOfBirth = LocalDate.of(1921, 12, 18);
 
-            PersonDtoInput expectedPerson = new PersonDtoInput(expectedName, expectedDob);
+            PersonDtoInput expectedPerson = new PersonDtoInput(expectedName, expectedDateOfBirth);
             String requestBody = objectMapper.writeValueAsString(expectedPerson);
 
             mockMvc.perform(post(uri).content(requestBody)).andExpectAll(
@@ -103,7 +103,7 @@ public class PersonIntegrationTests {
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.id").value(6),
                     jsonPath("$.name").value(expectedPerson.name()),
-                    jsonPath("$.['date of birth']").value(expectedDob.toString()));
+                    jsonPath("$.['date of birth']").value(expectedDateOfBirth.toString()));
         }
 
         @ParameterizedTest(name = "{0}")
@@ -146,7 +146,7 @@ public class PersonIntegrationTests {
             String requestBody = objectMapper.createObjectNode()
                     .put("id", expectedPersonId + 1)  //expected to be ignored
                     .put("name", expectedName)
-                    .put("dob", expectedBirthday)
+                    .put("dateOfBirth", expectedBirthday)
                     .toString();
 
             mockMvc.perform(put(uri).content(requestBody)).andExpectAll(
@@ -184,11 +184,11 @@ public class PersonIntegrationTests {
             long personId = 2L;
             String uri = API_PREFIX + "/people/" + personId;
             String name = "Nonna Mordyukova";
-            String dob = "1925-11-25";
+            String dateOfBirth = "1925-11-25";
             String requestBody = objectMapper.createObjectNode()
                     .put("id", personId + 1)
                     .put("name", name)
-                    .put("dob", dob)
+                    .put("dateOfBirth", dateOfBirth)
                     .toString();
 
             mockMvc.perform(put(uri).content(requestBody))
@@ -233,10 +233,10 @@ public class PersonIntegrationTests {
     private static Stream<Arguments> invalidPersonInput() {
         return Stream.of(
                 arguments(named("Empty request", "{}")),
-                arguments(named("Empty name", "{ \"name\":\"\", \"dob\" : \"1921-12-18\"}")),
-                arguments(named("Blank name", "{ \"name\":\"   \", \"dob\" : \"1921-12-18\"}")),
-                arguments(named("Missing name", "{ \"dob\" : \"1921-12-18\"}")),
-                arguments(named("Invalid date of birth", "{ \"name\":\"Yuriy\", \"dob\" : \"some\"}"))
+                arguments(named("Empty name", "{ \"name\":\"\", \"dateOfBirth\" : \"1921-12-18\"}")),
+                arguments(named("Blank name", "{ \"name\":\"   \", \"dateOfBirth\" : \"1921-12-18\"}")),
+                arguments(named("Missing name", "{ \"dateOfBirth\" : \"1921-12-18\"}")),
+                arguments(named("Invalid date of birth", "{ \"name\":\"Yuriy\", \"dateOfBirth\" : \"some\"}"))
         );
     }
 }

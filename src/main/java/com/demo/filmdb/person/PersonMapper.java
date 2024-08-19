@@ -9,6 +9,5 @@ public interface PersonMapper {
     PersonDto personToPersonDto(Person person);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
-    @Mapping(source = "dateOfBirth", target = "dob")
     void updatePersonFromPersonInfo(PersonInfo personInfo, @MappingTarget Person person);
 }

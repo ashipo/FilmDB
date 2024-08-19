@@ -81,10 +81,10 @@ public class PersonServiceTests extends ServiceTest {
             var savedPerson = ArgumentCaptor.forClass(Person.class);
             verify(personRepository).save(savedPerson.capture());
             assertThat(savedPerson.getValue().getName()).isEqualTo(name);
-            assertThat(savedPerson.getValue().getDob()).isEqualTo(dateOfBirth);
+            assertThat(savedPerson.getValue().getDateOfBirth()).isEqualTo(dateOfBirth);
             // assert returned
             assertThat(actual.getName()).isEqualTo(name);
-            assertThat(actual.getDob()).isEqualTo(dateOfBirth);
+            assertThat(actual.getDateOfBirth()).isEqualTo(dateOfBirth);
         }
     }
 
@@ -111,11 +111,11 @@ public class PersonServiceTests extends ServiceTest {
             Person updatedPerson = updatedPersonCaptor.getValue();
             assertThat(updatedPerson.getId()).isEqualTo(personId);
             assertThat(updatedPerson.getName()).isEqualTo(expectedName);
-            assertThat(updatedPerson.getDob()).isEqualTo(expectedDateOfBirth);
+            assertThat(updatedPerson.getDateOfBirth()).isEqualTo(expectedDateOfBirth);
             // assert returned
             assertThat(actual.getId()).isEqualTo(personId);
             assertThat(actual.getName()).isEqualTo(expectedName);
-            assertThat(actual.getDob()).isEqualTo(expectedDateOfBirth);
+            assertThat(actual.getDateOfBirth()).isEqualTo(expectedDateOfBirth);
         }
 
         @Test
