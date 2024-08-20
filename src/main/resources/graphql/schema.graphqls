@@ -56,7 +56,7 @@ type Mutation {
     createRole(input: CreateRoleInput!): CreateRolePayload
 
     "Update a `Role`"
-    updateRole(roleInput: RoleInput!): Role
+    updateRole(input: UpdateRoleInput!): UpdateRolePayload
 
     "Delete a `Role`"
     deleteRole(input: DeleteRoleInput!): DeleteRolePayload
@@ -200,6 +200,15 @@ input CreateRoleInput {
 }
 
 type CreateRolePayload {
+    role: Role
+}
+
+input UpdateRoleInput {
+    id: CrewMemberID!
+    character: NonBlankString!
+}
+
+type UpdateRolePayload {
     role: Role
 }
 

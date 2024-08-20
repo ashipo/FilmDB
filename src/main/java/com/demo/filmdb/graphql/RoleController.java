@@ -4,6 +4,7 @@ import com.demo.filmdb.graphql.inputs.*;
 import com.demo.filmdb.graphql.payloads.CreateRolePayload;
 import com.demo.filmdb.graphql.payloads.DeleteRolePayload;
 import com.demo.filmdb.graphql.payloads.UpdateCastPayload;
+import com.demo.filmdb.graphql.payloads.UpdateRolePayload;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleService;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -37,8 +38,9 @@ public class RoleController {
     }
 
     @MutationMapping
-    public Role updateRole(@Argument RoleInput roleInput) {
-        return roleService.updateRole(roleInput.id().filmId(), roleInput.id().personId(), roleInput.character());
+    public UpdateRolePayload updateRole(@Argument UpdateRoleInput input) {
+        final Role updatedRole = roleService.updateRole(input.id().filmId(), input.id().personId(), input.character());
+        return new UpdateRolePayload(updatedRole);
     }
 
     @MutationMapping

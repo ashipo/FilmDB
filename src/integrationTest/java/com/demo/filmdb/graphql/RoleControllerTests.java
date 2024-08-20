@@ -159,7 +159,7 @@ public class RoleControllerTests {
                     .variable(PERSON_ID, personId)
                     .variable(CHARACTER, character)
                     .execute()
-                    .path(UPDATE_ROLE)
+                    .path(UPDATE_ROLE + ".role")
                     .entity(Role.class)
                     .matches(role -> Objects.equals(role.getFilm().getId(), filmId))
                     .matches(role -> Objects.equals(role.getPerson().getId(), personId))
