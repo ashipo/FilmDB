@@ -1,0 +1,5 @@
+mutation updateDirectors($filmId: Long!, $directorsIds: [Long!]) {
+    updateDirectors(input: {filmId: $filmId, directorsIds: $directorsIds}) {
+        directors { id }
+    }
+}

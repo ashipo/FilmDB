@@ -199,8 +199,8 @@ public class FilmController {
     @PutMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorsIds) {
         try {
-            Film updatedFilm = directorService.updateDirectors(filmId, directorsIds);
-            return personModelAssembler.directorsCollectionModel(updatedFilm.getDirectors(), filmId);
+            List<Person> directors = directorService.updateDirectors(filmId, directorsIds);
+            return personModelAssembler.directorsCollectionModel(directors, filmId);
         } catch (EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

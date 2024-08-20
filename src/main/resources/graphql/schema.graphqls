@@ -47,10 +47,9 @@ type Mutation {
 
     """
     Set directors for a `Film`.
-    `directorsIds` is a list of `Person.id`.
-    If `directorsIds` is omitted or empty, all directors are removed.
+    If `input.directorsIds` is omitted or empty, all directors are removed.
     """
-    updateFilmDirectors(filmId: Long!, directorsIds: [Long!]): Film
+    updateDirectors(input: UpdateDirectorsInput): UpdateDirectorsPayload
 
     "Create a `Role`"
     createRole(input: CreateRoleInput!): CreateRolePayload
@@ -192,6 +191,15 @@ input DeleteDirectorInput {
 type DeleteDirectorPayload {
     filmId: Long
     personId: Long
+}
+
+input UpdateDirectorsInput {
+    filmId: Long!
+    directorsIds: [Long!]
+}
+
+type UpdateDirectorsPayload {
+    directors: [Person]
 }
 
 input CreateRoleInput {

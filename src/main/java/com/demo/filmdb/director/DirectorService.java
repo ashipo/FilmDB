@@ -10,10 +10,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -83,13 +80,14 @@ public class DirectorService {
      * @throws EntityNotFoundException if film or any of the directors could not be found
      */
     @PreAuthorize("hasRole('ADMIN')")
-    public Film updateDirectors(Long filmId, @Nullable Collection<Long> directorsIds) throws EntityNotFoundException {
+    public List<Person> updateDirectors(Long filmId, @Nullable Collection<Long> directorsIds) throws EntityNotFoundException {
         Film film = filmRepository.findById(filmId).orElseThrow(() ->
                 new EntityNotFoundException(filmNotFoundMessage(filmId))
         );
         if (directorsIds == null || directorsIds.isEmpty()) {
             film.removeDirectors();
-            return filmRepository.save(film);
+            filmRepository.save(film);
+            return Collections.emptyList();
         }
 
         List<Person> directors = personRepository.findAllById(directorsIds);
@@ -98,7 +96,8 @@ public class DirectorService {
             throw new EntityNotFoundException("Could not find people with ids " + notFoundIds);
         }
         film.setDirectors(directors);
-        return filmRepository.save(film);
+        filmRepository.save(film);
+        return directors;
     }
 
     /**

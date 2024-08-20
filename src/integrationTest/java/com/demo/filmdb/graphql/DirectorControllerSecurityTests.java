@@ -120,7 +120,7 @@ public class DirectorControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", NOT_EXISTING_ID)
+                    .variable(FILM_ID, NOT_EXISTING_ID)
                     .variable("directorsIds", List.of(NOT_EXISTING_ID))
                     .execute()
                     .errors()
@@ -133,7 +133,7 @@ public class DirectorControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", NOT_EXISTING_ID)
+                    .variable(FILM_ID, NOT_EXISTING_ID)
                     .variable("directorsIds", List.of(NOT_EXISTING_ID))
                     .execute()
                     .errors()
@@ -147,7 +147,7 @@ public class DirectorControllerSecurityTests {
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable("filmId", 1)
+                    .variable(FILM_ID, 1)
                     .variable("directorsIds", List.of(3L))
                     .executeAndVerify();
         }

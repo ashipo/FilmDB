@@ -1,11 +1,13 @@
 package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.director.DirectorService;
-import com.demo.filmdb.film.Film;
 import com.demo.filmdb.graphql.inputs.DeleteDirectorInput;
 import com.demo.filmdb.graphql.inputs.SetDirectorInput;
+import com.demo.filmdb.graphql.inputs.UpdateDirectorsInput;
 import com.demo.filmdb.graphql.payloads.DeleteDirectorPayload;
 import com.demo.filmdb.graphql.payloads.SetDirectorPayload;
+import com.demo.filmdb.graphql.payloads.UpdateDirectorsPayload;
+import com.demo.filmdb.person.Person;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
@@ -40,7 +42,8 @@ public class DirectorController {
     }
 
     @MutationMapping
-    public Film updateFilmDirectors(@Argument Long filmId, @Argument List<Long> directorsIds) {
-        return directorService.updateDirectors(filmId, directorsIds);
+    public UpdateDirectorsPayload updateDirectors(@Argument UpdateDirectorsInput input) {
+        List<Person> directors = directorService.updateDirectors(input.filmId(), input.directorsIds());
+        return new UpdateDirectorsPayload(directors);
     }
 }
