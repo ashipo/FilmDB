@@ -3,7 +3,7 @@ package com.demo.filmdb.graphql;
 import com.demo.filmdb.graphql.payloads.DeleteRolePayload;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleService;
-import com.demo.filmdb.role.dtos.CastMember;
+import com.demo.filmdb.role.CastMember;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

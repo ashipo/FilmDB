@@ -1,4 +1,4 @@
-package com.demo.filmdb.role.dtos;
+package com.demo.filmdb.role;
 
 public interface CastMember {
 

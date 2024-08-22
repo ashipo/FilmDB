@@ -4,7 +4,6 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
-import com.demo.filmdb.role.dtos.CastMember;
 import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

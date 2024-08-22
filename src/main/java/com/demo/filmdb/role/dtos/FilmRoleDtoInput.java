@@ -1,5 +1,6 @@
 package com.demo.filmdb.role.dtos;
 
+import com.demo.filmdb.role.CastMember;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

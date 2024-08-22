@@ -3,7 +3,6 @@ package com.demo.filmdb.role;
 import com.demo.filmdb.ServiceTest;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.person.Person;
-import com.demo.filmdb.role.dtos.CastMember;
 import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;

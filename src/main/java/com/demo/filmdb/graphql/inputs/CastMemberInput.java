@@ -1,6 +1,6 @@
 package com.demo.filmdb.graphql.inputs;
 
-import com.demo.filmdb.role.dtos.CastMember;
+import com.demo.filmdb.role.CastMember;
 
 public record CastMemberInput(Long personId, String character) implements CastMember {
 
