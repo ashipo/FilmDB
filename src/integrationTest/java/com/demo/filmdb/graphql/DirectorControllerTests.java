@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -17,10 +18,13 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.CollectionAssert.assertThatCollection;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -129,13 +133,13 @@ public class DirectorControllerTests {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
                     .variable(FILM_ID, filmId)
-                    .variable("directorsIds", directorsIds)
+                    .variable(DIRECTORS_IDS, directorsIds)
                     .executeAndVerify();
 
             ArgumentCaptor<Long> filmIdCaptor = ArgumentCaptor.forClass(Long.class);
             verify(directorService).updateDirectors(filmIdCaptor.capture(), idsCaptor.capture());
             assertThat(filmIdCaptor.getValue()).isEqualTo(filmId);
-            assertThat(idsCaptor.getValue()).isEqualTo(directorsIds);
+            assertThatCollection(idsCaptor.getValue()).containsExactlyElementsOf(directorsIds);
         }
 
         @Test
@@ -146,7 +150,7 @@ public class DirectorControllerTests {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
                     .variable(FILM_ID, 5L)
-                    .variable("directorsIds", List.of(3L))
+                    .variable(DIRECTORS_IDS, List.of(3L))
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == NOT_FOUND)
@@ -155,12 +159,14 @@ public class DirectorControllerTests {
                     .valueIsNull();
         }
 
-        @Test
+        @ParameterizedTest(name = "{argumentsWithNames}")
+        @MethodSource("com.demo.filmdb.graphql.DirectorControllerTests#invalidUpdateDirectorsInputs")
         @DisplayName("Invalid input, validation error")
-        void InvalidInput_ValidationError() {
+        void InvalidInput_ValidationError(Object filmId, Object directorsIds) {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable("directorsIds", List.of(3L))
+                    .variable(FILM_ID, filmId)
+                    .variable(DIRECTORS_IDS, directorsIds)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -168,5 +174,14 @@ public class DirectorControllerTests {
                     .path(DATA)
                     .pathDoesNotExist();
         }
+    }
+
+    private static Stream<Arguments> invalidUpdateDirectorsInputs() {
+        final List<Long> directors = List.of(1L, 2L);
+        return Stream.of(
+                arguments(NULL, directors),
+                arguments("one", directors),
+                arguments(1L, List.of("one", "two"))
+        );
     }
 }

@@ -42,6 +42,7 @@ class Util {
     static final String TITLE = "title";
     static final String RELEASE_DATE = "releaseDate";
     static final String SYNOPSIS = "synopsis";
+    static final String DIRECTORS_IDS = "directorsIds";
     // named arguments
     static final Named<Object> NULL = named("[Null]", null);
     static final Named<String> EMPTY_STRING = named("[Empty]", "");

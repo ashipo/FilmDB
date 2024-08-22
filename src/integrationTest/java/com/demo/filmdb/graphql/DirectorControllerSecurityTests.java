@@ -121,7 +121,7 @@ public class DirectorControllerSecurityTests {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
                     .variable(FILM_ID, NOT_EXISTING_ID)
-                    .variable("directorsIds", List.of(NOT_EXISTING_ID))
+                    .variable(DIRECTORS_IDS, List.of(NOT_EXISTING_ID))
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -134,7 +134,7 @@ public class DirectorControllerSecurityTests {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
                     .variable(FILM_ID, NOT_EXISTING_ID)
-                    .variable("directorsIds", List.of(NOT_EXISTING_ID))
+                    .variable(DIRECTORS_IDS, List.of(NOT_EXISTING_ID))
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -148,7 +148,7 @@ public class DirectorControllerSecurityTests {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
                     .variable(FILM_ID, 1)
-                    .variable("directorsIds", List.of(3L))
+                    .variable(DIRECTORS_IDS, List.of(3L))
                     .executeAndVerify();
         }
     }
