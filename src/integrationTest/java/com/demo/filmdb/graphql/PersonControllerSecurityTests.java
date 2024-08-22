@@ -85,7 +85,7 @@ public class PersonControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(UPDATE_PERSON)
-                    .variable(PERSON_ID, 6)
+                    .variable(VAR_ID, 6)
                     .variable(NAME, "Chris Tucker")
                     .execute()
                     .errors()
@@ -98,7 +98,7 @@ public class PersonControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(UPDATE_PERSON)
-                    .variable(PERSON_ID, 7)
+                    .variable(VAR_ID, 7)
                     .variable(NAME, "Ian Holm")
                     .execute()
                     .errors()
@@ -112,7 +112,7 @@ public class PersonControllerSecurityTests {
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(UPDATE_PERSON)
-                    .variable(PERSON_ID, 3)
+                    .variable(VAR_ID, 3)
                     .variable(NAME, "Luke Perry")
                     .executeAndVerify();
         }

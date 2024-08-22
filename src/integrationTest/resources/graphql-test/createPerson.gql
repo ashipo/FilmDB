@@ -1,5 +1,5 @@
 mutation createPerson($name: NonBlankString!, $dateOfBirth: Date) {
-    createPerson(input: {person: {name: $name, dateOfBirth: $dateOfBirth}}) {
+    createPerson(input: {personInput: {name: $name, dateOfBirth: $dateOfBirth}}) {
         person {
             id, name, dateOfBirth
         }

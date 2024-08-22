@@ -25,7 +25,7 @@ public class PersonController {
 
     @MutationMapping
     public CreatePersonPayload createPerson(@Argument CreatePersonInput input) {
-        final Person createdPerson = personService.createPerson(input.person());
+        final Person createdPerson = personService.createPerson(input.personInput());
         return new CreatePersonPayload(createdPerson);
     }
 
@@ -36,7 +36,7 @@ public class PersonController {
 
     @MutationMapping
     public UpdatePersonPayload updatePerson(@Argument UpdatePersonInput input) {
-        final Person updatedPerson = personService.updatePerson(input.personId(), input.person());
+        final Person updatedPerson = personService.updatePerson(input.id(), input.personInput());
         return new UpdatePersonPayload(updatedPerson);
     }
 

@@ -151,7 +151,7 @@ type DeleteFilmPayload {
 }
 
 input CreatePersonInput {
-    person: PersonInput!
+    personInput: PersonInput!
 }
 
 type CreatePersonPayload {
@@ -159,8 +159,8 @@ type CreatePersonPayload {
 }
 
 input UpdatePersonInput {
-    personId: Long!
-    person: PersonInput!
+    id: Long!
+    personInput: PersonInput!
 }
 
 type UpdatePersonPayload {

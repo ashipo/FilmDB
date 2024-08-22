@@ -130,7 +130,7 @@ public class PersonControllerTests {
 
             graphQlTester
                     .documentName(UPDATE_PERSON)
-                    .variable(PERSON_ID, id)
+                    .variable(VAR_ID, id)
                     .variable(NAME, name)
                     .variable(DATE_OF_BIRTH, dateOfBirth)
                     .execute()
@@ -149,7 +149,7 @@ public class PersonControllerTests {
 
             graphQlTester
                     .documentName(UPDATE_PERSON)
-                    .variable(PERSON_ID, 1L)
+                    .variable(VAR_ID, 1L)
                     .variable(NAME, "Leonardo DiCaprio")
                     .execute()
                     .errors()
@@ -166,7 +166,7 @@ public class PersonControllerTests {
         void InvalidInput_ValidationError(Object name, Object dateOfBirth) {
             graphQlTester
                     .documentName(UPDATE_PERSON)
-                    .variable(PERSON_ID, 1L)
+                    .variable(VAR_ID, 1L)
                     .variable(NAME, name)
                     .variable(DATE_OF_BIRTH, dateOfBirth)
                     .execute()
