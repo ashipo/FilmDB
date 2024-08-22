@@ -71,7 +71,7 @@ public class PersonControllerSecurityTests {
         void NotAuthenticated_Authorized() {
             graphQlTester
                     .documentName(GET_PERSON)
-                    .variable("id", 1)
+                    .variable(VAR_ID, 1)
                     .executeAndVerify();
         }
     }

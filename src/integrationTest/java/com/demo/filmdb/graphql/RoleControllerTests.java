@@ -1,9 +1,9 @@
 package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.graphql.payloads.DeleteRolePayload;
+import com.demo.filmdb.role.CastMember;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleService;
-import com.demo.filmdb.role.CastMember;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -67,7 +68,7 @@ public class RoleControllerTests {
                     .matches(role -> Objects.equals(role.getCharacter(), character));
         }
 
-        @ParameterizedTest(name = "{argumentsWithNames}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Long filmId, Long personId, String character) {
@@ -123,7 +124,7 @@ public class RoleControllerTests {
                     .valueIsNull();
         }
 
-        @ParameterizedTest(name = "film id: {0}, person id: {1}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.Util#invalidCrewMemberIdInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object filmId, Object personId) {
@@ -166,7 +167,7 @@ public class RoleControllerTests {
                     .matches(role -> Objects.equals(role.getCharacter(), character));
         }
 
-        @ParameterizedTest(name = "{argumentsWithNames}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Long filmId, Long personId, String character) {
@@ -205,7 +206,7 @@ public class RoleControllerTests {
                     .matches(payload -> Objects.equals(payload.personId(), personId));
         }
 
-        @ParameterizedTest(name = "{argumentsWithNames}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.Util#invalidCrewMemberIdInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object filmId, Object personId) {
@@ -241,7 +242,7 @@ public class RoleControllerTests {
             graphQlTester
                     .documentName(UPDATE_CAST)
                     .variable(FILM_ID, filmId)
-                    .variable("cast", cast)
+                    .variable(CAST, cast)
                     .executeAndVerify();
 
             ArgumentCaptor<Long> filmIdCaptor = ArgumentCaptor.forClass(Long.class);
@@ -271,7 +272,7 @@ public class RoleControllerTests {
                     .valueIsNull();
         }
 
-        @ParameterizedTest(name = "{argumentsWithNames}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object filmId, Object personId, Object character) {
@@ -285,7 +286,7 @@ public class RoleControllerTests {
             graphQlTester
                     .documentName(UPDATE_CAST)
                     .variable(FILM_ID, filmId)
-                    .variable("cast", cast)
+                    .variable(CAST, cast)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)

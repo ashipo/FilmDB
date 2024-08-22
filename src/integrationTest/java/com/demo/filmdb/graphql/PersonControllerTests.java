@@ -94,7 +94,7 @@ public class PersonControllerTests {
 
             graphQlTester
                     .documentName(GET_PERSON)
-                    .variable("id", id)
+                    .variable(VAR_ID, id)
                     .execute()
                     .path(GET_PERSON)
                     .entity(Person.class)
@@ -110,7 +110,7 @@ public class PersonControllerTests {
 
             graphQlTester
                     .documentName(GET_PERSON)
-                    .variable("id", 1L)
+                    .variable(VAR_ID, 1L)
                     .execute()
                     .path(GET_PERSON)
                     .valueIsNull();

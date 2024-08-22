@@ -43,6 +43,7 @@ class Util {
     static final String RELEASE_DATE = "releaseDate";
     static final String SYNOPSIS = "synopsis";
     static final String DIRECTORS_IDS = "directorsIds";
+    static final String CAST = "cast";
     // named arguments
     static final Named<Object> NULL = named("[Null]", null);
     static final Named<String> EMPTY_STRING = named("[Empty]", "");
@@ -81,8 +82,8 @@ class Util {
 
     static Stream<Arguments> invalidCrewMemberIdInputs() {
         return Stream.of(
-                arguments(null, 1L),
-                arguments(1L, null),
+                arguments(NULL, 1L),
+                arguments(1L, NULL),
                 arguments("A", 1L),
                 arguments(1L, "A")
         );

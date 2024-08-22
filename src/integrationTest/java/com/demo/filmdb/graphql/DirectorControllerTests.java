@@ -24,6 +24,7 @@ import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.CollectionAssert.assertThatCollection;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -62,7 +63,7 @@ public class DirectorControllerTests {
                     .matches(payload -> Objects.equals(payload.personId(), personId));
         }
 
-        @ParameterizedTest(name = "{argumentsWithNames}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.Util#invalidCrewMemberIdInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object filmId, Object personId) {
@@ -100,7 +101,7 @@ public class DirectorControllerTests {
                     .matches(payload -> Objects.equals(payload.personId(), personId));
         }
 
-        @ParameterizedTest(name = "{argumentsWithNames}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.Util#invalidCrewMemberIdInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object filmId, Object personId) {
@@ -159,7 +160,7 @@ public class DirectorControllerTests {
                     .valueIsNull();
         }
 
-        @ParameterizedTest(name = "{argumentsWithNames}")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.graphql.DirectorControllerTests#invalidUpdateDirectorsInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object filmId, Object directorsIds) {
