@@ -111,11 +111,6 @@ input CrewMemberID {
     personId: Long!
 }
 
-input RoleInput {
-    id: CrewMemberID!
-    character: NonBlankString!
-}
-
 input CastMemberInput {
     personId: Long!
     character: NonBlankString!
