@@ -87,15 +87,20 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/search")
     public CollectionModel<FilmDto> findFilms(
-            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "title", required = false)
+            String title,
             @RequestParam(value = "release_after", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate releaseAfter,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate releaseAfter,
             @RequestParam(value = "release_before", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate releaseBefore,
-            Pageable pageable) {
-        Specification<Film> spec = Specification.where(new FilmWithTitle(title)).
-                and(new FilmWithReleaseBefore(releaseBefore)).
-                and(new FilmWithReleaseAfter(releaseAfter));
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate releaseBefore,
+            Pageable pageable
+    ) {
+        Specification<Film> spec = Specification
+                .where(new FilmWithTitle(title))
+                .and(new FilmWithReleaseBefore(releaseBefore))
+                .and(new FilmWithReleaseAfter(releaseAfter));
         Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
         Page<Film> filmsFound = filmService.search(spec, filteredPageable);
         return pagedResourcesAssembler.toModel(filmsFound, filmModelAssembler);
