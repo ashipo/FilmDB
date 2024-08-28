@@ -25,8 +25,8 @@ public class PersonWithName implements Specification<Person> {
             return null;
         }
         String[] nameParts = name.trim().split("\\s+");
-        List<Predicate> predicates = Arrays.stream(nameParts).
-                map(p -> builder.like(builder.lower(root.get("name")), "%"+p.toLowerCase()+"%")).toList();
+        List<Predicate> predicates = Arrays.stream(nameParts)
+                .map(p -> builder.like(builder.lower(root.get("name")), "%" + p.toLowerCase() + "%")).toList();
         return builder.or(predicates.toArray(new Predicate[0]));
     }
 }

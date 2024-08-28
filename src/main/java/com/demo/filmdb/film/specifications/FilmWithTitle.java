@@ -22,12 +22,11 @@ public class FilmWithTitle implements Specification<Film> {
     @Override
     public Predicate toPredicate(Root<Film> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
         if (title == null || title.isBlank()) {
-//            return builder.isTrue(builder.literal(true));
             return null;
         }
         String[] titleWords = title.trim().split("\\s+");
-        List<Predicate> predicates = Arrays.stream(titleWords).
-                map(w -> builder.like(builder.lower(root.get("title")), "%"+w.toLowerCase()+"%")).toList();
+        List<Predicate> predicates = Arrays.stream(titleWords)
+                .map(w -> builder.like(builder.lower(root.get("title")), "%" + w.toLowerCase() + "%")).toList();
         return builder.or(predicates.toArray(new Predicate[0]));
     }
 }
