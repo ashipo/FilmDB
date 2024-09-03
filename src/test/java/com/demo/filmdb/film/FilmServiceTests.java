@@ -11,10 +11,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mapstruct.factory.Mappers;
-import org.mockito.AdditionalAnswers;
-import org.mockito.ArgumentCaptor;
+import org.mockito.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 
@@ -36,10 +36,12 @@ class FilmServiceTests extends ServiceTest {
 
     private FilmService filmService;
     private final FilmMapper filmMapper = Mappers.getMapper(FilmMapper.class);
+    @Mock
+    private FilmSpecs filmSpecs;
 
     @BeforeEach
     void setUp() {
-        filmService = new FilmService(filmRepository, roleRepository, filmMapper);
+        filmService = new FilmService(filmRepository, roleRepository, filmMapper, filmSpecs);
     }
 
     @Test
@@ -61,6 +63,67 @@ class FilmServiceTests extends ServiceTest {
         filmService.getAllFilms(expectedPageable);
 
         verify(filmRepository).findAll(expectedPageable);
+    }
+
+    @Nested
+    @DisplayName("getFilms")
+    class GetFilms {
+
+        @Captor
+        ArgumentCaptor<Pageable> pageableCaptor;
+
+        @Test
+        @DisplayName("Valid paging, calls repository correctly")
+        void PagingArguments_CallsRepositoryCorrectly() {
+            int pageNumber = 4;
+            int pageSize = 8;
+            given(filmSpecs.titleContains(null)).willReturn(emptySpec());
+            given(filmSpecs.releaseAfter(null)).willReturn(emptySpec());
+            given(filmSpecs.releaseBefore(null)).willReturn(emptySpec());
+
+            filmService.getFilms(pageNumber, pageSize, null, null, null, null, null);
+
+            verify(filmRepository).findAll(ArgumentMatchers.<Specification<Film>>any(), pageableCaptor.capture());
+            Pageable pageable = pageableCaptor.getValue();
+            assertThat(pageable.getPageNumber()).isEqualTo(pageNumber);
+            assertThat(pageable.getPageSize()).isEqualTo(pageSize);
+        }
+
+        @Test
+        @DisplayName("Valid sorting, calls repository correctly")
+        void SortArguments_CallsRepositoryCorrectly() {
+            String sortBy = "sortableField";
+            var direction = Sort.Direction.DESC;
+            given(filmSpecs.titleContains(null)).willReturn(emptySpec());
+            given(filmSpecs.releaseAfter(null)).willReturn(emptySpec());
+            given(filmSpecs.releaseBefore(null)).willReturn(emptySpec());
+
+            filmService.getFilms(1, 2, sortBy, direction, null, null, null);
+
+            verify(filmRepository).findAll(ArgumentMatchers.<Specification<Film>>any(), pageableCaptor.capture());
+            Sort sort = pageableCaptor.getValue().getSort();
+            Sort.Order order = sort.getOrderFor(sortBy);
+            assertThat(order).as("Sort order").isNotNull();
+            assert order != null;
+            assertThat(order.getDirection()).isEqualTo(direction);
+        }
+
+        @Test
+        @DisplayName("Valid filter arguments, creates specifications correctly")
+        void FilterArguments_CreatesSpecificationCorrectly() {
+            String title = "island";
+            LocalDate releaseAfter = LocalDate.of(2000, 2, 2);
+            LocalDate releaseBefore = LocalDate.of(1000, 1, 1);
+            given(filmSpecs.titleContains(title)).willReturn(emptySpec());
+            given(filmSpecs.releaseAfter(releaseAfter)).willReturn(emptySpec());
+            given(filmSpecs.releaseBefore(releaseBefore)).willReturn(emptySpec());
+
+            filmService.getFilms(1, 2, null, null, title, releaseAfter, releaseBefore);
+
+            verify(filmSpecs).titleContains(title);
+            verify(filmSpecs).releaseAfter(releaseAfter);
+            verify(filmSpecs).releaseBefore(releaseBefore);
+        }
     }
 
     @Nested

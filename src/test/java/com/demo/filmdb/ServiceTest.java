@@ -11,6 +11,7 @@ import com.demo.filmdb.role.RoleRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 
@@ -38,10 +39,6 @@ public abstract class ServiceTest {
         return createFilm(id, "Shining", LocalDate.of(1980, 5, 23), "A family heads to an isolated hotel.");
     }
 
-    protected Film createFilm() {
-        return createFilm(42L);
-    }
-
     protected Person createPerson(Long id) {
         return createPerson(id, "John Doe " + id, LocalDate.of(2000, 2, 29));
     }
@@ -54,5 +51,9 @@ public abstract class ServiceTest {
 
     protected Role createRole(Long filmId, Long personId, String character) {
         return new Role(createFilm(filmId), createPerson(personId), character);
+    }
+
+    protected <T> Specification<T> emptySpec() {
+        return Specification.where((r, q, c) -> null);
     }
 }

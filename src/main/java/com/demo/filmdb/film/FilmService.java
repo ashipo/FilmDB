@@ -2,14 +2,18 @@ package com.demo.filmdb.film;
 
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
@@ -20,12 +24,14 @@ public class FilmService {
     private final FilmRepository filmRepository;
     private final RoleRepository roleRepository;
     private final FilmMapper filmMapper;
+    private final FilmSpecs filmSpecs;
 
     @Autowired
-    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository, FilmMapper filmMapper) {
+    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository, FilmMapper filmMapper, FilmSpecs filmSpecs) {
         this.filmRepository = filmRepository;
         this.roleRepository = roleRepository;
         this.filmMapper = filmMapper;
+        this.filmSpecs = filmSpecs;
     }
 
     /**
@@ -47,6 +53,41 @@ public class FilmService {
      */
     public Page<Film> getAllFilms(Pageable pageable) {
         return filmRepository.findAll(pageable);
+    }
+
+    /**
+     * Returns a page of {@link Film} entities.
+     * For sorting both {@code sortBy} and {@code sortDirection} must not be null.
+     * For filtering any of {@code title}, {@code releaseAfter} or {@code releaseBefore} can be specified.
+     *
+     * @param page          page number
+     * @param pageSize      page size
+     * @param sortBy        {@link Film} property name to sort by. Can be null.
+     * @param sortDirection sort direction. Can be null.
+     * @param title         string that films must contain in their title. Should not be blank. Can be null.
+     * @param releaseAfter  release date lower limit. Can be null.
+     * @param releaseBefore release date upper limit. Can be null.
+     * @return the resulting page, may be empty but not null
+     */
+    public Page<Film> getFilms(
+            int page,
+            int pageSize,
+            @Nullable String sortBy,
+            @Nullable Sort.Direction sortDirection,
+            @Nullable String title,
+            @Nullable LocalDate releaseAfter,
+            @Nullable LocalDate releaseBefore
+    ) {
+        Specification<Film> spec = filmSpecs.titleContains(title)
+                .and(filmSpecs.releaseBefore(releaseBefore))
+                .and(filmSpecs.releaseAfter(releaseAfter));
+        Pageable pageable;
+        if (sortBy == null || sortDirection == null) {
+            pageable = PageRequest.of(page, pageSize);
+        } else {
+            pageable = PageRequest.of(page, pageSize, sortDirection, sortBy);
+        }
+        return filmRepository.findAll(spec, pageable);
     }
 
     /**

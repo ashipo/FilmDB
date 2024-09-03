@@ -3,11 +3,13 @@ package com.demo.filmdb.film;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public class FilmSpecs {
 
     public Specification<Film> titleContains(@Nullable String title) {
