@@ -3,9 +3,6 @@ package com.demo.filmdb.film;
 import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.dtos.FilmDto;
 import com.demo.filmdb.film.dtos.FilmDtoInput;
-import com.demo.filmdb.film.specifications.FilmWithReleaseAfter;
-import com.demo.filmdb.film.specifications.FilmWithReleaseBefore;
-import com.demo.filmdb.film.specifications.FilmWithTitle;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonModelAssembler;
 import com.demo.filmdb.person.dtos.PersonDto;
@@ -19,7 +16,6 @@ import com.demo.filmdb.role.dtos.RoleDto;
 import com.demo.filmdb.role.dtos.RoleDtoInput;
 import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
-import com.demo.filmdb.utils.SortUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,7 +24,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
@@ -97,12 +92,7 @@ public class FilmController {
             LocalDate releaseBefore,
             Pageable pageable
     ) {
-        Specification<Film> spec = Specification
-                .where(new FilmWithTitle(title))
-                .and(new FilmWithReleaseBefore(releaseBefore))
-                .and(new FilmWithReleaseAfter(releaseAfter));
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
-        Page<Film> filmsFound = filmService.search(spec, filteredPageable);
+        Page<Film> filmsFound = filmService.getFilms(pageable, title, releaseAfter, releaseBefore);
         return pagedResourcesAssembler.toModel(filmsFound, filmModelAssembler);
     }
 
@@ -113,8 +103,7 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping
     public CollectionModel<FilmDto> getAllFilms(Pageable pageable) {
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
-        Page<Film> filmsPage = filmService.getAllFilms(filteredPageable);
+        Page<Film> filmsPage = filmService.getFilms(pageable);
         return pagedResourcesAssembler.toModel(filmsPage, filmModelAssembler);
     }
 

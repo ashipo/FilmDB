@@ -2,6 +2,7 @@ package com.demo.filmdb.film;
 
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
+import com.demo.filmdb.utils.SortUtil;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,24 +36,37 @@ public class FilmService {
     }
 
     /**
-     * Returns a {@link Page} of {@link Film} entities matching the given {@link Specification}.
+     * Returns a {@link Page} of {@link Film} entities
      *
-     * @param spec must not be {@code null}.
-     * @param pageable must not be {@code null}.
-     * @return a page of filtered entities.
+     * @param pageable  must not be null
+     * @return the resulting page, may be empty but not null
      */
-    public Page<Film> search(Specification<Film> spec, Pageable pageable) {
-        return filmRepository.findAll(spec, pageable);
+    public Page<Film> getFilms(Pageable pageable) {
+        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
+        return filmRepository.findAll(filteredPageable);
     }
 
     /**
-     * Returns a {@link Page} of all {@link Film} entities.
+     * Returns a {@link Page} of {@link Film} entities.
+     * For filtering any of {@code title}, {@code releaseAfter} or {@code releaseBefore} can be specified.
      *
-     * @param pageable must not be {@code null}.
-     * @return a page.
+     * @param pageable      must not be null
+     * @param title         string that films must contain in their title. Should not be blank. Can be null.
+     * @param releaseAfter  release date lower limit. Can be null.
+     * @param releaseBefore release date upper limit. Can be null.
+     * @return the resulting page, may be empty but not null
      */
-    public Page<Film> getAllFilms(Pageable pageable) {
-        return filmRepository.findAll(pageable);
+    public Page<Film> getFilms(
+            Pageable pageable,
+            @Nullable String title,
+            @Nullable LocalDate releaseAfter,
+            @Nullable LocalDate releaseBefore
+    ) {
+        Specification<Film> spec = filmSpecs.titleContains(title)
+                .and(filmSpecs.releaseBefore(releaseBefore))
+                .and(filmSpecs.releaseAfter(releaseAfter));
+        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
+        return filmRepository.findAll(spec, filteredPageable);
     }
 
     /**
@@ -78,16 +92,13 @@ public class FilmService {
             @Nullable LocalDate releaseAfter,
             @Nullable LocalDate releaseBefore
     ) {
-        Specification<Film> spec = filmSpecs.titleContains(title)
-                .and(filmSpecs.releaseBefore(releaseBefore))
-                .and(filmSpecs.releaseAfter(releaseAfter));
         Pageable pageable;
         if (sortBy == null || sortDirection == null) {
             pageable = PageRequest.of(page, pageSize);
         } else {
             pageable = PageRequest.of(page, pageSize, sortDirection, sortBy);
         }
-        return filmRepository.findAll(spec, pageable);
+        return getFilms(pageable, title, releaseAfter, releaseBefore);
     }
 
     /**
