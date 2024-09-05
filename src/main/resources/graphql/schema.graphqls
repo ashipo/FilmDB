@@ -11,7 +11,17 @@ type Query {
 
     "Get a `Film`"
     film(id: Long!): Film
-    films(page: Int = 0, pageSize: Int = 10): [Film]
+
+    "Get a sorted and filtered `Film` list"
+    films(
+        page: Int! = 0,
+        pageSize: Int! = 20,
+        sortBy: SortableFilmField,
+        sortDirection: SortDirection = ASC,
+        title: NonBlankString,
+        releaseAfter: Date,
+        releaseBefore: Date
+    ): [Film]
 
     "Get a `Person`"
     person(id: Long!): Person
@@ -88,6 +98,21 @@ type Role {
     film: Film
     person: Person
     character: String
+}
+
+#
+# Enums
+#
+
+enum SortDirection {
+    ASC
+    DESC
+}
+
+enum SortableFilmField {
+    ID
+    TITLE
+    RELEASE_DATE
 }
 
 #

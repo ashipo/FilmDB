@@ -1,8 +1,7 @@
-query films($page: Int, $pageSize: Int) {
-    films(page: $page, pageSize: $pageSize) {
+query films($page: Int!, $pageSize: Int!, $sortBy: SortableFilmField, $sortDirection: SortDirection!, $title: NonBlankString, $releaseAfter: Date, $releaseBefore: Date) {
+    films(page: $page, pageSize: $pageSize, sortBy: $sortBy, sortDirection: $sortDirection, title: $title, releaseAfter: $releaseAfter, releaseBefore: $releaseBefore) {
         id
         title
         releaseDate
-        synopsis
     }
 }

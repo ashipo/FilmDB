@@ -1,6 +1,7 @@
 package com.demo.filmdb.utils;
 
 import com.demo.filmdb.annotations.Sortable;
+import com.demo.filmdb.film.Film;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,6 +13,30 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SortUtil {
+
+    /**
+     * Represents sortable fields of a film. Must match GraphQL enum with the same name.
+     */
+    public enum SortableFilmField {
+        ID("id"),
+        TITLE("title"),
+        RELEASE_DATE("releaseDate");
+
+        private final String fieldName;
+
+        SortableFilmField(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        /**
+         * Returns corresponding entity field name
+         *
+         * @return field name
+         */
+        public String getFieldName() {
+            return fieldName;
+        }
+    }
 
     /**
      * Filters out {@code pageable}'s {@link Sort} properties that aren't annotated with @{@link Sortable} in the

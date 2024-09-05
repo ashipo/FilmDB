@@ -32,8 +32,7 @@ public class FilmControllerSecurityTests {
         @Test
         @DisplayName("Not authenticated, authorized")
         void NotAuthenticated_Authorized() {
-            graphQlTester
-                    .documentName(FILMS)
+            graphQlTester.document("{films {id}}")
                     .executeAndVerify();
         }
     }

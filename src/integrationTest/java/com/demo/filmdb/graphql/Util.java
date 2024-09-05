@@ -44,6 +44,10 @@ class Util {
     static final String SYNOPSIS = "synopsis";
     static final String DIRECTORS_IDS = "directorsIds";
     static final String CAST = "cast";
+    static final String PAGE = "page";
+    static final String PAGE_SIZE = "pageSize";
+    static final String SORT_BY = "sortBy";
+    static final String SORT_DIRECTION = "sortDirection";
     // named arguments
     static final Named<Object> NULL = named("[Null]", null);
     static final Named<String> EMPTY_STRING = named("[Empty]", "");

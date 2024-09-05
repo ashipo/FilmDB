@@ -4,6 +4,7 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.util.EntityNotFoundException;
+import com.demo.filmdb.utils.SortUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,25 +12,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.demo.filmdb.graphql.Util.*;
 import static graphql.ErrorType.ValidationError;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -56,55 +51,60 @@ public class FilmControllerTests {
         @Test
         @DisplayName("No arguments, runs successfully")
         void NoArguments_RunsSuccessfully() {
-            graphQlTester
-                    .documentName(FILMS)
+            graphQlTester.document("{films {id}}")
                     .executeAndVerify();
         }
 
         @Test
-        @DisplayName("Arbitrary paging, requests correct page")
-        void ArbitraryPaging_RequestsCorrectPage() {
-            final Integer pageNumber = 3;
-            final Integer pageSize = 14;
+        @DisplayName("Valid input, correct FilmService call")
+        void ValidInput_CorrectServiceCall() {
+            int page = 3;
+            int pageSize = 14;
+            var sortBy = SortUtil.SortableFilmField.TITLE;
+            var sortDirection = Sort.Direction.DESC;
+            var title = "peace";
+            var releaseBefore = LocalDate.of(1950, 11, 11);
 
-            graphQlTester
-                    .documentName(FILMS)
-                    .variable("page", pageNumber)
-                    .variable("pageSize", pageSize)
+            graphQlTester.documentName(FILMS)
+                    .variable(PAGE, page)
+                    .variable(PAGE_SIZE, pageSize)
+                    .variable(SORT_BY, sortBy)
+                    .variable(SORT_DIRECTION, sortDirection)
+                    .variable(TITLE, title)
+                    .variable("releaseBefore", releaseBefore)
                     .executeAndVerify();
 
-            ArgumentCaptor<Pageable> requestedPageable = ArgumentCaptor.forClass(Pageable.class);
-            verify(filmService).getAllFilms(requestedPageable.capture());
-            assertThat(requestedPageable.getValue().getPageNumber()).isEqualTo(pageNumber);
-            assertThat(requestedPageable.getValue().getPageSize()).isEqualTo(pageSize);
+            verify(filmService).getFilms(
+                    page,
+                    pageSize,
+                    sortBy.getFieldName(),
+                    sortDirection,
+                    title,
+                    null,
+                    releaseBefore
+            );
         }
 
-        @Test
-        @DisplayName("Arbitrary paging, correct response size")
-        void CustomPaging_RequestsCorrectPage() {
-            final int pageSize = 5;
-            List<Film> films = new ArrayList<>(pageSize);
-            for (int i = 0; i < pageSize; i++) {
-                films.add(new Film());
-            }
-            Page<Film> filmsPage = new PageImpl<>(films);
-            given(filmService.getAllFilms(any())).willReturn(filmsPage);
-
-            graphQlTester
-                    .documentName(FILMS)
-                    .variable("pageSize", pageSize)
-                    .execute()
-                    .path(FILMS)
-                    .entityList(Film.class)
-                    .hasSize(pageSize);
-        }
-
-        @Test
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#invalidFilmsInputs")
         @DisplayName("Invalid input, validation error")
-        void InvalidArgument_ValidationError() {
-            graphQlTester
-                    .documentName(FILMS)
-                    .variable("page", "one")
+        void InvalidInput_ValidationError(
+                Object page,
+                Object pageSize,
+                Object sortBy,
+                Object sortDirection,
+                Object title,
+                Object releaseAfter,
+                Object releaseBefore
+        ) {
+            graphQlTester.documentName(FILMS)
+                    .variable(PAGE, page)
+                    .variable(PAGE_SIZE, pageSize)
+                    .variable(SORT_BY, sortBy)
+                    .variable(SORT_DIRECTION, sortDirection)
+                    .variable(TITLE, title)
+                    .variable("releaseAfter", releaseAfter)
+                    .variable("releaseBefore", releaseBefore)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)
@@ -335,6 +335,24 @@ public class FilmControllerTests {
                 arguments(BLANK_STRING, date, synopsis),
                 arguments(title, NULL, synopsis),
                 arguments(title, INVALID_DATE, synopsis)
+        );
+    }
+
+    private static Stream<Arguments> invalidFilmsInputs() {
+        int page = 3;
+        int pageSize = 14;
+        var sortBy = SortUtil.SortableFilmField.RELEASE_DATE;
+        var sortDirection = Sort.Direction.DESC;
+        var title = "Alien";
+        var releaseAfter = LocalDate.of(1950, 10, 10);
+        var releaseBefore = LocalDate.of(1990, 11, 11);
+        return Stream.of(
+                arguments(NULL, pageSize, sortBy, sortDirection, title, releaseAfter, releaseBefore),
+                arguments(page, NULL, sortBy, sortDirection, title, releaseAfter, releaseBefore),
+                arguments(page, pageSize, sortBy, NULL, title, releaseAfter, releaseBefore),
+                arguments(page, pageSize, sortBy, sortDirection, BLANK_STRING, releaseAfter, releaseBefore),
+                arguments(page, pageSize, sortBy, sortDirection, title, INVALID_DATE, releaseBefore),
+                arguments(page, pageSize, sortBy, sortDirection, title, releaseAfter, INVALID_DATE)
         );
     }
 }
