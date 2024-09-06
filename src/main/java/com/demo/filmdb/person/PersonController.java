@@ -90,8 +90,7 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping
     public CollectionModel<PersonDto> getAllPeople(Pageable pageable) {
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
-        Page<Person> peoplePage = personService.getAllPeople(filteredPageable);
+        Page<Person> peoplePage = personService.getPeople(pageable);
         return pagedResourcesAssembler.toModel(peoplePage, personModelAssembler);
     }
 

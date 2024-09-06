@@ -2,6 +2,7 @@ package com.demo.filmdb.person;
 
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
+import com.demo.filmdb.utils.SortUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,6 +28,17 @@ public class PersonService {
     }
 
     /**
+     * Returns a {@link Page} of all {@link Person} entities
+     *
+     * @param pageable must not be null
+     * @return the resulting page, may be empty but not null
+     */
+    public Page<Person> getPeople(Pageable pageable) {
+        Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
+        return personRepository.findAll(filteredPageable);
+    }
+
+    /**
      * Returns a {@link Page} of {@link Person} entities matching the given {@link Specification}.
      *
      * @param spec must not be {@code null}.
@@ -35,16 +47,6 @@ public class PersonService {
      */
     public Page<Person> search(Specification<Person> spec, Pageable pageable) {
         return personRepository.findAll(spec, pageable);
-    }
-
-    /**
-     * Returns a {@link Page} of all {@link Person} entities.
-     *
-     * @param pageable must not be {@code null}.
-     * @return a page.
-     */
-    public Page<Person> getAllPeople(Pageable pageable) {
-        return personRepository.findAll(pageable);
     }
 
     /**

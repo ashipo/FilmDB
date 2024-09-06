@@ -15,6 +15,7 @@ import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 
@@ -52,13 +53,36 @@ public class PersonServiceTests extends ServiceTest {
         verify(personRepository).findAll(expectedSpec, expectedPageable);
     }
 
-    @Test
-    void getAllPeople_Finds() {
-        final Pageable expectedPageable = Pageable.unpaged();
+    @Nested
+    @DisplayName("getPeople")
+    class GetPeople {
 
-        personService.getAllPeople(expectedPageable);
+        @Nested
+        @DisplayName("with pageable parameter")
+        class WithPageable {
 
-        verify(personRepository).findAll(expectedPageable);
+            @Test
+            @DisplayName("Valid arguments, searches correctly")
+            void ValidArguments_SearchesCorrectly() {
+                int pageNumber = 13;
+                int pageSize = 37;
+                var direction = Sort.Direction.DESC;
+                String sortBy = "id";
+                var pageable = PageRequest.of(pageNumber, pageSize, direction, sortBy);
+
+                personService.getPeople(pageable);
+
+                var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+                verify(personRepository).findAll(pageableCaptor.capture());
+                var actualPageable = pageableCaptor.getValue();
+                assertThat(actualPageable.getPageNumber()).isEqualTo(pageNumber);
+                assertThat(actualPageable.getPageSize()).isEqualTo(pageSize);
+                var actualSort = actualPageable.getSort().getOrderFor(sortBy);
+                assertThat(actualSort).isNotNull();
+                assert actualSort != null;
+                assertThat(actualSort.getDirection()).isEqualTo(direction);
+            }
+        }
     }
 
     @Nested
