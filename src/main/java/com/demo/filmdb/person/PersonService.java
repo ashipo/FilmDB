@@ -9,8 +9,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
@@ -47,17 +45,6 @@ public class PersonService {
      */
     public Page<Person> getAllPeople(Pageable pageable) {
         return personRepository.findAll(pageable);
-    }
-
-    /**
-     * Returns all the {@link Person} entities found for the given ids. Returned collection can be smaller than
-     * {@code peopleIds}.
-     *
-     * @param peopleIds ids to find.
-     * @return the found entities.
-     */
-    public List<Person> getPeople(Collection<Long> peopleIds) {
-        return personRepository.findAllById(peopleIds);
     }
 
     /**

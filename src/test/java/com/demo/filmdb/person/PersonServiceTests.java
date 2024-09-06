@@ -19,17 +19,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -175,35 +173,6 @@ public class PersonServiceTests extends ServiceTest {
             // assert roles are deleted
             verify(roleRepository).deleteById_PersonId(id);
             verify(personRepository).deleteById(id);
-        }
-    }
-
-    @Nested
-    class GetPeople {
-        @Test
-        @DisplayName("Given existing ids, finds")
-        public void ExistingIds_Finds() {
-            final List<Long> expectedPeopleIds = List.of(1L, 2L, 3L);
-            given(personRepository.findAllById(anyCollection()))
-                    .willReturn(createPeoplesWithIds(expectedPeopleIds));
-
-            personService.getPeople(expectedPeopleIds);
-
-            verify(personRepository).findAllById(expectedPeopleIds);
-        }
-
-        @ParameterizedTest(name = "given {0}, exist {1}")
-        @MethodSource("com.demo.filmdb.person.PersonServiceTests#expectedAndActualIdsProvider")
-        @DisplayName("Given not existing ids, returns only people for existing ids")
-        public void NotExistingIds_FindsExisting(List<Long> givenIds, List<Long> existingIds) {
-            given(personRepository.findAllById(anyCollection()))
-                    .willReturn(createPeoplesWithIds(existingIds));
-
-            List<Person> actual = personService.getPeople(givenIds);
-
-            Set<Long> expectedIds = new HashSet<>(existingIds);
-            Set<Long> actualIds = actual.stream().map((Person::getId)).collect(Collectors.toSet());
-            assertThat(actualIds).isEqualTo(expectedIds);
         }
     }
 
