@@ -1,7 +1,6 @@
 package com.demo.filmdb.person;
 
 import com.demo.filmdb.ServiceTest;
-import com.demo.filmdb.person.specifications.PersonWithName;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +12,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mapstruct.factory.Mappers;
 import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -35,22 +36,13 @@ import static org.mockito.Mockito.*;
 public class PersonServiceTests extends ServiceTest {
 
     private PersonService personService;
-
     private final PersonMapper personMapper = Mappers.getMapper(PersonMapper.class);
+    @Mock
+    private PersonSpecs personSpecs;
 
     @BeforeEach
     void setUp() {
-        personService = new PersonService(personRepository, roleRepository, personMapper);
-    }
-
-    @Test
-    void search_ValidArguments_Finds() {
-        Specification<Person> expectedSpec = Specification.where(new PersonWithName("Joe"));
-        Pageable expectedPageable = PageRequest.of(1, 5);
-
-        personService.search(expectedSpec, expectedPageable);
-
-        verify(personRepository).findAll(expectedSpec, expectedPageable);
+        personService = new PersonService(personRepository, roleRepository, personMapper, personSpecs);
     }
 
     @Nested
@@ -81,6 +73,44 @@ public class PersonServiceTests extends ServiceTest {
                 assertThat(actualSort).isNotNull();
                 assert actualSort != null;
                 assertThat(actualSort.getDirection()).isEqualTo(direction);
+            }
+        }
+
+        @Nested
+        @DisplayName("with pageable and filter parameters")
+        class WithPageableAndFilter {
+
+            @Test
+            @DisplayName("Valid arguments, searches correctly")
+            void ValidArguments_SearchesCorrectly() {
+                int pageNumber = 13;
+                int pageSize = 37;
+                var direction = Sort.Direction.DESC;
+                String sortBy = "name";
+                var pageable = PageRequest.of(pageNumber, pageSize, direction, sortBy);
+                String name = "Joe";
+                LocalDate bornBefore = LocalDate.of(2222, 2, 2);
+                given(personSpecs.nameContains(name)).willReturn(emptySpec());
+                given(personSpecs.bornAfter(null)).willReturn(emptySpec());
+                given(personSpecs.bornBefore(bornBefore)).willReturn(emptySpec());
+
+                personService.getPeople(pageable, name, null, bornBefore);
+
+                var pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+                verify(personRepository).findAll(ArgumentMatchers.<Specification<Person>>any(), pageableCaptor.capture());
+                // verify paging
+                var actualPageable = pageableCaptor.getValue();
+                assertThat(actualPageable.getPageNumber()).isEqualTo(pageNumber);
+                assertThat(actualPageable.getPageSize()).isEqualTo(pageSize);
+                // verify sorting
+                var actualSort = actualPageable.getSort().getOrderFor(sortBy);
+                assertThat(actualSort).isNotNull();
+                assert actualSort != null;
+                assertThat(actualSort.getDirection()).isEqualTo(direction);
+                // verify filtering
+                verify(personSpecs).nameContains(name);
+                verify(personSpecs).bornAfter(null);
+                verify(personSpecs).bornBefore(bornBefore);
             }
         }
     }

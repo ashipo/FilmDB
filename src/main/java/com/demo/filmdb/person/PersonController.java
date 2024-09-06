@@ -5,14 +5,10 @@ import com.demo.filmdb.film.FilmModelAssembler;
 import com.demo.filmdb.film.dtos.FilmDto;
 import com.demo.filmdb.person.dtos.PersonDto;
 import com.demo.filmdb.person.dtos.PersonDtoInput;
-import com.demo.filmdb.person.specifications.PersonBornAfter;
-import com.demo.filmdb.person.specifications.PersonBornBefore;
-import com.demo.filmdb.person.specifications.PersonWithName;
 import com.demo.filmdb.role.ActorRoleModelAssembler;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.dtos.ActorRoleDto;
 import com.demo.filmdb.util.EntityNotFoundException;
-import com.demo.filmdb.utils.SortUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,7 +17,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
@@ -69,17 +64,17 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/search")
     public CollectionModel<PersonDto> findPeople(
-            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "name", required = false)
+            String name,
             @RequestParam(value = "born_after", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bornAfter,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate bornAfter,
             @RequestParam(value = "born_before", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bornBefore,
-            Pageable pageable) {
-        Specification<Person> spec = Specification.where(new PersonWithName(name)).
-                and(new PersonBornBefore(bornBefore)).
-                and(new PersonBornAfter(bornAfter));
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
-        Page<Person> peopleFound = personService.search(spec, filteredPageable);
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate bornBefore,
+            Pageable pageable
+    ) {
+        Page<Person> peopleFound = personService.getPeople(pageable, name, bornAfter, bornBefore);
         return pagedResourcesAssembler.toModel(peopleFound, personModelAssembler);
     }
 

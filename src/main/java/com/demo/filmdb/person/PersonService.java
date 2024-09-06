@@ -3,6 +3,7 @@ package com.demo.filmdb.person;
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.utils.SortUtil;
+import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
@@ -20,11 +22,13 @@ public class PersonService {
     private final PersonRepository personRepository;
     private final RoleRepository roleRepository;
     private final PersonMapper personMapper;
+    private final PersonSpecs personSpecs;
 
-    public PersonService(PersonRepository personRepository, RoleRepository roleRepository, PersonMapper personMapper) {
+    public PersonService(PersonRepository personRepository, RoleRepository roleRepository, PersonMapper personMapper, PersonSpecs personSpecs) {
         this.personRepository = personRepository;
         this.roleRepository = roleRepository;
         this.personMapper = personMapper;
+        this.personSpecs = personSpecs;
     }
 
     /**
@@ -39,14 +43,26 @@ public class PersonService {
     }
 
     /**
-     * Returns a {@link Page} of {@link Person} entities matching the given {@link Specification}.
+     * Returns a {@link Page} of {@link Person} entities.
+     * For filtering any of {@code name}, {@code bornAfter} or {@code bornBefore} can be specified.
      *
-     * @param spec must not be {@code null}.
-     * @param pageable must not be {@code null}.
-     * @return a page of filtered entities.
+     * @param pageable    must not be null
+     * @param name        string that person name must contain. Should not be blank. Can be null.
+     * @param bornAfter   birthdate lower limit. Can be null.
+     * @param bornBefore  birthdate upper limit. Can be null.
+     * @return the resulting page, may be empty but not null
      */
-    public Page<Person> search(Specification<Person> spec, Pageable pageable) {
-        return personRepository.findAll(spec, pageable);
+    public Page<Person> getPeople(
+            Pageable pageable,
+            @Nullable String name,
+            @Nullable LocalDate bornAfter,
+            @Nullable LocalDate bornBefore
+    ) {
+        Specification<Person> spec = personSpecs.nameContains(name)
+                .and(personSpecs.bornAfter(bornAfter))
+                .and(personSpecs.bornBefore(bornBefore));
+        Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
+        return personRepository.findAll(spec, filteredPageable);
     }
 
     /**
