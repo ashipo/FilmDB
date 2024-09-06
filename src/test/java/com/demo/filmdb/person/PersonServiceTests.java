@@ -21,7 +21,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -258,22 +257,6 @@ public class PersonServiceTests extends ServiceTest {
     }
 
     /* Utility */
-
-    private List<Person> createPeoplesWithIds(List<Long> ids) {
-        return ids.stream().map(id -> {
-            Person person = new Person();
-            person.setId(id);
-            return person;
-        }).toList();
-    }
-
-    private static Stream<Arguments> expectedAndActualIdsProvider() {
-        return Stream.of(
-                Arguments.arguments(List.of(1L, 2L, 3L), List.of(1L, 2L)),
-                Arguments.arguments(List.of(1L, 2L, 3L), List.of(3L)),
-                Arguments.arguments(List.of(1L, 2L, 3L), List.of())
-        );
-    }
 
     private static Stream<Arguments> updatePersonProvider() {
         final String name = "Milla Jovovich";
