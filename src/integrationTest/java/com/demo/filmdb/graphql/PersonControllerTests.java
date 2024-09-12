@@ -4,6 +4,7 @@ import com.demo.filmdb.graphql.payloads.DeletePersonPayload;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.util.EntityNotFoundException;
+import com.demo.filmdb.utils.SortUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Sort;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 import java.time.LocalDate;
@@ -29,6 +31,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.graphql.execution.ErrorType.NOT_FOUND;
 
 @GraphQlTest({PersonController.class, TestConfigurer.class})
@@ -40,6 +43,76 @@ public class PersonControllerTests {
 
     @MockBean
     private PersonService personService;
+
+    @Nested
+    @DisplayName(PEOPLE)
+    class People {
+
+        @Test
+        @DisplayName("No arguments, runs successfully")
+        void NotAuthenticated_Authorized() {
+            graphQlTester.document("{people {id}}")
+                    .executeAndVerify();
+        }
+
+        @Test
+        @DisplayName("Valid input, correct Service call")
+        void ValidInput_CorrectServiceCall() {
+            int page = 3;
+            int pageSize = 14;
+            var sortBy = SortUtil.SortablePersonField.ID;
+            var sortDirection = Sort.Direction.ASC;
+            var name = "Jessica";
+            var bornAfter = LocalDate.of(1950, 11, 11);
+
+            graphQlTester.documentName(PEOPLE)
+                    .variable(PAGE, page)
+                    .variable(PAGE_SIZE, pageSize)
+                    .variable(SORT_BY, sortBy)
+                    .variable(SORT_DIRECTION, sortDirection)
+                    .variable(NAME, name)
+                    .variable("bornAfter", bornAfter)
+                    .executeAndVerify();
+
+            verify(personService).getPeople(
+                    page,
+                    pageSize,
+                    sortBy.getFieldName(),
+                    sortDirection,
+                    name,
+                    bornAfter,
+                    null
+            );
+        }
+
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#invalidPeopleInputs")
+        @DisplayName("Invalid input, validation error")
+        void InvalidInput_ValidationError(
+                Object page,
+                Object pageSize,
+                Object sortBy,
+                Object sortDirection,
+                Object name,
+                Object bornAfter,
+                Object bornBefore
+        ) {
+            graphQlTester.documentName(PEOPLE)
+                    .variable(PAGE, page)
+                    .variable(PAGE_SIZE, pageSize)
+                    .variable(SORT_BY, sortBy)
+                    .variable(SORT_DIRECTION, sortDirection)
+                    .variable(NAME, name)
+                    .variable("bornAfter", bornAfter)
+                    .variable("bornBefore", bornBefore)
+                    .execute()
+                    .errors()
+                    .expect(responseError -> responseError.getErrorType() == ValidationError)
+                    .verify()
+                    .path(DATA)
+                    .pathDoesNotExist();
+        }
+    }
 
     @Nested
     @DisplayName(CREATE_PERSON)
@@ -235,6 +308,23 @@ public class PersonControllerTests {
                 arguments(NULL, dateOfBirth),
                 arguments(EMPTY_STRING, dateOfBirth),
                 arguments(BLANK_STRING, dateOfBirth)
+        );
+    }
+
+    private static Stream<Arguments> invalidPeopleInputs() {
+        int page = 3;
+        int pageSize = 14;
+        var sortBy = SortUtil.SortablePersonField.NAME;
+        var sortDirection = Sort.Direction.ASC;
+        var name = "weave";
+        var bornAfter = LocalDate.of(1950, 10, 10);
+        var bornBefore = LocalDate.of(1990, 11, 11);
+        return Stream.of(
+                arguments(NULL, pageSize, sortBy, sortDirection, name, bornAfter, bornBefore),
+                arguments(page, NULL, sortBy, sortDirection, name, bornAfter, bornBefore),
+                arguments(page, pageSize, sortBy, sortDirection, BLANK_STRING, bornAfter, bornBefore),
+                arguments(page, pageSize, sortBy, sortDirection, name, INVALID_DATE, bornBefore),
+                arguments(page, pageSize, sortBy, sortDirection, name, bornAfter, INVALID_DATE)
         );
     }
 }

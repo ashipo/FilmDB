@@ -28,6 +28,7 @@ class Util {
     static final String UPDATE_ROLE = "updateRole";
     static final String DELETE_ROLE = "deleteRole";
     static final String UPDATE_CAST = "updateCast";
+    static final String PEOPLE = "people";
     static final String CREATE_PERSON = "createPerson";
     static final String GET_PERSON = "person";
     static final String UPDATE_PERSON = "updatePerson";

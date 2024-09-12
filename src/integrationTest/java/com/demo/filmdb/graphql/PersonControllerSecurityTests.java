@@ -24,6 +24,18 @@ public class PersonControllerSecurityTests {
     HttpGraphQlTester graphQlTester;
 
     @Nested
+    @DisplayName(PEOPLE)
+    class People {
+
+        @Test
+        @DisplayName("Not authenticated, authorized")
+        void NotAuthenticated_Authorized() {
+            graphQlTester.document("{people {id}}")
+                    .executeAndVerify();
+        }
+    }
+
+    @Nested
     @DisplayName(CREATE_PERSON)
     class CreatePerson {
 

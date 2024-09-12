@@ -26,6 +26,17 @@ type Query {
     "Get a `Person`"
     person(id: Long!): Person
 
+    "Get a sorted and filtered `Person` list"
+    people(
+        page: Int! = 0,
+        pageSize: Int! = 20,
+        sortBy: SortablePersonField,
+        sortDirection: SortDirection = ASC,
+        name: NonBlankString,
+        bornAfter: Date,
+        bornBefore: Date
+    ): [Person]
+
     "Get a `Role`"
     role(id: CrewMemberID!): Role
 }
@@ -113,6 +124,12 @@ enum SortableFilmField {
     ID
     TITLE
     RELEASE_DATE
+}
+
+enum SortablePersonField {
+    ID
+    NAME
+    DATE_OF_BIRTH
 }
 
 #
