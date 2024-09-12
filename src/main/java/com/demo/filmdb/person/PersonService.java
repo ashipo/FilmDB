@@ -5,7 +5,9 @@ import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.utils.SortUtil;
 import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -63,6 +65,37 @@ public class PersonService {
                 .and(personSpecs.bornBefore(bornBefore));
         Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
         return personRepository.findAll(spec, filteredPageable);
+    }
+
+    /**
+     * Returns a {@link Page} of {@link Person} entities.
+     * For filtering any of {@code name}, {@code bornAfter} or {@code bornBefore} can be specified.
+     *
+     * @param page          page number
+     * @param pageSize      page size
+     * @param sortBy        {@link Person} property name to sort by. Can be null.
+     * @param sortDirection sort direction. Can be null.
+     * @param name          string that person name must contain. Should not be blank. Can be null.
+     * @param bornAfter     birthdate lower limit. Can be null.
+     * @param bornBefore    birthdate upper limit. Can be null.
+     * @return the resulting page, may be empty but not null
+     */
+    public Page<Person> getPeople(
+            int page,
+            int pageSize,
+            @Nullable String sortBy,
+            @Nullable Sort.Direction sortDirection,
+            @Nullable String name,
+            @Nullable LocalDate bornAfter,
+            @Nullable LocalDate bornBefore
+    ) {
+        Pageable pageable;
+        if (sortBy == null || sortDirection == null) {
+            pageable = PageRequest.of(page, pageSize);
+        } else {
+            pageable = PageRequest.of(page, pageSize, sortDirection, sortBy);
+        }
+        return getPeople(pageable, name, bornAfter, bornBefore);
     }
 
     /**

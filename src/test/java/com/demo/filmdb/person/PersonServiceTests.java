@@ -10,10 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mapstruct.factory.Mappers;
-import org.mockito.AdditionalAnswers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -109,6 +106,67 @@ public class PersonServiceTests extends ServiceTest {
                 // verify filtering
                 verify(personSpecs).nameContains(name);
                 verify(personSpecs).bornAfter(null);
+                verify(personSpecs).bornBefore(bornBefore);
+            }
+        }
+
+        @Nested
+        @DisplayName("with separate parameters for paging, sorting and filtering")
+        class WithSeparateParams {
+
+            @Captor
+            ArgumentCaptor<Pageable> pageableCaptor;
+
+            @Test
+            @DisplayName("Valid paging, calls repository correctly")
+            void PagingArguments_CallsRepositoryCorrectly() {
+                int pageNumber = 4;
+                int pageSize = 8;
+                given(personSpecs.nameContains(null)).willReturn(emptySpec());
+                given(personSpecs.bornAfter(null)).willReturn(emptySpec());
+                given(personSpecs.bornBefore(null)).willReturn(emptySpec());
+
+                personService.getPeople(pageNumber, pageSize, null, null, null, null, null);
+
+                verify(personRepository).findAll(ArgumentMatchers.<Specification<Person>>any(), pageableCaptor.capture());
+                Pageable pageable = pageableCaptor.getValue();
+                assertThat(pageable.getPageNumber()).isEqualTo(pageNumber);
+                assertThat(pageable.getPageSize()).isEqualTo(pageSize);
+            }
+
+            @Test
+            @DisplayName("Valid sorting, calls repository correctly")
+            void SortArguments_CallsRepositoryCorrectly() {
+                String sortBy = "name";
+                var direction = Sort.Direction.DESC;
+                given(personSpecs.nameContains(null)).willReturn(emptySpec());
+                given(personSpecs.bornAfter(null)).willReturn(emptySpec());
+                given(personSpecs.bornBefore(null)).willReturn(emptySpec());
+
+                personService.getPeople(1, 2, sortBy, direction, null, null, null);
+
+                verify(personRepository).findAll(ArgumentMatchers.<Specification<Person>>any(), pageableCaptor.capture());
+                Sort sort = pageableCaptor.getValue().getSort();
+                Sort.Order order = sort.getOrderFor(sortBy);
+                assertThat(order).as("Sort order").isNotNull();
+                assert order != null;
+                assertThat(order.getDirection()).isEqualTo(direction);
+            }
+
+            @Test
+            @DisplayName("Valid filter arguments, creates specifications correctly")
+            void FilterArguments_CreatesSpecificationCorrectly() {
+                String name = "illy";
+                LocalDate bornAfter = LocalDate.of(2000, 2, 2);
+                LocalDate bornBefore = LocalDate.of(1000, 1, 1);
+                given(personSpecs.nameContains(name)).willReturn(emptySpec());
+                given(personSpecs.bornAfter(bornAfter)).willReturn(emptySpec());
+                given(personSpecs.bornBefore(bornBefore)).willReturn(emptySpec());
+
+                personService.getPeople(1, 2, null, null, name, bornAfter, bornBefore);
+
+                verify(personSpecs).nameContains(name);
+                verify(personSpecs).bornAfter(bornAfter);
                 verify(personSpecs).bornBefore(bornBefore);
             }
         }
