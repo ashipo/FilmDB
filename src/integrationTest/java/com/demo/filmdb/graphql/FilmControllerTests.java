@@ -349,7 +349,6 @@ public class FilmControllerTests {
         return Stream.of(
                 arguments(NULL, pageSize, sortBy, sortDirection, title, releaseAfter, releaseBefore),
                 arguments(page, NULL, sortBy, sortDirection, title, releaseAfter, releaseBefore),
-                arguments(page, pageSize, sortBy, NULL, title, releaseAfter, releaseBefore),
                 arguments(page, pageSize, sortBy, sortDirection, BLANK_STRING, releaseAfter, releaseBefore),
                 arguments(page, pageSize, sortBy, sortDirection, title, INVALID_DATE, releaseBefore),
                 arguments(page, pageSize, sortBy, sortDirection, title, releaseAfter, INVALID_DATE)
