@@ -226,11 +226,12 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> getCast(@PathVariable Long filmId) {
-        Film film = filmService.getFilm(filmId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
-        );
-        Collection<Role> cast = film.getCast();
-        return filmRoleModelAssembler.toCollectionModel(cast, film.getId());
+        try {
+            Collection<Role> cast = filmService.getCast(filmId);
+            return filmRoleModelAssembler.toCollectionModel(cast, filmId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Update film cast", tags = TAG_ROLES)
