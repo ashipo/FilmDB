@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -178,11 +178,11 @@ class FilmServiceTests extends ServiceTest {
     @DisplayName("createFilm")
     class CreateFilm {
 
-        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.film.FilmServiceTests#validFilmInfoProvider")
         @DisplayName("Valid input, creates and returns")
-        void ValidInput_Creates(String expectedTitle, LocalDate expectedReleaseDate, String expectedSynopsis) {
-            FilmInfo input = createFilmInfo(expectedTitle, expectedReleaseDate, expectedSynopsis);
+        void ValidInput_Creates(String title, LocalDate releaseDate, String synopsis) {
+            FilmInfo input = createFilmInfo(title, releaseDate, synopsis);
             when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
 
             Film actual = filmService.createFilm(input);
@@ -191,13 +191,13 @@ class FilmServiceTests extends ServiceTest {
             var createdFilmCaptor = ArgumentCaptor.forClass(Film.class);
             verify(filmRepository).save(createdFilmCaptor.capture());
             Film createdFilm = createdFilmCaptor.getValue();
-            assertThat(createdFilm.getTitle()).isEqualTo(expectedTitle);
-            assertThat(createdFilm.getReleaseDate()).isEqualTo(expectedReleaseDate);
-            assertThat(createdFilm.getSynopsis()).isEqualTo(expectedSynopsis);
+            assertThat(createdFilm.getTitle()).isEqualTo(title);
+            assertThat(createdFilm.getReleaseDate()).isEqualTo(releaseDate);
+            assertThat(createdFilm.getSynopsis()).isEqualTo(synopsis);
             // assert returned
-            assertThat(actual.getTitle()).isEqualTo(expectedTitle);
-            assertThat(actual.getReleaseDate()).isEqualTo(expectedReleaseDate);
-            assertThat(actual.getSynopsis()).isEqualTo(expectedSynopsis);
+            assertThat(actual.getTitle()).isEqualTo(title);
+            assertThat(actual.getReleaseDate()).isEqualTo(releaseDate);
+            assertThat(actual.getSynopsis()).isEqualTo(synopsis);
         }
     }
 
@@ -233,10 +233,10 @@ class FilmServiceTests extends ServiceTest {
     @DisplayName("updateFilm")
     class UpdateFilm {
 
-        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
         @MethodSource("com.demo.filmdb.film.FilmServiceTests#validFilmInfoProvider")
         @DisplayName("Existing id, updates")
-        void ExistingId_Updates(String expectedTitle, LocalDate expectedReleaseDate, String expectedSynopsis) {
+        void ExistingId_Updates(String title, LocalDate releaseDate, String synopsis) {
             final Long filmId = 1L;
             final Film existingFilm = createFilm(filmId, "Tenet", LocalDate.of(2020, 8, 26), "Armed with only the word \"Tenet\"");
             // find existing person
@@ -244,21 +244,21 @@ class FilmServiceTests extends ServiceTest {
             // return updated person
             when(filmRepository.save(any(Film.class))).then(AdditionalAnswers.returnsFirstArg());
 
-            Film actual = filmService.updateFilm(filmId, createFilmInfo(expectedTitle, expectedReleaseDate, expectedSynopsis));
+            Film actual = filmService.updateFilm(filmId, createFilmInfo(title, releaseDate, synopsis));
 
             // assert saved
             var updatedFilmCaptor = ArgumentCaptor.forClass(Film.class);
             verify(filmRepository).save(updatedFilmCaptor.capture());
             Film updatedFilm = updatedFilmCaptor.getValue();
             assertThat(updatedFilm.getId()).isEqualTo(filmId);
-            assertThat(updatedFilm.getTitle()).isEqualTo(expectedTitle);
-            assertThat(updatedFilm.getReleaseDate()).isEqualTo(expectedReleaseDate);
-            assertThat(updatedFilm.getSynopsis()).isEqualTo(expectedSynopsis);
+            assertThat(updatedFilm.getTitle()).isEqualTo(title);
+            assertThat(updatedFilm.getReleaseDate()).isEqualTo(releaseDate);
+            assertThat(updatedFilm.getSynopsis()).isEqualTo(synopsis);
             // assert returned
             assertThat(actual.getId()).isEqualTo(filmId);
-            assertThat(actual.getTitle()).isEqualTo(expectedTitle);
-            assertThat(actual.getReleaseDate()).isEqualTo(expectedReleaseDate);
-            assertThat(actual.getSynopsis()).isEqualTo(expectedSynopsis);
+            assertThat(actual.getTitle()).isEqualTo(title);
+            assertThat(actual.getReleaseDate()).isEqualTo(releaseDate);
+            assertThat(actual.getSynopsis()).isEqualTo(synopsis);
         }
 
         @Test

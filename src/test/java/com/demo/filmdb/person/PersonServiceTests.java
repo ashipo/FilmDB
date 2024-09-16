@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -176,11 +176,10 @@ public class PersonServiceTests extends ServiceTest {
     @DisplayName("createPerson")
     class CreatePerson {
 
-        @Test
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.person.PersonServiceTests#validPersonInfoProvider")
         @DisplayName("Valid input, saves and returns")
-        void ValidInput_Creates() {
-            var name = "Bruce Willis";
-            var dateOfBirth = LocalDate.of(1955, 3, 19);
+        void ValidInput_Creates(String name, LocalDate dateOfBirth) {
             PersonInfo input = createPersonInfo(name, dateOfBirth);
             when(personRepository.save(any(Person.class))).then(AdditionalAnswers.returnsFirstArg());
 
@@ -201,10 +200,10 @@ public class PersonServiceTests extends ServiceTest {
     @DisplayName("updatePerson")
     class UpdatePerson {
 
-        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.person.PersonServiceTests#updatePersonProvider")
+        @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.person.PersonServiceTests#validPersonInfoProvider")
         @DisplayName("Existing id, updates")
-        void ExistingId_Updates(String expectedName, LocalDate expectedDateOfBirth) {
+        void ExistingId_Updates(String name, LocalDate dateOfBirth) {
             final Long personId = 5L;
             final Person existingPerson = createPerson(personId, "Leeloo", LocalDate.of(1, 1, 1));
             // find existing person
@@ -212,19 +211,19 @@ public class PersonServiceTests extends ServiceTest {
             // return updated person
             when(personRepository.save(any(Person.class))).then(AdditionalAnswers.returnsFirstArg());
 
-            Person actual = personService.updatePerson(personId, createPersonInfo(expectedName, expectedDateOfBirth));
+            Person actual = personService.updatePerson(personId, createPersonInfo(name, dateOfBirth));
 
             // assert saved
             var updatedPersonCaptor = ArgumentCaptor.forClass(Person.class);
             verify(personRepository).save(updatedPersonCaptor.capture());
             Person updatedPerson = updatedPersonCaptor.getValue();
             assertThat(updatedPerson.getId()).isEqualTo(personId);
-            assertThat(updatedPerson.getName()).isEqualTo(expectedName);
-            assertThat(updatedPerson.getDateOfBirth()).isEqualTo(expectedDateOfBirth);
+            assertThat(updatedPerson.getName()).isEqualTo(name);
+            assertThat(updatedPerson.getDateOfBirth()).isEqualTo(dateOfBirth);
             // assert returned
             assertThat(actual.getId()).isEqualTo(personId);
-            assertThat(actual.getName()).isEqualTo(expectedName);
-            assertThat(actual.getDateOfBirth()).isEqualTo(expectedDateOfBirth);
+            assertThat(actual.getName()).isEqualTo(name);
+            assertThat(actual.getDateOfBirth()).isEqualTo(dateOfBirth);
         }
 
         @Test
@@ -316,7 +315,7 @@ public class PersonServiceTests extends ServiceTest {
 
     /* Utility */
 
-    private static Stream<Arguments> updatePersonProvider() {
+    private static Stream<Arguments> validPersonInfoProvider() {
         final String name = "Milla Jovovich";
         return Stream.of(
                 Arguments.arguments(name, LocalDate.of(1975, 12, 17)),
