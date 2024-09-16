@@ -1,5 +1,6 @@
 package com.demo.filmdb.film;
 
+import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.utils.SortUtil;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
 import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
@@ -160,5 +162,19 @@ public class FilmService {
      */
     public boolean filmExists(Long filmId) {
         return filmRepository.existsById(filmId);
+    }
+
+    /**
+     * Returns film cast
+     *
+     * @param filmId must not be null
+     * @return collection of roles
+     * @throws EntityNotFoundException if film could not be found
+     */
+    public Collection<Role> getCast(Long filmId) throws EntityNotFoundException {
+        Film film = filmRepository.findById(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
+        return film.getCast();
     }
 }

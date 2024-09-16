@@ -1,6 +1,7 @@
 package com.demo.filmdb.film;
 
 import com.demo.filmdb.ServiceTest;
+import com.demo.filmdb.role.Role;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,16 +20,17 @@ import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.CollectionAssert.assertThatCollection;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("FilmService")
 class FilmServiceTests extends ServiceTest {
@@ -312,6 +314,35 @@ class FilmServiceTests extends ServiceTest {
             boolean actual = filmService.filmExists(filmId);
 
             assertThat(actual).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("getCast")
+    class getCast {
+
+        @Test
+        @DisplayName("Existing id, returns cast")
+        void ExistingId_ReturnsCorrectly() {
+            Film film = mock(Film.class);
+            final Long filmId = 1L;
+            final Role role = createRole(filmId, 2L, "Bane");
+            when(film.getCast()).thenReturn(Set.of(role));
+            given(filmRepository.findById(filmId)).willReturn(Optional.of(film));
+
+            var actualCast = filmService.getCast(filmId);
+
+            assertThatCollection(actualCast).containsExactly(role);
+        }
+
+        @Test
+        @DisplayName("Not existing id, throws EntityNotFoundException")
+        void NotExistingId_Throws() {
+            given(filmRepository.findById(anyLong())).willReturn(Optional.empty());
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    filmService.getCast(1L)
+            );
         }
     }
 
