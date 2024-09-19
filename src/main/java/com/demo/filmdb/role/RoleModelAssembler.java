@@ -10,7 +10,7 @@ import static org.springframework.hateoas.server.core.DummyInvocationUtils.metho
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Component
-public class RoleModelAssembler  implements RepresentationModelAssembler<Role, RoleDto> {
+public class RoleModelAssembler implements RepresentationModelAssembler<Role, RoleDto> {
 
     private final RoleMapper mapper;
 

@@ -1,0 +1,6 @@
+mutation deleteRole($filmId: Long!, $personId: Long!) {
+    deleteRole(input: {id: {filmId: $filmId, personId: $personId}}) {
+        filmId
+        personId
+    }
+}

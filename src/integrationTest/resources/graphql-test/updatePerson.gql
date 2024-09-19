@@ -1,0 +1,7 @@
+mutation updatePerson($id: Long!, $name: NonBlankString!, $dateOfBirth: Date) {
+    updatePerson(input: {id: $id, personInput: {name: $name, dateOfBirth: $dateOfBirth}}) {
+        person {
+            id, name, dateOfBirth
+        }
+    }
+}

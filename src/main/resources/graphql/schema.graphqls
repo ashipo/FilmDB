@@ -1,0 +1,276 @@
+scalar Date
+  @specifiedBy(url:
+    "https://tools.ietf.org/html/rfc3339"
+  )
+scalar Long
+scalar NonBlankString
+
+type Query {
+    "Get authentication JWT"
+    login(username: String!, password: String!): String!
+
+    "Get a `Film`"
+    film(id: Long!): Film
+
+    "Get a sorted and filtered `Film` list"
+    films(
+        page: Int! = 0,
+        pageSize: Int! = 20,
+        sortBy: SortableFilmField,
+        sortDirection: SortDirection = ASC,
+        title: NonBlankString,
+        releaseAfter: Date,
+        releaseBefore: Date
+    ): [Film]
+
+    "Get a `Person`"
+    person(id: Long!): Person
+
+    "Get a sorted and filtered `Person` list"
+    people(
+        page: Int! = 0,
+        pageSize: Int! = 20,
+        sortBy: SortablePersonField,
+        sortDirection: SortDirection = ASC,
+        name: NonBlankString,
+        bornAfter: Date,
+        bornBefore: Date
+    ): [Person]
+
+    "Get a `Role`"
+    role(id: CrewMemberID!): Role
+}
+
+type Mutation {
+    "Create a `Film`"
+    createFilm(input: CreateFilmInput!): CreateFilmPayload
+
+    "Update a `Film`"
+    updateFilm(input: UpdateFilmInput!): UpdateFilmPayload
+
+    "Delete a `Film`"
+    deleteFilm(input: DeleteFilmInput!): DeleteFilmPayload
+
+    "Create a `Person`"
+    createPerson(input: CreatePersonInput!): CreatePersonPayload
+
+    "Update a `Person`"
+    updatePerson(input: UpdatePersonInput!): UpdatePersonPayload
+
+    "Delete a `Person`"
+    deletePerson(input: DeletePersonInput!): DeletePersonPayload
+
+    "Set a `Person` as a director for a `Film`"
+    setDirector(input: SetDirectorInput!): SetDirectorPayload
+
+    "Delete a `Person` from directors of a `Film`"
+    deleteDirector(input: DeleteDirectorInput!): DeleteDirectorPayload
+
+    """
+    Set directors for a `Film`.
+    If `input.directorsIds` is omitted or empty, all directors are removed.
+    """
+    updateDirectors(input: UpdateDirectorsInput): UpdateDirectorsPayload
+
+    "Create a `Role`"
+    createRole(input: CreateRoleInput!): CreateRolePayload
+
+    "Update a `Role`"
+    updateRole(input: UpdateRoleInput!): UpdateRolePayload
+
+    "Delete a `Role`"
+    deleteRole(input: DeleteRoleInput!): DeleteRolePayload
+
+    """
+    Set cast for a `Film`.
+    If `input.cast` is omitted or empty, cast is removed.
+    """
+    updateCast(input: UpdateCastInput): UpdateCastPayload
+}
+
+type Film {
+    id: Long
+    title: String
+    synopsis: String
+    releaseDate: Date
+    directors: [Person]
+    cast: [Role]
+}
+
+type Person {
+    id: Long
+    name: String
+    dateOfBirth: Date
+    filmsDirected: [Film]
+    roles: [Role]
+}
+
+type Role {
+    film: Film
+    person: Person
+    character: String
+}
+
+#
+# Enums
+#
+
+enum SortDirection {
+    ASC
+    DESC
+}
+
+enum SortableFilmField {
+    ID
+    TITLE
+    RELEASE_DATE
+}
+
+enum SortablePersonField {
+    ID
+    NAME
+    DATE_OF_BIRTH
+}
+
+#
+# Inputs
+#
+
+input FilmInput {
+    title: NonBlankString!
+    releaseDate: Date!
+    synopsis: String
+}
+
+input PersonInput {
+    name: NonBlankString!
+    dateOfBirth: Date
+}
+
+"Cast and crew member ID"
+input CrewMemberID {
+    filmId: Long!
+    personId: Long!
+}
+
+input CastMemberInput {
+    personId: Long!
+    character: NonBlankString!
+}
+
+#
+# Mutation inputs and payloads
+#
+
+input CreateFilmInput {
+    filmInput: FilmInput!
+}
+
+type CreateFilmPayload {
+    film: Film
+}
+
+input UpdateFilmInput {
+    id: Long!
+    filmInput: FilmInput!
+}
+
+type UpdateFilmPayload {
+    film: Film
+}
+
+input DeleteFilmInput {
+    id: Long!
+}
+
+type DeleteFilmPayload {
+    id: Long
+}
+
+input CreatePersonInput {
+    personInput: PersonInput!
+}
+
+type CreatePersonPayload {
+    person: Person
+}
+
+input UpdatePersonInput {
+    id: Long!
+    personInput: PersonInput!
+}
+
+type UpdatePersonPayload {
+    person: Person
+}
+
+input DeletePersonInput {
+    id: Long!
+}
+
+type DeletePersonPayload {
+    id: Long
+}
+
+input SetDirectorInput {
+    id: CrewMemberID!
+}
+
+type SetDirectorPayload {
+    filmId: Long
+    personId: Long
+}
+
+input DeleteDirectorInput {
+    id: CrewMemberID!
+}
+
+type DeleteDirectorPayload {
+    filmId: Long
+    personId: Long
+}
+
+input UpdateDirectorsInput {
+    filmId: Long!
+    directorsIds: [Long!]
+}
+
+type UpdateDirectorsPayload {
+    directors: [Person]
+}
+
+input CreateRoleInput {
+    id: CrewMemberID!
+    character: NonBlankString!
+}
+
+type CreateRolePayload {
+    role: Role
+}
+
+input UpdateRoleInput {
+    id: CrewMemberID!
+    character: NonBlankString!
+}
+
+type UpdateRolePayload {
+    role: Role
+}
+
+input DeleteRoleInput {
+    id: CrewMemberID!
+}
+
+type DeleteRolePayload {
+    filmId: Long
+    personId: Long
+}
+
+input UpdateCastInput {
+    filmId: Long!
+    cast: [CastMemberInput!]
+}
+
+type UpdateCastPayload {
+    cast: [Role]
+}

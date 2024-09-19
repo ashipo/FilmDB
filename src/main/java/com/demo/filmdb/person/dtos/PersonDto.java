@@ -14,18 +14,18 @@ import java.util.Objects;
  * A DTO for the {@link Person} entity.
  * Intended use: response.
  */
-@JsonPropertyOrder({"id", "name", "dob"})
+@JsonPropertyOrder({"id", "name", "dateOfBirth"})
 @Relation(collectionRelation = "people", itemRelation = "person")
 public class PersonDto extends RepresentationModel<PersonDto> implements Serializable {
     private final Long id;
     private final String name;
     @JsonProperty(value = "date of birth")
-    private final LocalDate dob;
+    private final LocalDate dateOfBirth;
 
-    public PersonDto(Long id, String name, LocalDate dob) {
+    public PersonDto(Long id, String name, LocalDate dateOfBirth) {
         this.id = id;
         this.name = name;
-        this.dob = dob;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public Long getId() {
@@ -36,8 +36,8 @@ public class PersonDto extends RepresentationModel<PersonDto> implements Seriali
         return name;
     }
 
-    public LocalDate getDob() {
-        return dob;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
     @Override
@@ -47,12 +47,12 @@ public class PersonDto extends RepresentationModel<PersonDto> implements Seriali
         PersonDto entity = (PersonDto) o;
         return Objects.equals(this.id, entity.id) &&
                 Objects.equals(this.name, entity.name) &&
-                Objects.equals(this.dob, entity.dob);
+                Objects.equals(this.dateOfBirth, entity.dateOfBirth);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, dob);
+        return Objects.hash(id, name, dateOfBirth);
     }
 
     @Override
@@ -60,6 +60,6 @@ public class PersonDto extends RepresentationModel<PersonDto> implements Seriali
         return getClass().getSimpleName() + "(" +
                 "id = " + id + ", " +
                 "name = " + name + ", " +
-                "date of birth = " + dob + ")";
+                "date of birth = " + dateOfBirth + ")";
     }
 }

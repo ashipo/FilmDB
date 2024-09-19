@@ -3,15 +3,20 @@ package com.demo.filmdb.film;
 import com.demo.filmdb.annotations.Sortable;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "film")
 public class Film {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -19,6 +24,7 @@ public class Film {
     private Long id;
 
     @Column(name = "title", nullable = false)
+    @NotBlank
     @Sortable
     private String title;
 
@@ -27,21 +33,22 @@ public class Film {
     private LocalDate releaseDate;
 
     @Column(name = "synopsis")
+    @Nullable
     private String synopsis;
 
     @ManyToMany
     @JoinTable(name = "film_person_directed",
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "person_id"))
-    private Set<Person> directors = new LinkedHashSet<>();
+    private final Set<Person> directors = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "film")
-    private Set<Role> roles = new LinkedHashSet<>();
+    private final Set<Role> cast = new LinkedHashSet<>();
 
     public Film() {
     }
 
-    public Film(String title, LocalDate releaseDate, String synopsis) {
+    public Film(String title, LocalDate releaseDate, @Nullable String synopsis) {
         this.title = title;
         this.releaseDate = releaseDate;
         this.synopsis = synopsis;
@@ -51,23 +58,16 @@ public class Film {
         return directors;
     }
 
-    public void setDirectors(Set<Person> directors) {
-        this.directors = directors;
+    public Set<Role> getCast() {
+        return cast;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
+    @Nullable
     public String getSynopsis() {
         return synopsis;
     }
 
-    public void setSynopsis(String synopsis) {
+    public void setSynopsis(@Nullable String synopsis) {
         this.synopsis = synopsis;
     }
 
@@ -95,6 +95,43 @@ public class Film {
         this.id = id;
     }
 
+    /**
+     * Updates directors for this film for the both sides of the association
+     */
+    public void setDirectors(Collection<Person> newDirectors) {
+        removeDirectors();
+        for (Person director : newDirectors) {
+            director.getFilmsDirected().add(this);
+        }
+        directors.addAll(newDirectors);
+    }
+
+    /**
+     * Add director for this film for the both sides of the association
+     */
+    public void addDirector(Person director) {
+        directors.add(director);
+        director.getFilmsDirected().add(this);
+    }
+
+    /**
+     * Remove director from this film for the both sides of the association
+     */
+    public void removeDirector(Person director) {
+        directors.remove(director);
+        director.getFilmsDirected().remove(this);
+    }
+
+    /**
+     * Removes directors from this film for the both sides of the association
+     */
+    public void removeDirectors() {
+        for (Person director : directors) {
+            director.getFilmsDirected().remove(this);
+        }
+        directors.clear();
+    }
+
     @Override
     public String toString() {
         return "Film{" +
@@ -103,5 +140,17 @@ public class Film {
                 ", release date=" + releaseDate +
                 ", synopsis='" + synopsis + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Film film)) return false;
+        return Objects.equals(title, film.title) && Objects.equals(releaseDate, film.releaseDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, releaseDate);
     }
 }

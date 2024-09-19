@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class FilmdbApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FilmdbApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(FilmdbApplication.class, args);
+    }
 }

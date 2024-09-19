@@ -18,10 +18,8 @@ repositories {
 
 sourceSets {
     integrationTest {
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-        java.srcDirs = ['src/integrationTest/java']
-        resources.srcDirs = ['src/integrationTest/resources']
+        compileClasspath = sourceSets.main.output + compileClasspath
+        runtimeClasspath = sourceSets.main.output + runtimeClasspath
     }
 }
 
@@ -43,6 +41,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'com.graphql-java:graphql-java-extended-scalars:22.0'
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'com.h2database:h2'
     implementation 'org.flywaydb:flyway-core'
@@ -61,6 +61,8 @@ dependencies {
 
     integrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
     integrationTestImplementation 'org.springframework.security:spring-security-test'
+    integrationTestImplementation 'org.springframework.graphql:spring-graphql-test'
+    integrationTestImplementation 'org.springframework:spring-webflux'
 }
 
 test {

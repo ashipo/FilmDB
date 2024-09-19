@@ -1,114 +1,195 @@
 package com.demo.filmdb.film;
 
 import com.demo.filmdb.person.Person;
+import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleRepository;
+import com.demo.filmdb.util.EntityNotFoundException;
+import com.demo.filmdb.utils.SortUtil;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.Nullable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Optional;
+
+import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
 
 @Service
 public class FilmService {
 
     private final FilmRepository filmRepository;
     private final RoleRepository roleRepository;
+    private final FilmMapper filmMapper;
+    private final FilmSpecs filmSpecs;
 
     @Autowired
-    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository) {
+    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository, FilmMapper filmMapper, FilmSpecs filmSpecs) {
         this.filmRepository = filmRepository;
         this.roleRepository = roleRepository;
+        this.filmMapper = filmMapper;
+        this.filmSpecs = filmSpecs;
     }
 
     /**
-     * Returns a {@link Page} of {@link Film} entities matching the given {@link Specification}.
+     * Returns a {@link Page} of {@link Film} entities
      *
-     * @param spec must not be {@code null}.
-     * @param pageable must not be {@code null}.
-     * @return a page of filtered entities.
+     * @param pageable  must not be null
+     * @return the resulting page, may be empty but not null
      */
-    public Page<Film> search(Specification<Film> spec, Pageable pageable) {
-        return filmRepository.findAll(spec, pageable);
+    public Page<Film> getFilms(Pageable pageable) {
+        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
+        return filmRepository.findAll(filteredPageable);
     }
 
     /**
-     * Returns a {@link Page} of all {@link Film} entities.
+     * Returns a {@link Page} of {@link Film} entities.
+     * For filtering any of {@code title}, {@code releaseAfter} or {@code releaseBefore} can be specified.
      *
-     * @param pageable must not be {@code null}.
-     * @return a page.
+     * @param pageable      must not be null
+     * @param title         string that films must contain in their title. Should not be blank. Can be null.
+     * @param releaseAfter  release date lower limit. Can be null.
+     * @param releaseBefore release date upper limit. Can be null.
+     * @return the resulting page, may be empty but not null
      */
-    public Page<Film> getAllFilms(Pageable pageable) {
-        return filmRepository.findAll(pageable);
+    public Page<Film> getFilms(
+            Pageable pageable,
+            @Nullable String title,
+            @Nullable LocalDate releaseAfter,
+            @Nullable LocalDate releaseBefore
+    ) {
+        Specification<Film> spec = filmSpecs.titleContains(title)
+                .and(filmSpecs.releaseBefore(releaseBefore))
+                .and(filmSpecs.releaseAfter(releaseAfter));
+        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
+        return filmRepository.findAll(spec, filteredPageable);
     }
 
     /**
-     * Saves the given {@link Film} entity.
+     * Returns a page of {@link Film} entities.
+     * For sorting both {@code sortBy} and {@code sortDirection} must not be null.
+     * For filtering any of {@code title}, {@code releaseAfter} or {@code releaseBefore} can be specified.
      *
-     * @param film must not be {@code null}.
-     * @return the saved entity.
+     * @param page          page number
+     * @param pageSize      page size
+     * @param sortBy        {@link Film} property name to sort by. Can be null.
+     * @param sortDirection sort direction. Can be null.
+     * @param title         string that films must contain in their title. Should not be blank. Can be null.
+     * @param releaseAfter  release date lower limit. Can be null.
+     * @param releaseBefore release date upper limit. Can be null.
+     * @return the resulting page, may be empty but not null
      */
-    public Film saveFilm(Film film) {
+    public Page<Film> getFilms(
+            int page,
+            int pageSize,
+            @Nullable String sortBy,
+            @Nullable Sort.Direction sortDirection,
+            @Nullable String title,
+            @Nullable LocalDate releaseAfter,
+            @Nullable LocalDate releaseBefore
+    ) {
+        Pageable pageable;
+        if (sortBy == null || sortDirection == null) {
+            pageable = PageRequest.of(page, pageSize);
+        } else {
+            pageable = PageRequest.of(page, pageSize, sortDirection, sortBy);
+        }
+        return getFilms(pageable, title, releaseAfter, releaseBefore);
+    }
+
+    /**
+     * Create a {@link Film}
+     *
+     * @param filmInfo film info
+     * @return the created entity
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Film createFilm(FilmInfo filmInfo) {
+        final Film film = filmMapper.filmInfoToFilm(filmInfo);
         return filmRepository.save(film);
     }
 
     /**
-     * Returns a {@link Film} entity with the given id or null if it doesn't exist.
+     * Returns a {@linkplain Film} entity with the given id or empty {@code Optional} if it doesn't exist
      *
-     * @param filmId must not be {@code null}.
-     * @return the found entity.
+     * @param filmId must not be {@code null}
+     * @return the found entity or empty {@code Optional}
      */
-    public @Nullable Film getFilm(Long filmId) {
-        return filmRepository.findById(filmId).orElse(null);
+    public Optional<Film> getFilm(Long filmId) {
+        return filmRepository.findById(filmId);
     }
 
     /**
-     * Deletes the given {@link Film} entity.
+     * Update a {@link Film}
      *
-     * @param film to delete.
+     * @param filmId film to update
+     * @param filmInfo film info
+     * @return the updated entity
+     * @throws EntityNotFoundException if film could not be found
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public Film updateFilm(Long filmId, FilmInfo filmInfo) throws EntityNotFoundException {
+        Film filmToUpdate = filmRepository.findById(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
+        filmMapper.updateFilmFromFilmInfo(filmInfo, filmToUpdate);
+        return filmRepository.save(filmToUpdate);
+    }
+
+    /**
+     * Deletes a {@link Film} entity with the given id.
+     *
+     * @param filmId id.
      */
     @Transactional
-    public void deleteFilm(Film film) {
-        roleRepository.deleteById_FilmId(film.getId());
-        filmRepository.delete(film);
-    }
-
-    /**
-     * Replaces directors for the given {@link Film} entity.
-     *
-     * @param film to replace directors in.
-     * @param directors a collection of {@link Person} entities to set as directors for the {@code film}.
-     *                  Set to {@code null} to remove all directors.
-     * @return the saved entity.
-     */
-    public Film updateDirectors(Film film, @Nullable Collection<Person> directors) {
-        if (directors == null) {
-            film.getDirectors().clear();
-        } else {
-            film.setDirectors(new HashSet<>(directors));
-        }
-        return saveFilm(film);
-    }
-
-    /**
-     * Alias for the {@link FilmService#updateDirectors}({@code film, null}).
-     *
-     * @param film to delete.
-     */
-    public void deleteDirectors(Film film) {
-        updateDirectors(film, null);
-    }
-
-    /**
-     * Deletes all roles for a {@link Film} with the given {@code filmId}.
-     *
-     * @param filmId must not be {@code null}.
-     */
-    public void deleteCast(Long filmId) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteFilm(Long filmId) {
         roleRepository.deleteById_FilmId(filmId);
+        filmRepository.deleteById(filmId);
+    }
+
+    /**
+     * Returns whether a {@link Film} with the given id exists
+     *
+     * @param filmId must not be {@code null}
+     * @return true if exists, false otherwise
+     */
+    public boolean filmExists(Long filmId) {
+        return filmRepository.existsById(filmId);
+    }
+
+    /**
+     * Returns film cast
+     *
+     * @param filmId must not be null
+     * @return collection of roles
+     * @throws EntityNotFoundException if film could not be found
+     */
+    public Collection<Role> getCast(Long filmId) throws EntityNotFoundException {
+        Film film = filmRepository.findById(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
+        return film.getCast();
+    }
+
+    /**
+     * Returns film directors
+     *
+     * @param filmId must not be null
+     * @return collection of people
+     * @throws EntityNotFoundException if film could not be found
+     */
+    public Collection<Person> getDirectors(Long filmId) throws EntityNotFoundException {
+        Film film = filmRepository.findById(filmId).orElseThrow(() ->
+                new EntityNotFoundException(filmNotFoundMessage(filmId))
+        );
+        return film.getDirectors();
     }
 }

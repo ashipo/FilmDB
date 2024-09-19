@@ -1,0 +1,7 @@
+mutation createFilm($title: NonBlankString!, $releaseDate: Date!, $synopsis: String) {
+    createFilm(input: {filmInput: {title: $title, releaseDate: $releaseDate, synopsis: $synopsis}}) {
+        film {
+            id, title, releaseDate, synopsis
+        }
+    }
+}

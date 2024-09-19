@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@DisplayName("Director")
+@DisplayName("Directors")
 public class DirectorIntegrationTests {
 
     private MockMvc mockMvc;
@@ -41,9 +41,10 @@ public class DirectorIntegrationTests {
     @Nested
     @DisplayName("GET directors for a film")
     class Get {
+
         @Test
         @DisplayName("Existing id, expect 200")
-        public void GetDirectorsURI_ExistingId_Response200() throws Exception {
+        public void ExistingId_Response200() throws Exception {
             final String expectedUri = API_PREFIX + "/films/2/directors";
 
             mockMvc.perform(get(expectedUri)).andExpectAll(
@@ -57,7 +58,7 @@ public class DirectorIntegrationTests {
 
         @Test
         @DisplayName("Not existing id, expect 404")
-        public void GetDirectorsURI_NotExistingId_Response404() throws Exception {
+        public void NotExistingId_Response404() throws Exception {
             final String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/directors";
 
             mockMvc.perform(get(uri))
@@ -66,11 +67,12 @@ public class DirectorIntegrationTests {
     }
 
     @Nested
-    @DisplayName("GET films directed")
+    @DisplayName("GET films directed by a person")
     class GetDirectedBy {
+
         @Test
         @DisplayName("Existing id, expect 200")
-        public void GetDirectedURI_ExistingId_Response200() throws Exception {
+        public void ExistingId_Response200() throws Exception {
             final String expectedUri = API_PREFIX + "/people/3/films_directed";
 
             mockMvc.perform(get(expectedUri)).andExpectAll(
@@ -82,7 +84,7 @@ public class DirectorIntegrationTests {
 
         @Test
         @DisplayName("Not existing id, expect 404")
-        public void GetDirectedURI_NotExistingId_Response404() throws Exception {
+        public void NotExistingId_Response404() throws Exception {
             final String uri = API_PREFIX + "/people/" + NOT_EXISTING_ID + "/films_directed";
 
             mockMvc.perform(get(uri))
@@ -93,11 +95,12 @@ public class DirectorIntegrationTests {
     @Nested
     @DisplayName("PUT directors for a film")
     class Put {
-        @Transactional
+
         @Test
+        @DisplayName("Existing ids, valid request, expect 200")
+        @Transactional
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DisplayName("Existing id, existing people ids, expect 200")
-        public void PutDirectorsURI_ValidRequest_Response200() throws Exception {
+        public void ValidRequest_Response200() throws Exception {
             String expectedUri = API_PREFIX + "/films/2/directors";
             final List<Long> expectedPeopleIds = List.of(1L, 3L);
             StringJoiner joiner = new StringJoiner(",", "[", "]");
@@ -114,9 +117,9 @@ public class DirectorIntegrationTests {
         }
 
         @Test
+        @DisplayName("Existing film id, invalid request, expect 400")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DisplayName("Existing id, invalid request, expect 400")
-        public void PutDirectorsURI_InvalidRequest_Response400() throws Exception {
+        public void InvalidRequest_Response400() throws Exception {
             final String uri = API_PREFIX + "/films/1/directors";
 
             mockMvc.perform(put(uri).content("[abc, zxc]"))
@@ -124,9 +127,9 @@ public class DirectorIntegrationTests {
         }
 
         @Test
+        @DisplayName("Not existing film id, existing people ids, expect 404")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DisplayName("Not existing id, existing people ids, expect 404")
-        public void PutDirectorsURI_NotExistingFilmId_Response404() throws Exception {
+        public void NotExistingFilmId_Response404() throws Exception {
             final String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/directors";
 
             mockMvc.perform(put(uri).content("[1]"))
@@ -134,9 +137,9 @@ public class DirectorIntegrationTests {
         }
 
         @Test
+        @DisplayName("Existing film id, not existing people ids, expect 404")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DisplayName("Existing id, not existing people ids, expect 404")
-        public void PutDirectorsURI_NotExistingPeopleId_Response404() throws Exception {
+        public void NotExistingPeopleId_Response404() throws Exception {
             final String uri = API_PREFIX + "/films/2/directors";
             final List<Long> peopleIds = List.of(NOT_EXISTING_ID, NOT_EXISTING_ID + 1);
             StringJoiner joiner = new StringJoiner(",", "[", "]");
@@ -148,8 +151,8 @@ public class DirectorIntegrationTests {
         }
 
         @Test
-        @DisplayName("Unauthorized, expect 403")
-        public void PutDirectorsURI_Unauthorized_Response403() throws Exception {
+        @DisplayName("Unauthorized, existing ids, expect 403")
+        public void Unauthorized_Response403() throws Exception {
             String uri = API_PREFIX + "/films/2/directors";
             final List<Long> peopleIds = List.of(1L, 3L);
             StringJoiner joiner = new StringJoiner(",", "[", "]");
@@ -159,16 +162,39 @@ public class DirectorIntegrationTests {
             mockMvc.perform(put(uri).content(requestBody))
                     .andExpect(status().isForbidden());
         }
+
+        @Test
+        @DisplayName("Unauthorized, not existing ids, expect 403")
+        public void UnauthorizedNotExistingIds_Response403() throws Exception {
+            String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/directors";
+            final List<Long> peopleIds = List.of(NOT_EXISTING_ID, NOT_EXISTING_ID + 1);
+            StringJoiner joiner = new StringJoiner(",", "[", "]");
+            peopleIds.forEach(id -> joiner.add(id.toString()));
+            String requestBody = joiner.toString();
+
+            mockMvc.perform(put(uri).content(requestBody))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, invalid request, expect 403")
+        public void UnauthorizedInvalidRequest_Response403() throws Exception {
+            String uri = API_PREFIX + "/films/1/directors";
+
+            mockMvc.perform(put(uri).content("[abc, zxc]"))
+                    .andExpect(status().isForbidden());
+        }
     }
 
     @Nested
     @DisplayName("DELETE directors for a film")
     class Delete {
-        @Transactional
+
         @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
         @DisplayName("Existing id, expect 204")
-        public void DeleteDirectorsURI_ExistingId_Response204() throws Exception {
+        @Transactional
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void ExistingId_Response204() throws Exception {
             String uri = API_PREFIX + "/films/1/directors";
 
             mockMvc.perform(delete(uri))
@@ -176,9 +202,9 @@ public class DirectorIntegrationTests {
         }
 
         @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
         @DisplayName("Not existing id, expect 404")
-        public void DeleteDirectorsURI_NotExistingId_Response404() throws Exception {
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void NotExistingId_Response404() throws Exception {
             String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/directors";
 
             mockMvc.perform(delete(uri))
@@ -186,9 +212,18 @@ public class DirectorIntegrationTests {
         }
 
         @Test
-        @DisplayName("Unauthorized, expect 403")
-        public void DeleteDirectorsURI_Unauthorized_Response403() throws Exception {
+        @DisplayName("Unauthorized, existing id, expect 403")
+        public void UnauthorizedExistingId_Response403() throws Exception {
             String uri = API_PREFIX + "/films/1/directors";
+
+            mockMvc.perform(delete(uri))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, not existing id, expect 403")
+        public void UnauthorizedNotExistingId_Response403() throws Exception {
+            String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID + "/directors";
 
             mockMvc.perform(delete(uri))
                     .andExpect(status().isForbidden());

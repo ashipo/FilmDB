@@ -3,17 +3,18 @@ package com.demo.filmdb.person;
 import com.demo.filmdb.annotations.Sortable;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.role.Role;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import org.hibernate.Hibernate;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "person")
 public class Person {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -21,49 +22,44 @@ public class Person {
     private Long id;
 
     @Column(name = "name", nullable = false)
+    @NotBlank
     @Sortable
     private String name;
 
-    @Column(name = "dob")
+    @Column(name = "date_of_birth")
+    @Nullable
     @Sortable
-    private LocalDate dob;
+    private LocalDate dateOfBirth;
 
     @ManyToMany(mappedBy = "directors")
-    private Set<Film> filmsDirected = new LinkedHashSet<>();
+    private final Set<Film> filmsDirected = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "person")
-    private Set<Role> roles = new LinkedHashSet<>();
+    private final Set<Role> roles = new LinkedHashSet<>();
 
     public Person() {
     }
 
-    public Person(String name, LocalDate dob) {
+    public Person(String name, @Nullable LocalDate dateOfBirth) {
         this.name = name;
-        this.dob = dob;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public Set<Film> getFilmsDirected() {
         return filmsDirected;
     }
 
-    public void setFilmsDirected(Set<Film> filmsDirected) {
-        this.filmsDirected = filmsDirected;
-    }
-
     public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    @Nullable
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public LocalDate getDob() {
-        return dob;
-    }
-
-    public void setDob(LocalDate dob) {
-        this.dob = dob;
+    public void setDateOfBirth(@Nullable LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getName() {
@@ -87,20 +83,14 @@ public class Person {
         return "Person{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", date of birth=" + dob +
+                ", date of birth=" + dateOfBirth +
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Person person = (Person) o;
-        return id != null && Objects.equals(id, person.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    public void removeFilmsDirected() {
+        for (Film film : filmsDirected) {
+            film.getDirectors().remove(this);
+        }
+        filmsDirected.clear();
     }
 }

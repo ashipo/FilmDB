@@ -1,0 +1,13 @@
+mutation updateCast($filmId: Long!, $cast: [CastMemberInput!]) {
+    updateCast(input: {filmId: $filmId, cast: $cast}) {
+        cast {
+            film {
+                id
+            }
+            person {
+                id
+            }
+            character
+        }
+    }
+}

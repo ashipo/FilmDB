@@ -5,13 +5,10 @@ import com.demo.filmdb.film.FilmModelAssembler;
 import com.demo.filmdb.film.dtos.FilmDto;
 import com.demo.filmdb.person.dtos.PersonDto;
 import com.demo.filmdb.person.dtos.PersonDtoInput;
-import com.demo.filmdb.person.specifications.PersonBornAfter;
-import com.demo.filmdb.person.specifications.PersonBornBefore;
-import com.demo.filmdb.person.specifications.PersonWithName;
 import com.demo.filmdb.role.ActorRoleModelAssembler;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.dtos.ActorRoleDto;
-import com.demo.filmdb.utils.SortUtil;
+import com.demo.filmdb.util.EntityNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,19 +17,19 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
-import static com.demo.filmdb.util.HttpUtil.require;
-import static com.demo.filmdb.util.RestUtil.personNotFoundMessage;
+import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.PEOPLE;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
@@ -46,20 +43,17 @@ public class PersonController {
     private final PersonModelAssembler personModelAssembler;
     private final FilmModelAssembler filmModelAssembler;
     private final ActorRoleModelAssembler roleModelAssembler;
-    private final PersonMapper personMapper;
     private final PagedResourcesAssembler<Person> pagedResourcesAssembler;
 
     public PersonController(PersonService personService,
                             PersonModelAssembler personModelAssembler,
                             FilmModelAssembler filmModelAssembler,
                             ActorRoleModelAssembler roleModelAssembler,
-                            PersonMapper personMapper,
                             PagedResourcesAssembler<Person> pagedResourcesAssembler) {
         this.personService = personService;
         this.personModelAssembler = personModelAssembler;
         this.filmModelAssembler = filmModelAssembler;
         this.roleModelAssembler = roleModelAssembler;
-        this.personMapper = personMapper;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
@@ -70,17 +64,17 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/search")
     public CollectionModel<PersonDto> findPeople(
-            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "name", required = false)
+            String name,
             @RequestParam(value = "born_after", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bornAfter,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate bornAfter,
             @RequestParam(value = "born_before", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bornBefore,
-            Pageable pageable) {
-        Specification<Person> spec = Specification.where(new PersonWithName(name)).
-                and(new PersonBornBefore(bornBefore)).
-                and(new PersonBornAfter(bornAfter));
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
-        Page<Person> peopleFound = personService.search(spec, filteredPageable);
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate bornBefore,
+            Pageable pageable
+    ) {
+        Page<Person> peopleFound = personService.getPeople(pageable, name, bornAfter, bornBefore);
         return pagedResourcesAssembler.toModel(peopleFound, personModelAssembler);
     }
 
@@ -91,8 +85,7 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping
     public CollectionModel<PersonDto> getAllPeople(Pageable pageable) {
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
-        Page<Person> peoplePage = personService.getAllPeople(filteredPageable);
+        Page<Person> peoplePage = personService.getPeople(pageable);
         return pagedResourcesAssembler.toModel(peoplePage, personModelAssembler);
     }
 
@@ -104,8 +97,8 @@ public class PersonController {
     })
     @PostMapping
     public ResponseEntity<PersonDto> createPerson(@RequestBody @Valid PersonDtoInput personDtoInput) {
-        Person person = personMapper.personDtoInputToPerson(personDtoInput);
-        PersonDto newPersonDto = personModelAssembler.toModel(personService.savePerson(person));
+        Person createdPerson = personService.createPerson(personDtoInput);
+        PersonDto newPersonDto = personModelAssembler.toModel(createdPerson);
         return ResponseEntity.created(newPersonDto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(newPersonDto);
     }
 
@@ -117,7 +110,9 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/{personId}")
     public PersonDto getPerson(@PathVariable Long personId) {
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+        Person person = personService.getPerson(personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
+        );
         return personModelAssembler.toModel(person);
     }
 
@@ -130,10 +125,12 @@ public class PersonController {
     })
     @PutMapping("/{personId}")
     public PersonDto updatePerson(@PathVariable Long personId, @Valid @RequestBody PersonDtoInput personDtoInput) {
-        Person personToUpdate = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
-        Person updatedPerson = personMapper.updatePersonFromPersonDtoInput(personDtoInput, personToUpdate);
-        Person savedPerson = personService.savePerson(updatedPerson);
-        return personModelAssembler.toModel(savedPerson);
+        try {
+            Person updatedPerson = personService.updatePerson(personId, personDtoInput);
+            return personModelAssembler.toModel(updatedPerson);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Delete a person", tags = TAG_PEOPLE)
@@ -144,8 +141,10 @@ public class PersonController {
     })
     @DeleteMapping("/{personId}")
     public ResponseEntity<?> deletePerson(@PathVariable Long personId) {
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
-        personService.deletePerson(person);
+        if (!personService.personExists(personId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId));
+        }
+        personService.deletePerson(personId);
         return ResponseEntity.noContent().build();
     }
 
@@ -157,12 +156,14 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/{personId}/films_directed")
     public CollectionModel<FilmDto> getFilmsDirected(@PathVariable Long personId) {
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+        Person person = personService.getPerson(personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
+        );
         Collection<Film> directed = person.getFilmsDirected();
         return filmModelAssembler.directedFilmsCollectionModel(directed, personId);
     }
 
-    @Operation(summary = "Get roles acted by a person", tags = TAG_DIRECTORS)
+    @Operation(summary = "Get roles acted by a person", tags = TAG_ROLES)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = SUCCESS),
             @ApiResponse(responseCode = "404", description = PERSON_NOT_FOUND, content = @Content),
@@ -170,7 +171,9 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/{personId}/roles")
     public CollectionModel<ActorRoleDto> getRoles(@PathVariable Long personId) {
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
+        Person person = personService.getPerson(personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
+        );
         Collection<Role> roles = person.getRoles();
         return roleModelAssembler.toCollectionModel(roles, personId);
     }

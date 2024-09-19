@@ -1,20 +1,21 @@
 package com.demo.filmdb.film;
 
+import com.demo.filmdb.director.DirectorService;
 import com.demo.filmdb.film.dtos.FilmDto;
 import com.demo.filmdb.film.dtos.FilmDtoInput;
-import com.demo.filmdb.film.specifications.FilmWithReleaseAfter;
-import com.demo.filmdb.film.specifications.FilmWithReleaseBefore;
-import com.demo.filmdb.film.specifications.FilmWithTitle;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonModelAssembler;
-import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.person.dtos.PersonDto;
-import com.demo.filmdb.role.*;
+import com.demo.filmdb.role.FilmRoleModelAssembler;
+import com.demo.filmdb.role.Role;
+import com.demo.filmdb.role.RoleModelAssembler;
+import com.demo.filmdb.role.RoleService;
 import com.demo.filmdb.role.dtos.FilmRoleDto;
 import com.demo.filmdb.role.dtos.FilmRoleDtoInput;
 import com.demo.filmdb.role.dtos.RoleDto;
 import com.demo.filmdb.role.dtos.RoleDtoInput;
-import com.demo.filmdb.utils.SortUtil;
+import com.demo.filmdb.util.EntityAlreadyExistsException;
+import com.demo.filmdb.util.EntityNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,7 +24,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
@@ -34,10 +34,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
-import static com.demo.filmdb.util.HttpUtil.require;
-import static com.demo.filmdb.util.RestUtil.*;
+import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
+import static com.demo.filmdb.util.ErrorUtil.roleNotFoundMessage;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.FILM;
 import static com.demo.filmdb.utils.SpringDocConfig.*;
@@ -48,34 +49,29 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class FilmController {
 
     private final FilmService filmService;
-    private final PersonService personService;
     private final RoleService roleService;
+    private final DirectorService directorService;
     private final FilmModelAssembler filmModelAssembler;
     private final PersonModelAssembler personModelAssembler;
     private final FilmRoleModelAssembler filmRoleModelAssembler;
     private final RoleModelAssembler roleModelAssembler;
-    private final FilmMapper filmMapper;
-    private final RoleMapper roleMapper;
     private final PagedResourcesAssembler<Film> pagedResourcesAssembler;
 
     public FilmController(FilmService filmService,
-                          PersonService personService,
                           RoleService roleService,
+                          DirectorService directorService,
                           FilmModelAssembler filmModelAssembler,
                           PersonModelAssembler personModelAssembler,
                           FilmRoleModelAssembler filmRoleModelAssembler,
                           RoleModelAssembler roleModelAssembler,
-                          FilmMapper filmMapper, RoleMapper roleMapper,
                           PagedResourcesAssembler<Film> pagedResourcesAssembler) {
         this.filmService = filmService;
-        this.personService = personService;
         this.roleService = roleService;
+        this.directorService = directorService;
         this.filmModelAssembler = filmModelAssembler;
         this.personModelAssembler = personModelAssembler;
         this.filmRoleModelAssembler = filmRoleModelAssembler;
         this.roleModelAssembler = roleModelAssembler;
-        this.filmMapper = filmMapper;
-        this.roleMapper = roleMapper;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
@@ -86,17 +82,17 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/search")
     public CollectionModel<FilmDto> findFilms(
-            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "title", required = false)
+            String title,
             @RequestParam(value = "release_after", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate releaseAfter,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate releaseAfter,
             @RequestParam(value = "release_before", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate releaseBefore,
-            Pageable pageable) {
-        Specification<Film> spec = Specification.where(new FilmWithTitle(title)).
-                and(new FilmWithReleaseBefore(releaseBefore)).
-                and(new FilmWithReleaseAfter(releaseAfter));
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
-        Page<Film> filmsFound = filmService.search(spec, filteredPageable);
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate releaseBefore,
+            Pageable pageable
+    ) {
+        Page<Film> filmsFound = filmService.getFilms(pageable, title, releaseAfter, releaseBefore);
         return pagedResourcesAssembler.toModel(filmsFound, filmModelAssembler);
     }
 
@@ -107,8 +103,7 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping
     public CollectionModel<FilmDto> getAllFilms(Pageable pageable) {
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
-        Page<Film> filmsPage = filmService.getAllFilms(filteredPageable);
+        Page<Film> filmsPage = filmService.getFilms(pageable);
         return pagedResourcesAssembler.toModel(filmsPage, filmModelAssembler);
     }
 
@@ -120,9 +115,9 @@ public class FilmController {
     })
     @PostMapping
     public ResponseEntity<FilmDto> createFilm(@RequestBody @Valid FilmDtoInput filmDtoInput) {
-        Film film = filmMapper.filmDtoInputToFilm(filmDtoInput);
-        FilmDto newFilmDto = filmModelAssembler.toModel(filmService.saveFilm(film));
-        return ResponseEntity.created(newFilmDto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(newFilmDto);
+        Film createdFilm = filmService.createFilm(filmDtoInput);
+        FilmDto createdFilmDto = filmModelAssembler.toModel(createdFilm);
+        return ResponseEntity.created(createdFilmDto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(createdFilmDto);
     }
 
     @Operation(summary = "Get a film", tags = TAG_FILMS)
@@ -133,7 +128,9 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}")
     public FilmDto getFilm(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
+        Film film = filmService.getFilm(filmId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
+        );
         return filmModelAssembler.toModel(film);
     }
 
@@ -146,10 +143,12 @@ public class FilmController {
     })
     @PutMapping("/{filmId}")
     public FilmDto updateFilm(@PathVariable Long filmId, @Valid @RequestBody FilmDtoInput filmDtoInput) {
-        Film filmToUpdate = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Film updatedFilm = filmMapper.updateFilmFromFilmDtoInput(filmDtoInput, filmToUpdate);
-        Film savedFilm = filmService.saveFilm(updatedFilm);
-        return filmModelAssembler.toModel(savedFilm);
+        try {
+            Film updatedFilm = filmService.updateFilm(filmId, filmDtoInput);
+            return filmModelAssembler.toModel(updatedFilm);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Delete a film", tags = TAG_FILMS)
@@ -160,8 +159,10 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}")
     public ResponseEntity<?> deleteFilm(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        filmService.deleteFilm(film);
+        if (!filmService.filmExists(filmId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId));
+        }
+        filmService.deleteFilm(filmId);
         return ResponseEntity.noContent().build();
     }
 
@@ -175,9 +176,12 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> getDirectors(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Collection<Person> directors = film.getDirectors();
-        return personModelAssembler.directorsCollectionModel(directors, filmId);
+        try {
+            Collection<Person> directors = filmService.getDirectors(filmId);
+            return personModelAssembler.directorsCollectionModel(directors, filmId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Update film directors", tags = TAG_DIRECTORS)
@@ -188,14 +192,13 @@ public class FilmController {
             @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content),
     })
     @PutMapping("/{filmId}/directors")
-    public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorIds) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        List<Person> directors = personService.getPeople(directorIds);
-        if (directors.size() < directorIds.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, peopleNotFoundMessage());
+    public CollectionModel<PersonDto> updateDirectors(@PathVariable Long filmId, @RequestBody List<Long> directorsIds) {
+        try {
+            List<Person> directors = directorService.updateDirectors(filmId, directorsIds);
+            return personModelAssembler.directorsCollectionModel(directors, filmId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        Film updatedFilm = filmService.updateDirectors(film, directors);
-        return personModelAssembler.directorsCollectionModel(updatedFilm.getDirectors(), filmId);
     }
 
     @Operation(summary = "Delete film directors", tags = TAG_DIRECTORS)
@@ -206,9 +209,12 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/directors")
     public ResponseEntity<?> deleteDirectors(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        filmService.deleteDirectors(film);
-        return ResponseEntity.noContent().build();
+        try {
+            directorService.deleteDirectors(filmId);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     /* Cast */
@@ -221,9 +227,12 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/cast")
     public CollectionModel<FilmRoleDto> getCast(@PathVariable Long filmId) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Collection<Role> cast = film.getRoles();
-        return filmRoleModelAssembler.toCollectionModel(cast, film.getId());
+        try {
+            Collection<Role> cast = filmService.getCast(filmId);
+            return filmRoleModelAssembler.toCollectionModel(cast, filmId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Update film cast", tags = TAG_ROLES)
@@ -234,16 +243,14 @@ public class FilmController {
             @ApiResponse(responseCode = "404", description = "Film or Person not found", content = @Content),
     })
     @PutMapping("/{filmId}/cast")
-    public CollectionModel<FilmRoleDto> updateCast(@PathVariable Long filmId, @RequestBody @Valid Set<FilmRoleDtoInput> newRoleDtos) {
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Map<Person, String> newCast = new HashMap<>();
-        newRoleDtos.forEach(dto -> {
-            Long personId = dto.personId();
-            Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
-            newCast.put(person, dto.character());
-        });
-        Set<Role> updatedCast = roleService.updateCast(film, newCast);
-        return filmRoleModelAssembler.toCollectionModel(updatedCast, filmId);
+    public CollectionModel<FilmRoleDto> updateCast(@PathVariable Long filmId, @RequestBody @Valid List<FilmRoleDtoInput> newRoleDtos) {
+        try {
+            List<Role> updatedCast = roleService.updateCast(filmId, newRoleDtos);
+            return filmRoleModelAssembler.toCollectionModel(updatedCast, filmId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+
     }
 
     @Operation(summary = "Delete film cast", tags = TAG_ROLES)
@@ -254,8 +261,10 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/cast")
     public ResponseEntity<?> deleteCast(@PathVariable Long filmId) {
-        require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        filmService.deleteCast(filmId);
+        if (!filmService.filmExists(filmId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId));
+        }
+        roleService.deleteCast(filmId);
         return ResponseEntity.noContent().build();
     }
 
@@ -271,20 +280,17 @@ public class FilmController {
     })
     @PostMapping("/{filmId}/cast")
     public ResponseEntity<RoleDto> createRole(@PathVariable Long filmId, @RequestBody @Valid FilmRoleDtoInput roleDto) {
-        final Long personId = roleDto.personId();
-        Film film = require(filmService.getFilm(filmId), () -> filmNotFoundMessage(filmId));
-        Person person = require(personService.getPerson(personId), () -> personNotFoundMessage(personId));
-        if (roleService.roleExists(filmId, personId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Role for film " + filmId + " and person " + personId + " already exists."
-            );
+        try {
+            Role createdRole = roleService.createRole(filmId, roleDto.personId(), roleDto.character());
+            RoleDto createdRoleDto = roleModelAssembler.toModel(createdRole);
+            return ResponseEntity
+                    .created(createdRoleDto.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                    .body(createdRoleDto);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (EntityAlreadyExistsException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
-        Role createdRole = roleService.createRole(film, person, roleDto.character());
-        RoleDto createdRoleDto = roleModelAssembler.toModel(createdRole);
-        return ResponseEntity
-                .created(createdRoleDto.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(createdRoleDto);
     }
 
     @Operation(summary = "Get a role", tags = TAG_ROLES)
@@ -295,7 +301,9 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/cast/{personId}")
     public RoleDto getRole(@PathVariable Long filmId, @PathVariable Long personId) {
-        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
+        Role role = roleService.getRole(filmId, personId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, roleNotFoundMessage(filmId, personId))
+        );
         return roleModelAssembler.toModel(role);
     }
 
@@ -307,12 +315,13 @@ public class FilmController {
             @ApiResponse(responseCode = "404", description = ROLE_NOT_FOUND, content = @Content),
     })
     @PatchMapping("/{filmId}/cast/{personId}")
-    public RoleDto updateRole(@PathVariable Long filmId, @PathVariable Long personId,
-                              @RequestBody @Valid RoleDtoInput inputDto) {
-        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
-        Role updatedRole = roleMapper.updateRoleFromRoleDtoInput(inputDto, role);
-        Role savedRole = roleService.saveRole(updatedRole);
-        return roleModelAssembler.toModel(savedRole);
+    public RoleDto updateRole(@PathVariable Long filmId, @PathVariable Long personId, @RequestBody @Valid RoleDtoInput inputDto) {
+        try {
+            Role updatedRole = roleService.updateRole(filmId, personId, inputDto.character());
+            return roleModelAssembler.toModel(updatedRole);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Delete a role", tags = TAG_ROLES)
@@ -323,8 +332,10 @@ public class FilmController {
     })
     @DeleteMapping("/{filmId}/cast/{personId}")
     public ResponseEntity<?> deleteRole(@PathVariable Long filmId, @PathVariable Long personId) {
-        Role role = require(roleService.getRole(filmId, personId), () -> roleNotFoundMessage(filmId, personId));
-        roleService.deleteRole(role);
+        if (!roleService.roleExists(filmId, personId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, roleNotFoundMessage(filmId, personId));
+        }
+        roleService.deleteRole(filmId, personId);
         return ResponseEntity.noContent().build();
     }
 }

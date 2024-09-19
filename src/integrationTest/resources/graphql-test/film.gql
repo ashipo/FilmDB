@@ -1,0 +1,8 @@
+query film($id: Long!) {
+    film(id: $id) {
+        id
+        title
+        synopsis
+        releaseDate
+    }
+}

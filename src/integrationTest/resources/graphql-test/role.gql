@@ -1,0 +1,11 @@
+query role($filmId: Long!, $personId: Long!) {
+    role(id: {filmId: $filmId, personId: $personId}) {
+        film {
+            id
+        }
+        person {
+            id
+        }
+        character
+    }
+}

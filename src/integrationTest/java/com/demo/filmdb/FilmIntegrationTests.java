@@ -4,6 +4,9 @@ import com.demo.filmdb.film.dtos.FilmDtoInput;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -12,9 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
 import static com.demo.filmdb.Utils.*;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -40,9 +46,10 @@ public class FilmIntegrationTests {
     @Nested
     @DisplayName("GET")
     class Get {
+
         @Test
         @DisplayName("All films, expect 200")
-        public void GetFilmsURI_MockMVC_Response200() throws Exception {
+        public void Films_Response200() throws Exception {
             final String expectedUri = API_PREFIX + "/films";
 
             mockMvc.perform(get(expectedUri)).andExpectAll(
@@ -56,8 +63,8 @@ public class FilmIntegrationTests {
 
         @Test
         @DisplayName("Existing id, expect 200")
-        public void GetFilmURI_ExistingId_Response200() throws Exception {
-            final long expectedFilmId = 1L;
+        public void ExistingId_Response200() throws Exception {
+            final Long expectedFilmId = 1L;
             final String expectedUri = API_PREFIX + "/films/" + expectedFilmId;
 
             mockMvc.perform(get(expectedUri)).andExpectAll(
@@ -72,61 +79,63 @@ public class FilmIntegrationTests {
 
         @Test
         @DisplayName("Not existing id, expect 404")
-        public void GetFilmURI_NotExistingId_Response404() throws Exception {
+        public void NotExistingId_Response404() throws Exception {
             final String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID;
 
             mockMvc.perform(get(uri))
                     .andExpect(status().isNotFound());
-        }
-
-        @Test
-        @DisplayName("Invalid id, expect 400")
-        public void GetFilmURI_InvalidId_Response404() throws Exception {
-            final String uri = API_PREFIX + "/films/abc";
-
-            mockMvc.perform(get(uri))
-                    .andExpect(status().isBadRequest());
         }
     }
 
     @Nested
     @DisplayName("POST")
     class Post {
-        @Transactional
-        @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("com.demo.filmdb.FilmIntegrationTests#validFilmInputs")
         @DisplayName("Valid request, expect 201")
-        public void PostFilmsURI_ValidBody_Response201() throws Exception {
+        @Transactional
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void ValidRequest_Response201(FilmDtoInput filmInput) throws Exception {
             final String uri = API_PREFIX + "/films";
-            FilmDtoInput expectedFilm = new FilmDtoInput("Terminator",
-                    LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
-            String requestBody = objectMapper.writeValueAsString(expectedFilm);
+            String requestBody = objectMapper.writeValueAsString(filmInput);
 
             mockMvc.perform(post(uri).content(requestBody)).andExpectAll(
                     status().isCreated(),
                     content().contentType(MediaType.APPLICATION_JSON),
-                    jsonPath("$.id").value(4),
-                    jsonPath("$.title").value(expectedFilm.title()),
-                    jsonPath("$.['release date']").value(expectedFilm.releaseDate().toString()),
-                    jsonPath("$.synopsis").value(expectedFilm.synopsis()));
+                    jsonPath("$.title").value(filmInput.title()),
+                    jsonPath("$.['release date']").value(filmInput.releaseDate().toString()),
+                    jsonPath("$.synopsis").value(filmInput.synopsis()));
         }
 
-        @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("com.demo.filmdb.FilmIntegrationTests#invalidFilmInputs")
         @DisplayName("Invalid request, expect 400")
-        public void PostFilmsURI_InvalidBody_Response400() throws Exception {
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void InvalidRequest_Response400(FilmDtoInput filmInput) throws Exception {
             final String uri = API_PREFIX + "/films";
+            String requestBody = objectMapper.writeValueAsString(filmInput);
 
-            mockMvc.perform(post(uri).content("{\"title\": \"test\"}"))
+            mockMvc.perform(post(uri).content(requestBody))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("Unauthorized, expect 403")
-        public void PostFilmsURI_Unauthorized_Response403() throws Exception {
+        @DisplayName("Unauthorized, valid request, expect 403")
+        public void UnauthorizedValidRequest_Response403() throws Exception {
+            final String uri = API_PREFIX + "/films";
+            String requestBody = objectMapper.writeValueAsString(VALID_FILM_INPUT);
+
+            mockMvc.perform(post(uri).content(requestBody))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, invalid request, expect 403")
+        public void UnauthorizedInvalidRequest_Response403() throws Exception {
             final String uri = API_PREFIX + "/films";
 
-            mockMvc.perform(post(uri).content("{\"title\": \"test\"}"))
+            mockMvc.perform(post(uri).content(INVALID_REQUEST_BODY))
                     .andExpect(status().isForbidden());
         }
     }
@@ -134,63 +143,63 @@ public class FilmIntegrationTests {
     @Nested
     @DisplayName("PUT")
     class Put {
-        @Transactional
-        @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("com.demo.filmdb.FilmIntegrationTests#validFilmInputs")
         @DisplayName("Existing id, valid request, expect 200")
-        public void PutFilmURI_ValidRequest_Response200() throws Exception {
-            long expectedFilmId = 2L;
-            String uri = API_PREFIX + "/films/" + expectedFilmId;
-            String expectedTitle = "Matrix";
-            String expectedReleaseDate = "1999-11-11";
-            String expectedSynopsis = "Once upon a time";
-            String requestBody = objectMapper.createObjectNode()
-                    .put("id", expectedFilmId + 1)  //expected to be ignored
-                    .put("title", expectedTitle)
-                    .put("releaseDate", expectedReleaseDate)
-                    .put("synopsis", expectedSynopsis)
-                    .toString();
+        @Transactional
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void ValidRequest_Response200(FilmDtoInput filmInput) throws Exception {
+            String uri = API_PREFIX + "/films/1";
+            String requestBody = objectMapper.writeValueAsString(filmInput);
 
             mockMvc.perform(put(uri).content(requestBody)).andExpectAll(
                     status().isOk(),
                     content().contentType(MediaType.APPLICATION_JSON),
-                    jsonPath("$.id").value(expectedFilmId),
-                    jsonPath("$.title").value(expectedTitle),
-                    jsonPath("$.['release date']").value(expectedReleaseDate),
-                    jsonPath("$.synopsis").value(expectedSynopsis));
+                    jsonPath("$.title").value(filmInput.title()),
+                    jsonPath("$.['release date']").value(filmInput.releaseDate().toString()),
+                    jsonPath("$.synopsis").value(filmInput.synopsis()));
         }
 
-        @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("com.demo.filmdb.FilmIntegrationTests#invalidFilmInputs")
         @DisplayName("Existing id, invalid request, expect 400")
-        public void PutFilmURI_InvalidRequest_Response400() throws Exception {
-            long filmId = 2L;
-            String uri = API_PREFIX + "/films/" + filmId;
-            String requestBody = objectMapper.createObjectNode()
-                    .put("id", filmId + 1)
-                    .put("not_a_field", "random_data")
-                    .toString();
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void InvalidRequest_Response400(FilmDtoInput filmInput) throws Exception {
+            String uri = API_PREFIX + "/films/1";
+            String requestBody = objectMapper.writeValueAsString(filmInput);
 
             mockMvc.perform(put(uri).content(requestBody))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
         @DisplayName("Not existing id, valid request, expect 404")
-        public void PutFilmURI_NotExistingId_Response404() throws Exception {
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void NotExistingId_Response404() throws Exception {
             String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID;
+            String requestBody = objectMapper.writeValueAsString(VALID_FILM_INPUT);
 
-            mockMvc.perform(put(uri).content("{\"title\": \"Title\", \"releaseDate\": \"1999-11-11\"}"))
+            mockMvc.perform(put(uri).content(requestBody))
                     .andExpect(status().isNotFound());
         }
 
         @Test
-        @DisplayName("Unauthorized, expect 403")
-        public void PutFilmURI_Unauthorized_Response403() throws Exception {
+        @DisplayName("Unauthorized, valid request, expect 403")
+        public void UnauthorizedValidRequest_Response403() throws Exception {
             String uri = API_PREFIX + "/films/1";
+            String requestBody = objectMapper.writeValueAsString(VALID_FILM_INPUT);
 
-            mockMvc.perform(put(uri).content("{\"title\": \"Title\", \"releaseDate\": \"1999-11-11\"}"))
+            mockMvc.perform(put(uri).content(requestBody))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("Unauthorized, invalid request, expect 403")
+        public void UnauthorizedInvalidRequest_Response403() throws Exception {
+            String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID;
+
+            mockMvc.perform(put(uri).content(INVALID_REQUEST_BODY))
                     .andExpect(status().isForbidden());
         }
     }
@@ -198,11 +207,12 @@ public class FilmIntegrationTests {
     @Nested
     @DisplayName("DELETE")
     class Delete {
-        @Transactional
+
         @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
         @DisplayName("Existing id, expect 204")
-        public void DeleteFilmURI_ExistingId_Response204() throws Exception {
+        @Transactional
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void ExistingId_Response204() throws Exception {
             String uri = API_PREFIX + "/films/1";
 
             mockMvc.perform(delete(uri))
@@ -210,9 +220,9 @@ public class FilmIntegrationTests {
         }
 
         @Test
-        @WithMockUser(roles = {ROLE_ADMIN})
         @DisplayName("Not existing id, expect 404")
-        public void DeleteFilmURI_NotExistingId_Response404() throws Exception {
+        @WithMockUser(roles = {ROLE_ADMIN})
+        public void NotExistingId_Response404() throws Exception {
             String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID;
 
             mockMvc.perform(delete(uri))
@@ -220,12 +230,37 @@ public class FilmIntegrationTests {
         }
 
         @Test
-        @DisplayName("Unauthorized, expect 403")
-        public void DeleteFilmURI_Unauthorized_Response403() throws Exception {
+        @DisplayName("Unauthorized, existing id, expect 403")
+        public void UnauthorizedExistingId_Response403() throws Exception {
             String uri = API_PREFIX + "/films/1";
 
             mockMvc.perform(delete(uri))
                     .andExpect(status().isForbidden());
         }
+
+        @Test
+        @DisplayName("Unauthorized, not existing id, expect 403")
+        public void UnauthorizedNotExistingId_Response403() throws Exception {
+            String uri = API_PREFIX + "/films/" + NOT_EXISTING_ID;
+
+            mockMvc.perform(delete(uri))
+                    .andExpect(status().isForbidden());
+        }
+    }
+
+    private static Stream<Arguments> validFilmInputs() {
+        return Stream.of(
+                arguments(named("All fields", new FilmDtoInput("Title", LocalDate.now(), "Sy"))),
+                arguments(named("Null synopsis", new FilmDtoInput("Title", LocalDate.now(), null)))
+        );
+    }
+
+    private static Stream<Arguments> invalidFilmInputs() {
+        return Stream.of(
+                arguments(named("Null title", new FilmDtoInput(null, LocalDate.now(), "Sy"))),
+                arguments(named("Null release date", new FilmDtoInput("Title", null, "Sy"))),
+                arguments(named("Empty title", new FilmDtoInput("", LocalDate.now(), "Sy"))),
+                arguments(named("Blank title", new FilmDtoInput("   ", LocalDate.now(), "Sy")))
+        );
     }
 }

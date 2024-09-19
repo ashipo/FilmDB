@@ -1,5 +1,6 @@
 package com.demo.filmdb;
 
+import com.demo.filmdb.film.dtos.FilmDtoInput;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -16,8 +17,14 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 public class Utils {
     static final String API_PREFIX = "/api";
-    static final long NOT_EXISTING_ID = 100L;
-    static final String ROLE_ADMIN = "ADMIN";
+    public static final Long NOT_EXISTING_ID = -1L;
+    public static final String ROLE_ADMIN = "ADMIN";
+    public static final String INVALID_REQUEST_BODY = "{\"key\": \"value\"}";
+    public static final FilmDtoInput VALID_FILM_INPUT = new FilmDtoInput(
+            "Terminator",
+            LocalDate.of(1984, 10, 26),
+            "A human soldier is sent from 2029 to 1984"
+    );
 
     static MockMvc configureMockMvc(WebApplicationContext wac) {
         return commonMvcBuilder(wac)

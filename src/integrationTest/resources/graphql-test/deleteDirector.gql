@@ -1,0 +1,6 @@
+mutation deleteDirector($filmId: Long!, $personId: Long!) {
+    deleteDirector(input: {id: {filmId: $filmId, personId: $personId}}) {
+        filmId
+        personId
+    }
+}

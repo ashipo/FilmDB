@@ -1,0 +1,7 @@
+query people($page: Int!, $pageSize: Int!, $sortBy: SortablePersonField, $sortDirection: SortDirection, $name: NonBlankString, $bornAfter: Date, $bornBefore: Date) {
+    people(page: $page, pageSize: $pageSize, sortBy: $sortBy, sortDirection: $sortDirection, name: $name, bornAfter: $bornAfter, bornBefore: $bornBefore) {
+        id
+        name
+        dateOfBirth
+    }
+}

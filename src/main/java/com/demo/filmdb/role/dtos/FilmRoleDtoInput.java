@@ -1,14 +1,23 @@
 package com.demo.filmdb.role.dtos;
 
-import com.demo.filmdb.role.Role;
-import jakarta.validation.constraints.NotEmpty;
+import com.demo.filmdb.role.CastMember;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 
 /**
- * A DTO for the {@link Role} entity.
- * Intended use: request role create/bulk update for a film.
+ * An input DTO for a cast member of a film
  */
-public record FilmRoleDtoInput(@NotNull Long personId, @NotEmpty String character) implements Serializable {
+public record FilmRoleDtoInput(@NotNull Long personId, @NotBlank String character) implements Serializable, CastMember {
+
+    @Override
+    public Long getPersonId() {
+        return personId;
+    }
+
+    @Override
+    public String getCharacter() {
+        return character;
+    }
 }

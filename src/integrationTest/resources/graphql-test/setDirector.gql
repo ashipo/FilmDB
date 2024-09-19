@@ -1,0 +1,6 @@
+mutation setDirector($filmId: Long!, $personId: Long!) {
+    setDirector(input: {id: {filmId: $filmId, personId: $personId}}) {
+        filmId
+        personId
+    }
+}
