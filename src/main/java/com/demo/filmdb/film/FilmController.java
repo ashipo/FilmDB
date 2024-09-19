@@ -176,11 +176,12 @@ public class FilmController {
     @SecurityRequirements
     @GetMapping("/{filmId}/directors")
     public CollectionModel<PersonDto> getDirectors(@PathVariable Long filmId) {
-        Film film = filmService.getFilm(filmId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, filmNotFoundMessage(filmId))
-        );
-        Collection<Person> directors = film.getDirectors();
-        return personModelAssembler.directorsCollectionModel(directors, filmId);
+        try {
+            Collection<Person> directors = filmService.getDirectors(filmId);
+            return personModelAssembler.directorsCollectionModel(directors, filmId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Update film directors", tags = TAG_DIRECTORS)
