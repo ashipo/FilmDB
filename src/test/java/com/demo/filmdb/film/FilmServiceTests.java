@@ -1,6 +1,7 @@
 package com.demo.filmdb.film;
 
 import com.demo.filmdb.ServiceTest;
+import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -342,6 +343,35 @@ class FilmServiceTests extends ServiceTest {
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                     filmService.getCast(1L)
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("getDirectors")
+    class getDirectors {
+
+        @Test
+        @DisplayName("Existing id, returns directors")
+        void ExistingId_ReturnsCorrectly() {
+            Film film = mock(Film.class);
+            final Long filmId = 1L;
+            final Person director = createPerson(2L);
+            when(film.getDirectors()).thenReturn(Set.of(director));
+            given(filmRepository.findById(filmId)).willReturn(Optional.of(film));
+
+            var actualDirectors = filmService.getDirectors(filmId);
+
+            assertThatCollection(actualDirectors).containsExactly(director);
+        }
+
+        @Test
+        @DisplayName("Not existing id, throws EntityNotFoundException")
+        void NotExistingId_Throws() {
+            given(filmRepository.findById(anyLong())).willReturn(Optional.empty());
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    filmService.getDirectors(1L)
             );
         }
     }
