@@ -23,10 +23,10 @@ public class PersonService {
 
     private final PersonRepository personRepository;
     private final RoleRepository roleRepository;
-    private final PersonMapper personMapper;
+    private final PersonInfoMapper personMapper;
     private final PersonSpecs personSpecs;
 
-    public PersonService(PersonRepository personRepository, RoleRepository roleRepository, PersonMapper personMapper, PersonSpecs personSpecs) {
+    public PersonService(PersonRepository personRepository, RoleRepository roleRepository, PersonInfoMapper personMapper, PersonSpecs personSpecs) {
         this.personRepository = personRepository;
         this.roleRepository = roleRepository;
         this.personMapper = personMapper;

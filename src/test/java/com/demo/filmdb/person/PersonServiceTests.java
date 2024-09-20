@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 public class PersonServiceTests extends ServiceTest {
 
     private PersonService personService;
-    private final PersonMapper personMapper = Mappers.getMapper(PersonMapper.class);
+    private final PersonInfoMapper personMapper = Mappers.getMapper(PersonInfoMapper.class);
     @Mock
     private PersonSpecs personSpecs;
 
