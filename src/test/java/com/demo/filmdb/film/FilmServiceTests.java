@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
 class FilmServiceTests extends ServiceTest {
 
     private FilmService filmService;
-    private final FilmMapper filmMapper = Mappers.getMapper(FilmMapper.class);
+    private final FilmInfoMapper filmMapper = Mappers.getMapper(FilmInfoMapper.class);
     @Mock
     private FilmSpecs filmSpecs;
 

@@ -27,11 +27,11 @@ public class FilmService {
 
     private final FilmRepository filmRepository;
     private final RoleRepository roleRepository;
-    private final FilmMapper filmMapper;
+    private final FilmInfoMapper filmMapper;
     private final FilmSpecs filmSpecs;
 
     @Autowired
-    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository, FilmMapper filmMapper, FilmSpecs filmSpecs) {
+    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository, FilmInfoMapper filmMapper, FilmSpecs filmSpecs) {
         this.filmRepository = filmRepository;
         this.roleRepository = roleRepository;
         this.filmMapper = filmMapper;

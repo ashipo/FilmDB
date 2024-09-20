@@ -13,9 +13,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Component
 public class FilmModelAssembler implements RepresentationModelAssembler<Film, FilmDto> {
 
-    private final FilmMapper filmMapper;
+    private final FilmDtoMapper filmMapper;
 
-    public FilmModelAssembler(FilmMapper filmMapper) {
+    public FilmModelAssembler(FilmDtoMapper filmMapper) {
         this.filmMapper = filmMapper;
     }
 
