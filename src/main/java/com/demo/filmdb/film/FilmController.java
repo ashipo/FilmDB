@@ -41,7 +41,7 @@ import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
 import static com.demo.filmdb.util.ErrorUtil.roleNotFoundMessage;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.FILM;
-import static com.demo.filmdb.utils.SpringDocConfig.*;
+import static com.demo.filmdb.config.SpringDocConfig.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController

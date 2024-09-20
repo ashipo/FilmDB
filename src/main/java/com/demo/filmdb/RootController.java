@@ -1,4 +1,4 @@
-package com.demo.filmdb.utils;
+package com.demo.filmdb;
 
 import com.demo.filmdb.film.FilmController;
 import com.demo.filmdb.person.PersonController;
@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.demo.filmdb.utils.Path.API_PREFIX;
-import static com.demo.filmdb.utils.SpringDocConfig.SUCCESS;
-import static com.demo.filmdb.utils.SpringDocConfig.TAG_ROOT;
+import static com.demo.filmdb.config.SpringDocConfig.SUCCESS;
+import static com.demo.filmdb.config.SpringDocConfig.TAG_ROOT;
 import static org.springframework.hateoas.server.core.DummyInvocationUtils.methodOn;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;

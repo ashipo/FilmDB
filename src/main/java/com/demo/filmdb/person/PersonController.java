@@ -32,7 +32,7 @@ import java.util.Collection;
 import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.PEOPLE;
-import static com.demo.filmdb.utils.SpringDocConfig.*;
+import static com.demo.filmdb.config.SpringDocConfig.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController

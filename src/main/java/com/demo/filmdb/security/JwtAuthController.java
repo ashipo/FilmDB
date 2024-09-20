@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.demo.filmdb.utils.Path.API_PREFIX;
 import static com.demo.filmdb.utils.Path.LOGIN;
-import static com.demo.filmdb.utils.SpringDocConfig.TAG_LOGIN;
+import static com.demo.filmdb.config.SpringDocConfig.TAG_LOGIN;
 import static org.springframework.http.HttpHeaders.WWW_AUTHENTICATE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
