@@ -2,7 +2,7 @@ package com.demo.filmdb.person;
 
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
-import com.demo.filmdb.utils.SortUtil;
+import com.demo.filmdb.util.SortUtil;
 import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,7 +40,7 @@ public class PersonService {
      * @return the resulting page, may be empty but not null
      */
     public Page<Person> getPeople(Pageable pageable) {
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
+        Pageable filteredPageable = SortUtil.filterSortableFields(pageable, Person.class);
         return personRepository.findAll(filteredPageable);
     }
 
@@ -63,7 +63,7 @@ public class PersonService {
         Specification<Person> spec = personSpecs.nameContains(name)
                 .and(personSpecs.bornAfter(bornAfter))
                 .and(personSpecs.bornBefore(bornBefore));
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Person.class);
+        Pageable filteredPageable = SortUtil.filterSortableFields(pageable, Person.class);
         return personRepository.findAll(spec, filteredPageable);
     }
 
