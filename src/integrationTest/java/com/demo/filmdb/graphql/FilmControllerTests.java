@@ -4,7 +4,7 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.util.EntityNotFoundException;
-import com.demo.filmdb.utils.SortUtil;
+import com.demo.filmdb.graphql.enums.SortableFilmField;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ public class FilmControllerTests {
         void ValidInput_CorrectServiceCall() {
             int page = 3;
             int pageSize = 14;
-            var sortBy = SortUtil.SortableFilmField.TITLE;
+            var sortBy = SortableFilmField.TITLE;
             var sortDirection = Sort.Direction.DESC;
             var title = "peace";
             var releaseBefore = LocalDate.of(1950, 11, 11);
@@ -341,7 +341,7 @@ public class FilmControllerTests {
     private static Stream<Arguments> invalidFilmsInputs() {
         int page = 3;
         int pageSize = 14;
-        var sortBy = SortUtil.SortableFilmField.RELEASE_DATE;
+        var sortBy = SortableFilmField.RELEASE_DATE;
         var sortDirection = Sort.Direction.DESC;
         var title = "Alien";
         var releaseAfter = LocalDate.of(1950, 10, 10);

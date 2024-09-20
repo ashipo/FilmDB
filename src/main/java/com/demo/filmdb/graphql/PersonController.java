@@ -8,7 +8,7 @@ import com.demo.filmdb.graphql.payloads.DeletePersonPayload;
 import com.demo.filmdb.graphql.payloads.UpdatePersonPayload;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
-import com.demo.filmdb.utils.SortUtil;
+import com.demo.filmdb.graphql.enums.SortablePersonField;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -31,7 +31,7 @@ public class PersonController {
     public Iterable<Person> people(
             @Argument int page,
             @Argument int pageSize,
-            @Argument @Nullable SortUtil.SortablePersonField sortBy,
+            @Argument @Nullable SortablePersonField sortBy,
             @Argument @Nullable Sort.Direction sortDirection,
             @Argument @Nullable String name,
             @Argument @Nullable LocalDate bornAfter,
