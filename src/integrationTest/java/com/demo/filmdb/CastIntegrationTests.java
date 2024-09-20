@@ -16,6 +16,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.List;
 
 import static com.demo.filmdb.Utils.*;
+import static com.demo.filmdb.util.Path.API_PREFIX;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.in;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;

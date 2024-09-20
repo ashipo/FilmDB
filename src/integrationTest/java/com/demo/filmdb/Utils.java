@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 public class Utils {
-    static final String API_PREFIX = "/api";
     public static final Long NOT_EXISTING_ID = -1L;
     public static final String ROLE_ADMIN = "ADMIN";
     public static final String INVALID_REQUEST_BODY = "{\"key\": \"value\"}";

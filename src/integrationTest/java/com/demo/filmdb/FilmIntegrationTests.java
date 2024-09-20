@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.stream.Stream;
 
 import static com.demo.filmdb.Utils.*;
+import static com.demo.filmdb.util.Path.API_PREFIX;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;

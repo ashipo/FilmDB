@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import static com.demo.filmdb.Utils.*;
+import static com.demo.filmdb.util.Path.API_PREFIX;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.in;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;

@@ -16,6 +16,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.demo.filmdb.util.Path.API_PREFIX;
+import static com.demo.filmdb.util.Path.LOGIN;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -31,7 +33,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/graphql").permitAll()
-                        .requestMatchers("/api/login").permitAll()
+                        .requestMatchers(API_PREFIX + LOGIN).permitAll()
                         .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST).hasRole("ADMIN")
