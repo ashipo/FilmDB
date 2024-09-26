@@ -1,6 +1,6 @@
 plugins {
-    id("org.springframework.boot") version "3.2.5" apply false
-    id("io.spring.dependency-management") version "1.1.4"
+    alias(libs.plugins.boot) apply false
+    alias(libs.plugins.dependency.management)
     id("java")
 }
 
@@ -18,17 +18,16 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("com.h2database:h2")
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.validation)
+    runtimeOnly(libs.postgresql)
+    runtimeOnly(libs.h2)
+    implementation(libs.flyway.core)
+    implementation(libs.mapstruct)
+    annotationProcessor(libs.mapstruct.processor)
 
-    val mapstruct = "1.6.2"
-    implementation("org.mapstruct:mapstruct:${mapstruct}")
-    annotationProcessor("org.mapstruct:mapstruct-processor:${mapstruct}")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation(libs.spring.boot.starter.test)
 }
 
 tasks.test {
