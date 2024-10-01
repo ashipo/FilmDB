@@ -1,12 +1,12 @@
 [versions]
-boot = "3.2.5"
-dependency-management = "1.1.4"
+boot = "3.3.4"
+dependency-management = "1.1.6"
 graphql-scalars = "22.0"
 flyway = "10.18.2"
 jjwt = "0.12.6"
 jsr305 = "3.0.2"
 mapstruct = "1.6.2"
-springdoc = "2.3.0"
+springdoc = "2.6.0"
 
 [libraries]
 flyway-core = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
