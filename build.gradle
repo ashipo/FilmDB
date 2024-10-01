@@ -35,6 +35,23 @@ idea {
     }
 }
 
+tasks.register("integrationTest", Test) {
+    description = "Runs integration tests."
+    group = "verification"
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+
+    useJUnitPlatform()
+
+    testLogging {
+        events "failed"
+    }
+}
+
+check.dependsOn integrationTest
+
 dependencies {
     implementation project(':data')
     implementation(libs.spring.boot.starter.data.jpa)
@@ -62,4 +79,7 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events "failed"
+    }
 }
