@@ -37,15 +37,14 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
+import static com.demo.filmdb.config.SpringDocConfig.*;
 import static com.demo.filmdb.util.ErrorUtil.filmNotFoundMessage;
 import static com.demo.filmdb.util.ErrorUtil.roleNotFoundMessage;
-import static com.demo.filmdb.utils.Path.API_PREFIX;
-import static com.demo.filmdb.utils.Path.FILM;
-import static com.demo.filmdb.utils.SpringDocConfig.*;
+import static com.demo.filmdb.util.Path.API_PREFIX;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@RequestMapping(path = API_PREFIX + FILM, produces = APPLICATION_JSON_VALUE)
+@RequestMapping(path = API_PREFIX + "/films", produces = APPLICATION_JSON_VALUE)
 public class FilmController {
 
     private final FilmService filmService;

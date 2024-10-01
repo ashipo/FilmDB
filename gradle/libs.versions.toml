@@ -1,0 +1,36 @@
+[versions]
+boot = "3.2.5"
+dependency-management = "1.1.4"
+graphql-scalars = "22.0"
+flyway = "10.18.2"
+jjwt = "0.12.6"
+jsr305 = "3.0.2"
+mapstruct = "1.6.2"
+springdoc = "2.3.0"
+
+[libraries]
+flyway-core = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
+graphql-scalars = { group = "com.graphql-java", name = "graphql-java-extended-scalars", version.ref = "graphql-scalars" }
+h2 = { group = "com.h2database", name = "h2" }
+jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt" }
+jsr305 = { group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
+mapstruct = { group = "org.mapstruct", name = "mapstruct", version.ref = "mapstruct" }
+mapstruct-processor = { group = "org.mapstruct", name = "mapstruct-processor", version.ref = "mapstruct" }
+postgresql = { group = "org.postgresql", name = "postgresql" }
+springdoc-openapi-starter-webmvc-ui = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
+spring-boot-starter-graphql = { group = "org.springframework.boot", name = "spring-boot-starter-graphql" }
+spring-boot-starter-hateoas = { group = "org.springframework.boot", name = "spring-boot-starter-hateoas" }
+spring-boot-starter-security = { group = "org.springframework.boot", name = "spring-boot-starter-security" }
+spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test" }
+spring-boot-starter-web = { group = "org.springframework.boot", name = "spring-boot-starter-web" }
+spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" }
+spring-security-test = { group = "org.springframework.security", name = "spring-security-test" }
+spring-graphql-test = { group = "org.springframework.graphql", name = "spring-graphql-test" }
+spring-webflux = { group = "org.springframework", name = "spring-webflux" }
+
+[plugins]
+boot = { id = "org.springframework.boot", version.ref = "boot" }
+dependency-management = { id = "io.spring.dependency-management", version.ref = "dependency-management" }

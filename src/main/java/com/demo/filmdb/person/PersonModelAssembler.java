@@ -13,9 +13,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Component
 public class PersonModelAssembler implements RepresentationModelAssembler<Person, PersonDto> {
 
-    private final PersonMapper personMapper;
+    private final PersonDtoMapper personMapper;
 
-    public PersonModelAssembler(PersonMapper personMapper) {
+    public PersonModelAssembler(PersonDtoMapper personMapper) {
         this.personMapper = personMapper;
     }
 

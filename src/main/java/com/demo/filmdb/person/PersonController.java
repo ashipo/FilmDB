@@ -29,14 +29,13 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import static com.demo.filmdb.config.SpringDocConfig.*;
 import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
-import static com.demo.filmdb.utils.Path.API_PREFIX;
-import static com.demo.filmdb.utils.Path.PEOPLE;
-import static com.demo.filmdb.utils.SpringDocConfig.*;
+import static com.demo.filmdb.util.Path.API_PREFIX;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@RequestMapping(path = API_PREFIX + PEOPLE, produces = APPLICATION_JSON_VALUE)
+@RequestMapping(path = API_PREFIX + "/people", produces = APPLICATION_JSON_VALUE)
 public class PersonController {
 
     private final PersonService personService;

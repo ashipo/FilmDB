@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.util.stream.Stream;
 
 import static com.demo.filmdb.Utils.*;
+import static com.demo.filmdb.util.Path.API_PREFIX;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

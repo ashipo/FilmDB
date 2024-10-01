@@ -4,7 +4,7 @@ import com.demo.filmdb.graphql.payloads.DeletePersonPayload;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.util.EntityNotFoundException;
-import com.demo.filmdb.utils.SortUtil;
+import com.demo.filmdb.graphql.enums.SortablePersonField;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ public class PersonControllerTests {
         void ValidInput_CorrectServiceCall() {
             int page = 3;
             int pageSize = 14;
-            var sortBy = SortUtil.SortablePersonField.ID;
+            var sortBy = SortablePersonField.ID;
             var sortDirection = Sort.Direction.ASC;
             var name = "Jessica";
             var bornAfter = LocalDate.of(1950, 11, 11);
@@ -314,7 +314,7 @@ public class PersonControllerTests {
     private static Stream<Arguments> invalidPeopleInputs() {
         int page = 3;
         int pageSize = 14;
-        var sortBy = SortUtil.SortablePersonField.NAME;
+        var sortBy = SortablePersonField.NAME;
         var sortDirection = Sort.Direction.ASC;
         var name = "weave";
         var bornAfter = LocalDate.of(1950, 10, 10);

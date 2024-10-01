@@ -1,12 +1,9 @@
 package com.demo.filmdb.person;
 
-import com.demo.filmdb.person.dtos.PersonDto;
 import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
-public interface PersonMapper {
-
-    PersonDto personToPersonDto(Person person);
+public interface PersonInfoMapper {
 
     Person personInfoToPerson(PersonInfo personInfo);
 

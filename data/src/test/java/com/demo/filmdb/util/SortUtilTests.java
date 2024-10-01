@@ -1,4 +1,4 @@
-package com.demo.filmdb.utils;
+package com.demo.filmdb.util;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.person.Person;
@@ -16,21 +16,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.demo.filmdb.utils.SortUtil.filterSort;
+import static com.demo.filmdb.util.SortUtil.filterSortableFields;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Named.named;
 
 @SpringBootTest
 public class SortUtilTests {
+
     @ParameterizedTest(name = "{0}")
     @MethodSource("sortDataProvider")
     @DisplayName("filterSort for entity")
-    void filterSort_EntityClass_Filters(Class<?> entityClass, List<String> sortableFields, String[] sortProperties) {
+    void filterSortableFields_EntityClass_Filters(Class<?> entityClass, List<String> sortableFields, String[] sortProperties) {
         Pageable givenPageable = PageRequest.of(0, 20, Sort.by(sortProperties));
-        Condition<String> sortable = new Condition<>(sortableFields::contains,
-                "a field annotated with @Sortable");
+        Condition<String> sortable = new Condition<>(sortableFields::contains, "a field annotated with @Sortable");
 
-        Sort actualSort = filterSort(givenPageable, entityClass).getSort();
+        Sort actualSort = filterSortableFields(givenPageable, entityClass).getSort();
 
         Set<String> actualProperties = actualSort.map(Sort.Order::getProperty).toSet();
         assertThat(actualProperties).are(sortable);

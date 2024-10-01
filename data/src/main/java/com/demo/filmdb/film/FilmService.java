@@ -4,7 +4,7 @@ import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
-import com.demo.filmdb.utils.SortUtil;
+import com.demo.filmdb.util.SortUtil;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,11 +27,11 @@ public class FilmService {
 
     private final FilmRepository filmRepository;
     private final RoleRepository roleRepository;
-    private final FilmMapper filmMapper;
+    private final FilmInfoMapper filmMapper;
     private final FilmSpecs filmSpecs;
 
     @Autowired
-    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository, FilmMapper filmMapper, FilmSpecs filmSpecs) {
+    public FilmService(FilmRepository filmRepository, RoleRepository roleRepository, FilmInfoMapper filmMapper, FilmSpecs filmSpecs) {
         this.filmRepository = filmRepository;
         this.roleRepository = roleRepository;
         this.filmMapper = filmMapper;
@@ -45,7 +45,7 @@ public class FilmService {
      * @return the resulting page, may be empty but not null
      */
     public Page<Film> getFilms(Pageable pageable) {
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
+        Pageable filteredPageable = SortUtil.filterSortableFields(pageable, Film.class);
         return filmRepository.findAll(filteredPageable);
     }
 
@@ -68,7 +68,7 @@ public class FilmService {
         Specification<Film> spec = filmSpecs.titleContains(title)
                 .and(filmSpecs.releaseBefore(releaseBefore))
                 .and(filmSpecs.releaseAfter(releaseAfter));
-        Pageable filteredPageable = SortUtil.filterSort(pageable, Film.class);
+        Pageable filteredPageable = SortUtil.filterSortableFields(pageable, Film.class);
         return filmRepository.findAll(spec, filteredPageable);
     }
 

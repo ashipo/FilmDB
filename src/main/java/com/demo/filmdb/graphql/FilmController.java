@@ -8,7 +8,7 @@ import com.demo.filmdb.graphql.inputs.UpdateFilmInput;
 import com.demo.filmdb.graphql.payloads.CreateFilmPayload;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.graphql.payloads.UpdateFilmPayload;
-import com.demo.filmdb.utils.SortUtil.SortableFilmField;
+import com.demo.filmdb.graphql.enums.SortableFilmField;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;

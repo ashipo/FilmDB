@@ -12,8 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.demo.filmdb.Utils.API_PREFIX;
 import static com.demo.filmdb.Utils.configureMockMvc;
+import static com.demo.filmdb.util.Path.API_PREFIX;
+import static com.demo.filmdb.util.Path.LOGIN;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -24,7 +25,7 @@ public class AuthenticationIntegrationTests {
 
     private MockMvc mockMvc;
     private static final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-    private final String loginUri = API_PREFIX + "/login";
+    private final String loginUri = API_PREFIX + LOGIN;
 
     @BeforeAll
     static void beforeAll() {

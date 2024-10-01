@@ -1,6 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '3.2.5'
-    id 'io.spring.dependency-management' version '1.1.4'
+    alias(libs.plugins.boot)
+    alias(libs.plugins.dependency.management)
     id 'java'
     id 'idea'
 }
@@ -36,33 +36,28 @@ idea {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-graphql'
-    implementation 'com.graphql-java:graphql-java-extended-scalars:22.0'
-    runtimeOnly 'org.postgresql:postgresql'
-    runtimeOnly 'com.h2database:h2'
-    implementation 'org.flywaydb:flyway-core'
-    def mapstruct = '1.5.5.Final'
-    implementation "org.mapstruct:mapstruct:${mapstruct}"
-    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct}"
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-    def jjwt = '0.12.5'
-    implementation "io.jsonwebtoken:jjwt-api:${jjwt}"
-    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwt}"
-    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwt}"
+    implementation project(':data')
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.graphql)
+    implementation(libs.spring.boot.starter.hateoas)
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.validation)
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.springdoc.openapi.starter.webmvc.ui)
+    implementation(libs.graphql.scalars)
+    compileOnly(libs.jsr305)
+    implementation(libs.mapstruct)
+    annotationProcessor(libs.mapstruct.processor)
+    implementation(libs.jjwt.api)
+    runtimeOnly(libs.jjwt.impl)
+    runtimeOnly(libs.jjwt.jackson)
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation(libs.spring.boot.starter.test)
 
-    integrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
-    integrationTestImplementation 'org.springframework.security:spring-security-test'
-    integrationTestImplementation 'org.springframework.graphql:spring-graphql-test'
-    integrationTestImplementation 'org.springframework:spring-webflux'
+    integrationTestImplementation(libs.spring.boot.starter.test)
+    integrationTestImplementation(libs.spring.security.test)
+    integrationTestImplementation(libs.spring.graphql.test)
+    integrationTestImplementation(libs.spring.webflux)
 }
 
 test {
