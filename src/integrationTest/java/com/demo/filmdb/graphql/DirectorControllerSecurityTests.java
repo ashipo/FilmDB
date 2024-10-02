@@ -13,9 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.demo.filmdb.Utils.NOT_EXISTING_ID;
-import static com.demo.filmdb.Utils.ROLE_ADMIN;
 import static com.demo.filmdb.graphql.Util.*;
+import static com.demo.filmdb.security.SecurityConfig.ROLE_ADMIN;
 import static org.springframework.graphql.execution.ErrorType.FORBIDDEN;
 import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 
@@ -120,8 +119,8 @@ public class DirectorControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable(FILM_ID, NOT_EXISTING_ID)
-                    .variable(DIRECTORS_IDS, List.of(NOT_EXISTING_ID))
+                    .variable(FILM_ID, -1)
+                    .variable(DIRECTORS_IDS, List.of(-1))
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -133,8 +132,8 @@ public class DirectorControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(UPDATE_DIRECTORS)
-                    .variable(FILM_ID, NOT_EXISTING_ID)
-                    .variable(DIRECTORS_IDS, List.of(NOT_EXISTING_ID))
+                    .variable(FILM_ID, -1)
+                    .variable(DIRECTORS_IDS, List.of(-1))
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);

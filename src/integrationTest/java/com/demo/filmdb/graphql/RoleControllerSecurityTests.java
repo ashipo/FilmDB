@@ -10,8 +10,8 @@ import org.springframework.graphql.test.tester.HttpGraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
-import static com.demo.filmdb.Utils.ROLE_ADMIN;
 import static com.demo.filmdb.graphql.Util.*;
+import static com.demo.filmdb.security.SecurityConfig.ROLE_ADMIN;
 import static org.springframework.graphql.execution.ErrorType.FORBIDDEN;
 import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 

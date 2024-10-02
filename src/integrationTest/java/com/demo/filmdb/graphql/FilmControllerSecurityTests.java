@@ -11,9 +11,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.demo.filmdb.Utils.NOT_EXISTING_ID;
-import static com.demo.filmdb.Utils.ROLE_ADMIN;
 import static com.demo.filmdb.graphql.Util.*;
+import static com.demo.filmdb.security.SecurityConfig.ROLE_ADMIN;
 import static org.springframework.graphql.execution.ErrorType.FORBIDDEN;
 import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 
@@ -60,7 +59,7 @@ public class FilmControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(DELETE_FILM)
-                    .variable(VAR_ID, NOT_EXISTING_ID)
+                    .variable(VAR_ID, -1)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -72,7 +71,7 @@ public class FilmControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(DELETE_FILM)
-                    .variable(VAR_ID, NOT_EXISTING_ID)
+                    .variable(VAR_ID, -1)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -141,7 +140,7 @@ public class FilmControllerSecurityTests {
         void NotAuthenticated_Unauthorized() {
             graphQlTester
                     .documentName(UPDATE_FILM)
-                    .variable(VAR_ID, NOT_EXISTING_ID)
+                    .variable(VAR_ID, -1)
                     .variable(TITLE, "La Femme Nikita")
                     .variable(RELEASE_DATE, "1990-02-21")
                     .execute()
@@ -155,7 +154,7 @@ public class FilmControllerSecurityTests {
         void AuthenticatedUser_Forbidden() {
             graphQlTester
                     .documentName(UPDATE_FILM)
-                    .variable(VAR_ID, NOT_EXISTING_ID)
+                    .variable(VAR_ID, -1)
                     .variable(TITLE, "The Fifth Element")
                     .variable(RELEASE_DATE, "1997-05-07")
                     .execute()
