@@ -5,8 +5,8 @@ import com.demo.filmdb.film.FilmRepository;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 

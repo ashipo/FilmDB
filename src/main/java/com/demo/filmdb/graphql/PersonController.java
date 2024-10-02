@@ -1,5 +1,6 @@
 package com.demo.filmdb.graphql;
 
+import com.demo.filmdb.graphql.enums.SortablePersonField;
 import com.demo.filmdb.graphql.inputs.CreatePersonInput;
 import com.demo.filmdb.graphql.inputs.DeletePersonInput;
 import com.demo.filmdb.graphql.inputs.UpdatePersonInput;
@@ -8,12 +9,11 @@ import com.demo.filmdb.graphql.payloads.DeletePersonPayload;
 import com.demo.filmdb.graphql.payloads.UpdatePersonPayload;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
-import com.demo.filmdb.graphql.enums.SortablePersonField;
+import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
