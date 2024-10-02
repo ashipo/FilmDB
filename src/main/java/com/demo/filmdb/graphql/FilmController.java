@@ -2,18 +2,18 @@ package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
+import com.demo.filmdb.graphql.enums.SortableFilmField;
 import com.demo.filmdb.graphql.inputs.CreateFilmInput;
 import com.demo.filmdb.graphql.inputs.DeleteFilmInput;
 import com.demo.filmdb.graphql.inputs.UpdateFilmInput;
 import com.demo.filmdb.graphql.payloads.CreateFilmPayload;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.graphql.payloads.UpdateFilmPayload;
-import com.demo.filmdb.graphql.enums.SortableFilmField;
+import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;

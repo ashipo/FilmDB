@@ -1,8 +1,8 @@
 package com.demo.filmdb.person;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

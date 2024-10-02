@@ -62,7 +62,6 @@ dependencies {
     implementation(libs.spring.boot.starter.web)
     implementation(libs.springdoc.openapi.starter.webmvc.ui)
     implementation(libs.graphql.scalars)
-    compileOnly(libs.jsr305)
     implementation(libs.mapstruct)
     annotationProcessor(libs.mapstruct.processor)
     implementation(libs.jjwt.api)

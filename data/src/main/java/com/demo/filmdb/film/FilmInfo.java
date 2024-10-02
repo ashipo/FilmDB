@@ -1,6 +1,6 @@
 package com.demo.filmdb.film;
 
-import org.springframework.lang.Nullable;
+import jakarta.annotation.Nullable;
 
 import java.time.LocalDate;
 

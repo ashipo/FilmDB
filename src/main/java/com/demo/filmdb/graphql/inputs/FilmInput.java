@@ -1,7 +1,7 @@
 package com.demo.filmdb.graphql.inputs;
 
 import com.demo.filmdb.film.FilmInfo;
-import org.springframework.lang.Nullable;
+import jakarta.annotation.Nullable;
 
 import java.time.LocalDate;
 

@@ -4,7 +4,6 @@ dependency-management = "1.1.6"
 graphql-scalars = "22.0"
 flyway = "10.18.2"
 jjwt = "0.12.6"
-jsr305 = "3.0.2"
 mapstruct = "1.6.2"
 springdoc = "2.6.0"
 
@@ -15,7 +14,6 @@ h2 = { group = "com.h2database", name = "h2" }
 jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" }
 jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
 jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt" }
-jsr305 = { group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
 mapstruct = { group = "org.mapstruct", name = "mapstruct", version.ref = "mapstruct" }
 mapstruct-processor = { group = "org.mapstruct", name = "mapstruct-processor", version.ref = "mapstruct" }
 postgresql = { group = "org.postgresql", name = "postgresql" }

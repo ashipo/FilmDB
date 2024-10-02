@@ -4,6 +4,7 @@ import com.demo.filmdb.ServiceTest;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.util.EntityNotFoundException;
+import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.Optional;
