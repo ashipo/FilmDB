@@ -9,6 +9,7 @@ springdoc = "2.6.0"
 
 [libraries]
 flyway-core = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
+flyway-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
 graphql-scalars = { group = "com.graphql-java", name = "graphql-java-extended-scalars", version.ref = "graphql-scalars" }
 h2 = { group = "com.h2database", name = "h2" }
 jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" }
