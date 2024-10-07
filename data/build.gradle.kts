@@ -24,6 +24,7 @@ dependencies {
     runtimeOnly(libs.postgresql)
     runtimeOnly(libs.h2)
     implementation(libs.flyway.core)
+    implementation(libs.flyway.postgresql)
     implementation(libs.mapstruct)
     annotationProcessor(libs.mapstruct.processor)
 
