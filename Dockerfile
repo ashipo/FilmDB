@@ -3,7 +3,7 @@
 FROM amazoncorretto:17-alpine as build
 WORKDIR /app
 COPY . ./
-RUN ./gradlew bootJar --no-daemon
+RUN ./gradlew bootJar
 
 FROM amazoncorretto:17-alpine as layers
 WORKDIR /app
@@ -17,4 +17,4 @@ COPY --from=layers app/spring-boot-loader/ ./
 COPY --from=layers app/snapshot-dependencies/ ./
 COPY --from=layers app/application/ ./
 EXPOSE 8080
-CMD ["java", "-Dspring.profiles.active=postgres", "org.springframework.boot.loader.JarLauncher"]
+CMD ["java", "org.springframework.boot.loader.launch.JarLauncher"]
