@@ -20,6 +20,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: secret
           POSTGRES_DB: filmdb
+          PGUSER: postgres
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -29,7 +30,7 @@ jobs:
           - 5432:5432
     env:
       SPRING_PROFILES_ACTIVE: postgres
-      POSTGRES_URL: jdbc:postgresql://postgres/filmdb
+      POSTGRES_URL: jdbc:postgresql://localhost/filmdb
 
     steps:
     - uses: actions/checkout@v4
