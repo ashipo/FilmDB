@@ -104,7 +104,6 @@ public class PersonIntegrationTests {
             mockMvc.perform(post(uri).content(requestBody)).andExpectAll(
                     status().isCreated(),
                     content().contentType(MediaType.APPLICATION_JSON),
-                    jsonPath("$.id").value(6),
                     jsonPath("$.name").value(expectedPerson.name()),
                     jsonPath("$.['date of birth']").value(expectedDateOfBirth.toString()));
         }

@@ -47,6 +47,7 @@ tasks.register("integrationTest", Test) {
 
     testLogging {
         events "failed"
+        exceptionFormat "full"
     }
 }
 
@@ -80,5 +81,6 @@ test {
     useJUnitPlatform()
     testLogging {
         events "failed"
+        exceptionFormat "full"
     }
 }
