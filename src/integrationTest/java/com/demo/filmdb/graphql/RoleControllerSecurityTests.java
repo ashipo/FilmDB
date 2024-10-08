@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureH
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.demo.filmdb.graphql.Util.*;
 import static com.demo.filmdb.security.SecurityConfig.ROLE_ADMIN;
@@ -57,7 +57,7 @@ public class RoleControllerSecurityTests {
         @Test
         @DisplayName("Authenticated as ADMIN, authorized")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DirtiesContext
+        @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(CREATE_ROLE)
@@ -117,7 +117,7 @@ public class RoleControllerSecurityTests {
         @Test
         @DisplayName("Authenticated as ADMIN, authorized")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DirtiesContext
+        @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(UPDATE_ROLE)
@@ -160,7 +160,7 @@ public class RoleControllerSecurityTests {
         @Test
         @DisplayName("Authenticated as ADMIN, authorized")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DirtiesContext
+        @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(DELETE_ROLE)
@@ -201,7 +201,7 @@ public class RoleControllerSecurityTests {
         @Test
         @DisplayName("Authenticated as ADMIN, authorized")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DirtiesContext
+        @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(UPDATE_CAST)

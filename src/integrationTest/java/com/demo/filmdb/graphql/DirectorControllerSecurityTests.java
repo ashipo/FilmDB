@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureH
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.graphql.test.tester.HttpGraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -58,7 +57,7 @@ public class DirectorControllerSecurityTests {
         @Test
         @DisplayName("Authenticated as ADMIN, authorized")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DirtiesContext
+        @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(SET_DIRECTOR)
@@ -100,7 +99,7 @@ public class DirectorControllerSecurityTests {
         @Test
         @DisplayName("Authenticated as ADMIN, authorized")
         @WithMockUser(roles = {ROLE_ADMIN})
-        @DirtiesContext
+        @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
                     .documentName(DELETE_DIRECTOR)
