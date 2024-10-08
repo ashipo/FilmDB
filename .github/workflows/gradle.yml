@@ -29,6 +29,7 @@ jobs:
           - 5432:5432
     env:
       SPRING_PROFILES_ACTIVE: postgres
+      POSTGRES_URL: jdbc:postgresql://postgres/filmdb
 
     steps:
     - uses: actions/checkout@v4
