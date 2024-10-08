@@ -25,6 +25,8 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+    env:
+      SPRING_PROFILES_ACTIVE: postgres
 
     steps:
     - uses: actions/checkout@v4
@@ -41,7 +43,7 @@ jobs:
     - name: Build with Gradle Wrapper
       run: |
         chmod +x ./gradlew
-        ./gradlew build -Dspring.profiles.active=postgres
+        ./gradlew build
 
   dependency-submission:
 
