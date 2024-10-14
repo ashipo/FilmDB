@@ -77,7 +77,7 @@ Swagger
 
 GraphiQL
 
-<img src="https://github.com/meume/FilmDB/assets/24320267/bb074831-784b-4710-bf7f-ad873e903e1a" alt="API example" title="API example" width="600"/>
+<img src="https://github.com/user-attachments/assets/9c5303d6-cfea-4c31-8c86-e0ad3b5a1418" alt="GraphiQL" title="GraphiQL" width="600"/>
 
 ## License
 
