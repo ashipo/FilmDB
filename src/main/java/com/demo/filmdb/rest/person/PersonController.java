@@ -172,10 +172,11 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/{personId}/roles")
     public CollectionModel<ActorRoleDto> getRoles(@PathVariable Long personId) {
-        Person person = personService.getPerson(personId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
-        );
-        Collection<Role> roles = person.getRoles();
-        return roleModelAssembler.toCollectionModel(roles, personId);
+        try {
+            Collection<Role> roles = personService.getRoles(personId);
+            return roleModelAssembler.toCollectionModel(roles, personId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 }

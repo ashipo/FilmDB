@@ -1,6 +1,7 @@
 package com.demo.filmdb.person;
 
 import com.demo.filmdb.ServiceTest;
+import com.demo.filmdb.role.Role;
 import com.demo.filmdb.util.EntityNotFoundException;
 import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,10 +20,12 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.CollectionAssert.assertThatCollection;
 import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -310,6 +313,35 @@ public class PersonServiceTests extends ServiceTest {
             boolean actual = personService.personExists(id);
 
             assertThat(actual).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("getRoles")
+    class getRoles {
+
+        @Test
+        @DisplayName("Existing id, returns correctly")
+        void ExistingId_ReturnsCorrectly() {
+            Person person = mock(Person.class);
+            final Long personId = 1L;
+            final Role role = createRole(2L, personId, "Penguin");
+            when(person.getRoles()).thenReturn(Set.of(role));
+            given(personRepository.findById(personId)).willReturn(Optional.of(person));
+
+            var actualRoles = personService.getRoles(personId);
+
+            assertThatCollection(actualRoles).containsExactly(role);
+        }
+
+        @Test
+        @DisplayName("Not existing id, throws EntityNotFoundException")
+        void NotExistingId_Throws() {
+            given(personRepository.findById(anyLong())).willReturn(Optional.empty());
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    personService.getRoles(9L)
+            );
         }
     }
 
