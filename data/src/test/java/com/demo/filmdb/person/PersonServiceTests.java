@@ -1,6 +1,7 @@
 package com.demo.filmdb.person;
 
 import com.demo.filmdb.ServiceTest;
+import com.demo.filmdb.film.Film;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.util.EntityNotFoundException;
 import jakarta.annotation.Nullable;
@@ -341,6 +342,35 @@ public class PersonServiceTests extends ServiceTest {
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                     personService.getRoles(9L)
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("getFilmsDirected")
+    class getFilmsDirected {
+
+        @Test
+        @DisplayName("Existing id, returns correctly")
+        void ExistingId_ReturnsCorrectly() {
+            Person person = mock(Person.class);
+            final Long personId = 1L;
+            Film film = createFilm(2L);
+            when(person.getFilmsDirected()).thenReturn(Set.of(film));
+            given(personRepository.findById(personId)).willReturn(Optional.of(person));
+
+            var actualFilms = personService.getFilmsDirected(personId);
+
+            assertThatCollection(actualFilms).containsExactly(film);
+        }
+
+        @Test
+        @DisplayName("Not existing id, throws EntityNotFoundException")
+        void NotExistingId_Throws() {
+            given(personRepository.findById(anyLong())).willReturn(Optional.empty());
+
+            assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
+                    personService.getFilmsDirected(9L)
             );
         }
     }

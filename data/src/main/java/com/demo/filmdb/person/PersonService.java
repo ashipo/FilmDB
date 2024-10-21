@@ -1,5 +1,6 @@
 package com.demo.filmdb.person;
 
+import com.demo.filmdb.film.Film;
 import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
@@ -176,5 +177,19 @@ public class PersonService {
                 new EntityNotFoundException(personNotFoundMessage(personId))
         );
         return person.getRoles();
+    }
+
+    /**
+     * Returns films directed by a person
+     *
+     * @param personId must not be null
+     * @return collection of films
+     * @throws EntityNotFoundException if person could not be found
+     */
+    public Collection<Film> getFilmsDirected(Long personId) throws EntityNotFoundException {
+        Person person = personRepository.findById(personId).orElseThrow(() ->
+                new EntityNotFoundException(personNotFoundMessage(personId))
+        );
+        return person.getFilmsDirected();
     }
 }

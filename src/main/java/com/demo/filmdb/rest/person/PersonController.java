@@ -157,11 +157,12 @@ public class PersonController {
     @SecurityRequirements
     @GetMapping("/{personId}/films_directed")
     public CollectionModel<FilmDto> getFilmsDirected(@PathVariable Long personId) {
-        Person person = personService.getPerson(personId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, personNotFoundMessage(personId))
-        );
-        Collection<Film> directed = person.getFilmsDirected();
-        return filmModelAssembler.directedFilmsCollectionModel(directed, personId);
+        try {
+            Collection<Film> filmsDirected = personService.getFilmsDirected(personId);
+            return filmModelAssembler.directedFilmsCollectionModel(filmsDirected, personId);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @Operation(summary = "Get roles acted by a person", tags = TAG_ROLES)
