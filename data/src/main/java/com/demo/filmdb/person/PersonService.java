@@ -1,5 +1,7 @@
 package com.demo.filmdb.person;
 
+import com.demo.filmdb.film.Film;
+import com.demo.filmdb.role.Role;
 import com.demo.filmdb.role.RoleRepository;
 import com.demo.filmdb.util.EntityNotFoundException;
 import com.demo.filmdb.util.SortUtil;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
 import static com.demo.filmdb.util.ErrorUtil.personNotFoundMessage;
@@ -160,5 +163,33 @@ public class PersonService {
      */
     public boolean personExists(Long personId) {
         return personRepository.existsById(personId);
+    }
+
+    /**
+     * Returns roles of a person
+     *
+     * @param personId must not be null
+     * @return collection of roles
+     * @throws EntityNotFoundException if person could not be found
+     */
+    public Collection<Role> getRoles(Long personId) throws EntityNotFoundException {
+        Person person = personRepository.findById(personId).orElseThrow(() ->
+                new EntityNotFoundException(personNotFoundMessage(personId))
+        );
+        return person.getRoles();
+    }
+
+    /**
+     * Returns films directed by a person
+     *
+     * @param personId must not be null
+     * @return collection of films
+     * @throws EntityNotFoundException if person could not be found
+     */
+    public Collection<Film> getFilmsDirected(Long personId) throws EntityNotFoundException {
+        Person person = personRepository.findById(personId).orElseThrow(() ->
+                new EntityNotFoundException(personNotFoundMessage(personId))
+        );
+        return person.getFilmsDirected();
     }
 }
