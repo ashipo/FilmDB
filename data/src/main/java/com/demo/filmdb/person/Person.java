@@ -59,6 +59,16 @@ public class Person {
         filmsDirected.add(film);
     }
 
+    /**
+     * Do not use this directly!
+     * To remove Person-directed-Film relation must use Film.removeDirector() instead.
+     *
+     * @param film to remove
+     */
+    public void removeFilmDirected(Film film) {
+        filmsDirected.remove(film);
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }

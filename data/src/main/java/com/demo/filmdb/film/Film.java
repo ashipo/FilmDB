@@ -119,7 +119,7 @@ public class Film {
      */
     public void removeDirector(Person director) {
         directors.remove(director);
-        director.getFilmsDirected().remove(this);
+        director.removeFilmDirected(this);
     }
 
     /**
@@ -127,7 +127,7 @@ public class Film {
      */
     public void removeDirectors() {
         for (Person director : directors) {
-            director.getFilmsDirected().remove(this);
+            director.removeFilmDirected(this);
         }
         directors.clear();
     }
