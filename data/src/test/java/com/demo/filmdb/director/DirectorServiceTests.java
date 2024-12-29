@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -48,7 +50,11 @@ public class DirectorServiceTests extends ServiceTest {
 
             ArgumentCaptor<Film> filmCaptor = ArgumentCaptor.forClass(Film.class);
             verify(filmRepository).save(filmCaptor.capture());
-            assertThatCollection(filmCaptor.getValue().getDirectors()).contains(expectedPerson);
+            Film capturedFilm = filmCaptor.getValue();
+            // Assert that director was added to the film's directors collection
+            assertThatCollection(capturedFilm.getDirectors()).contains(expectedPerson);
+            // Assert that film was added to director's directed films collection
+            assertThatCollection(expectedPerson.getFilmsDirected()).contains(capturedFilm);
         }
 
         @Test
@@ -141,8 +147,14 @@ public class DirectorServiceTests extends ServiceTest {
             directorService.updateDirectors(filmId, directorsIds);
 
             verify(filmRepository).save(filmCaptor.capture());
-            assertThat(filmCaptor.getValue().getId()).isEqualTo(filmId);
-            assertThatCollection(filmCaptor.getValue().getDirectors()).containsExactlyElementsOf(directors);
+            Film capturedFilm = filmCaptor.getValue();
+            assertThat(capturedFilm.getId()).isEqualTo(filmId);
+            // Assert that director was added to the film's directors collection
+            assertThatCollection(capturedFilm.getDirectors()).containsExactlyElementsOf(directors);
+            // Assert that film was added to each director's directed films collection
+            for (Person director : directors) {
+                assertThatCollection(director.getFilmsDirected()).contains(capturedFilm);
+            }
         }
 
         @Test

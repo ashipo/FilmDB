@@ -101,7 +101,7 @@ public class Film {
     public void setDirectors(Collection<Person> newDirectors) {
         removeDirectors();
         for (Person director : newDirectors) {
-            director.getFilmsDirected().add(this);
+            director.addFilmDirected(this);
         }
         directors.addAll(newDirectors);
     }
@@ -111,7 +111,7 @@ public class Film {
      */
     public void addDirector(Person director) {
         directors.add(director);
-        director.getFilmsDirected().add(this);
+        director.addFilmDirected(this);
     }
 
     /**

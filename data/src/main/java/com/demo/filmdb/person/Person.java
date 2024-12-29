@@ -49,6 +49,16 @@ public class Person {
         return filmsDirected;
     }
 
+    /**
+     * Do not use this directly!
+     * To add Person-directed-Film relation must use Film.addDirector() instead.
+     *
+     * @param film to add
+     */
+    public void addFilmDirected(Film film) {
+        filmsDirected.add(film);
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }
