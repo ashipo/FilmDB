@@ -70,6 +70,12 @@ public class Person {
         filmsDirected.remove(film);
     }
 
+    public void removeFilmsDirected() {
+        for (Film film : filmsDirected) {
+            film.removeDirector(this);
+        }
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }
@@ -106,12 +112,5 @@ public class Person {
                 ", name='" + name + '\'' +
                 ", date of birth=" + dateOfBirth +
                 '}';
-    }
-
-    public void removeFilmsDirected() {
-        for (Film film : filmsDirected) {
-            film.getDirectors().remove(this);
-        }
-        filmsDirected.clear();
     }
 }
