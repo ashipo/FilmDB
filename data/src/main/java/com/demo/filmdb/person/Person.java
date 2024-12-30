@@ -46,10 +46,6 @@ public class Person {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Set<Film> getFilmsDirected() {
-        return Collections.unmodifiableSet(filmsDirected);
-    }
-
     /**
      * Do not use this directly!
      * To add Person-directed-Film relation must use Film.addDirector() instead.
@@ -58,6 +54,10 @@ public class Person {
      */
     public void addFilmDirected(Film film) {
         filmsDirected.add(film);
+    }
+
+    public Set<Film> getFilmsDirected() {
+        return Collections.unmodifiableSet(filmsDirected);
     }
 
     /**
@@ -77,7 +77,7 @@ public class Person {
     }
 
     public Set<Role> getRoles() {
-        return roles;
+        return Collections.unmodifiableSet(roles);
     }
 
     @Nullable
