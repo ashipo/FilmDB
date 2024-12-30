@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -45,12 +46,38 @@ public class Person {
         this.dateOfBirth = dateOfBirth;
     }
 
+    /**
+     * Do not use this directly!
+     * To add Person-directed-Film relation must use Film.addDirector() instead.
+     *
+     * @param film to add
+     */
+    public void addFilmDirected(Film film) {
+        filmsDirected.add(film);
+    }
+
     public Set<Film> getFilmsDirected() {
-        return filmsDirected;
+        return Collections.unmodifiableSet(filmsDirected);
+    }
+
+    /**
+     * Do not use this directly!
+     * To remove Person-directed-Film relation must use Film.removeDirector() instead.
+     *
+     * @param film to remove
+     */
+    public void removeFilmDirected(Film film) {
+        filmsDirected.remove(film);
+    }
+
+    public void removeFilmsDirected() {
+        for (Film film : filmsDirected) {
+            film.removeDirector(this);
+        }
     }
 
     public Set<Role> getRoles() {
-        return roles;
+        return Collections.unmodifiableSet(roles);
     }
 
     @Nullable
@@ -85,12 +112,5 @@ public class Person {
                 ", name='" + name + '\'' +
                 ", date of birth=" + dateOfBirth +
                 '}';
-    }
-
-    public void removeFilmsDirected() {
-        for (Film film : filmsDirected) {
-            film.getDirectors().remove(this);
-        }
-        filmsDirected.clear();
     }
 }

@@ -8,10 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "film")
@@ -54,12 +51,8 @@ public class Film {
         this.synopsis = synopsis;
     }
 
-    public Set<Person> getDirectors() {
-        return directors;
-    }
-
     public Set<Role> getCast() {
-        return cast;
+        return Collections.unmodifiableSet(cast);
     }
 
     @Nullable
@@ -96,22 +89,26 @@ public class Film {
     }
 
     /**
+     * Add director for this film for the both sides of the association
+     */
+    public void addDirector(Person director) {
+        directors.add(director);
+        director.addFilmDirected(this);
+    }
+
+    public Set<Person> getDirectors() {
+        return Collections.unmodifiableSet(directors);
+    }
+
+    /**
      * Updates directors for this film for the both sides of the association
      */
     public void setDirectors(Collection<Person> newDirectors) {
         removeDirectors();
         for (Person director : newDirectors) {
-            director.getFilmsDirected().add(this);
+            director.addFilmDirected(this);
         }
         directors.addAll(newDirectors);
-    }
-
-    /**
-     * Add director for this film for the both sides of the association
-     */
-    public void addDirector(Person director) {
-        directors.add(director);
-        director.getFilmsDirected().add(this);
     }
 
     /**
@@ -119,7 +116,7 @@ public class Film {
      */
     public void removeDirector(Person director) {
         directors.remove(director);
-        director.getFilmsDirected().remove(this);
+        director.removeFilmDirected(this);
     }
 
     /**
@@ -127,7 +124,7 @@ public class Film {
      */
     public void removeDirectors() {
         for (Person director : directors) {
-            director.getFilmsDirected().remove(this);
+            director.removeFilmDirected(this);
         }
         directors.clear();
     }

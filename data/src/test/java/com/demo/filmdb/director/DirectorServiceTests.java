@@ -11,8 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
+import static com.demo.filmdb.util.Creators.createFilm;
+import static com.demo.filmdb.util.Creators.createPerson;
 import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -48,7 +51,11 @@ public class DirectorServiceTests extends ServiceTest {
 
             ArgumentCaptor<Film> filmCaptor = ArgumentCaptor.forClass(Film.class);
             verify(filmRepository).save(filmCaptor.capture());
-            assertThatCollection(filmCaptor.getValue().getDirectors()).contains(expectedPerson);
+            Film capturedFilm = filmCaptor.getValue();
+            // Assert that director was added to the film's directors collection
+            assertThatCollection(capturedFilm.getDirectors()).contains(expectedPerson);
+            // Assert that film was added to director's directed films collection
+            assertThatCollection(expectedPerson.getFilmsDirected()).contains(capturedFilm);
         }
 
         @Test
@@ -92,7 +99,9 @@ public class DirectorServiceTests extends ServiceTest {
 
             ArgumentCaptor<Film> filmCaptor = ArgumentCaptor.forClass(Film.class);
             verify(filmRepository).save(filmCaptor.capture());
-            assertThatCollection(filmCaptor.getValue().getDirectors()).isEmpty();
+            Film filmCaptured = filmCaptor.getValue();
+            assertThatCollection(filmCaptured.getDirectors()).doesNotContain(director);
+            assertThatCollection(director.getFilmsDirected()).doesNotContain(filmCaptured);
         }
     }
 
@@ -129,31 +138,55 @@ public class DirectorServiceTests extends ServiceTest {
         @Test
         @DisplayName("Existing ids, saves correctly")
         public void ExistingIds_SavesCorrectly() {
+            // Directors setup
+            Person removedDirector = createPerson(1L);
+            Person keptDirector = createPerson(2L);
+            Person newDirector = createPerson(3L);
+            List<Person> oldDirectors = List.of(removedDirector, keptDirector);
+            List<Person> newDirectors = List.of(keptDirector, newDirector);
+            List<Long> newDirectorsIds = List.of(2L, 3L);
+            // Film setup
             Long filmId = 5L;
-            List<Long> directorsIds = List.of(1L, 2L);
-            List<Person> directors = new ArrayList<>();
-            for (Long id : directorsIds) {
-                directors.add(createPerson(id));
+            Film film = createFilm(filmId);
+            film.setDirectors(oldDirectors);
+            given(filmRepository.findById(filmId)).willReturn(Optional.of(film));
+            given(personRepository.findAllById(any())).willReturn(newDirectors);
+            for (Person director : oldDirectors) {
+                assertThatCollection(director.getFilmsDirected()).contains(film);
             }
-            given(filmRepository.findById(filmId)).willReturn(Optional.of(createFilm(filmId)));
-            given(personRepository.findAllById(any())).willReturn(directors);
 
-            directorService.updateDirectors(filmId, directorsIds);
+            directorService.updateDirectors(filmId, newDirectorsIds);
 
             verify(filmRepository).save(filmCaptor.capture());
-            assertThat(filmCaptor.getValue().getId()).isEqualTo(filmId);
-            assertThatCollection(filmCaptor.getValue().getDirectors()).containsExactlyElementsOf(directors);
+            Film capturedFilm = filmCaptor.getValue();
+            assertThat(capturedFilm.getId()).isEqualTo(filmId);
+            // Assert that only the new directors are in the film's directors collection
+            assertThatCollection(capturedFilm.getDirectors()).containsExactlyElementsOf(newDirectors);
+            // Assert that the film is in each of the new director's directed films
+            for (Person director : newDirectors) {
+                assertThatCollection(director.getFilmsDirected()).contains(capturedFilm);
+            }
+            // Assert that the film is not in the removed director's directed films
+            assertThatCollection(removedDirector.getFilmsDirected()).doesNotContain(capturedFilm);
         }
 
         @Test
         @DisplayName("Null directors, saves empty directors")
         public void NullDirectors_SavesCorrectly() {
-            given(filmRepository.findById(anyLong())).willReturn(Optional.of(new Film()));
+            // Film with a director
+            Person director = createPerson(1L);
+            Long filmId = 5L;
+            Film film = createFilm(filmId);
+            given(filmRepository.findById(filmId)).willReturn(Optional.of(film));
+            film.addDirector(director);
+            assertThatCollection(director.getFilmsDirected()).contains(film);
 
-            directorService.updateDirectors(1L, null);
+            directorService.updateDirectors(filmId, null);
 
             verify(filmRepository).save(filmCaptor.capture());
-            assertThatCollection(filmCaptor.getValue().getDirectors()).isEmpty();
+            Film capturedFilm = filmCaptor.getValue();
+            assertThatCollection(capturedFilm.getDirectors()).doesNotContain(director);
+            assertThatCollection(director.getFilmsDirected()).doesNotContain(film);
         }
     }
 
