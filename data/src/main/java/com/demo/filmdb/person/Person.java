@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class Person {
     }
 
     public Set<Film> getFilmsDirected() {
-        return filmsDirected;
+        return Collections.unmodifiableSet(filmsDirected);
     }
 
     /**
