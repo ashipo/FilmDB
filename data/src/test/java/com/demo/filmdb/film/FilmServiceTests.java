@@ -242,7 +242,7 @@ class FilmServiceTests extends ServiceTest {
         @DisplayName("Existing id, updates")
         void ExistingId_Updates(String title, LocalDate releaseDate, String synopsis) {
             final Long filmId = 1L;
-            final Film existingFilm = createFilm(filmId, "Tenet", LocalDate.of(2020, 8, 26), "Armed with only the word \"Tenet\"");
+            final Film existingFilm = new Film(filmId, "Tenet", LocalDate.of(2020, 8, 26), "Armed with only the word \"Tenet\"");
             // find existing person
             given(filmRepository.findById(filmId)).willReturn(Optional.of(existingFilm));
             // return updated person

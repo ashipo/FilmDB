@@ -57,14 +57,8 @@ class Util {
 
     public static final String DATA = "data";
 
-    static Film createFilm(Long id, String title, LocalDate releaseDate, @Nullable String synopsis) {
-        Film result = new Film(title, releaseDate, synopsis);
-        result.setId(id);
-        return result;
-    }
-
     static Film createFilm(Long id) {
-        return createFilm(id, "Terminator", LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
+        return new Film(id, "Terminator", LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
     }
 
     static Person createPerson(Long id) {

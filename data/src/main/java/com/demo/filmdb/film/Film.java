@@ -45,7 +45,8 @@ public class Film {
     public Film() {
     }
 
-    public Film(String title, LocalDate releaseDate, @Nullable String synopsis) {
+    public Film(Long id, String title, LocalDate releaseDate, @Nullable String synopsis) {
+        this.id = id;
         this.title = title;
         this.releaseDate = releaseDate;
         this.synopsis = synopsis;
@@ -82,10 +83,6 @@ public class Film {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     /**

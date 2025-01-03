@@ -8,14 +8,8 @@ import java.time.LocalDate;
 
 public abstract class Creators {
 
-    public static Film createFilm(Long id, String title, LocalDate releaseDate, String synopsis) {
-        Film result = new Film(title, releaseDate, synopsis);
-        result.setId(id);
-        return result;
-    }
-
     public static Film createFilm(Long id) {
-        return createFilm(id, "Shining", LocalDate.of(1980, 5, 23), "A family heads to an isolated hotel.");
+        return new Film(id, "Shining", LocalDate.of(1980, 5, 23), "A family heads to an isolated hotel.");
     }
 
     public static Person createPerson(Long id) {
