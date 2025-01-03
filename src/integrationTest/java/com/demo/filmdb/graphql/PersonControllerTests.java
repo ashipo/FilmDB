@@ -1,10 +1,10 @@
 package com.demo.filmdb.graphql;
 
+import com.demo.filmdb.graphql.enums.SortablePersonField;
 import com.demo.filmdb.graphql.payloads.DeletePersonPayload;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.person.PersonService;
 import com.demo.filmdb.util.EntityNotFoundException;
-import com.demo.filmdb.graphql.enums.SortablePersonField;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -122,7 +122,7 @@ public class PersonControllerTests {
         @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#validPersonInputs")
         @DisplayName("Valid input, correct response")
         void ValidInput_CorrectResponse(String name, LocalDate dateOfBirth) {
-            given(personService.createPerson(any())).willReturn(new Person(name, dateOfBirth));
+            given(personService.createPerson(any())).willReturn(new Person(9L, name, dateOfBirth));
 
             graphQlTester
                     .documentName(CREATE_PERSON)
@@ -163,7 +163,7 @@ public class PersonControllerTests {
             final Long id = 20L;
             final String name = "Jonah Hill";
             final LocalDate dateOfBirth = LocalDate.of(1983, 12, 20);
-            given(personService.getPerson(id)).willReturn(Optional.of(createPerson(id, name, dateOfBirth)));
+            given(personService.getPerson(id)).willReturn(Optional.of(new Person(id, name, dateOfBirth)));
 
             graphQlTester
                     .documentName(GET_PERSON)
@@ -199,7 +199,7 @@ public class PersonControllerTests {
         @DisplayName("Valid input, correct response")
         void ValidInput_CorrectResponse(String name, LocalDate dateOfBirth) {
             final Long id = 1L;
-            given(personService.updatePerson(anyLong(), any())).willReturn(createPerson(id, name, dateOfBirth));
+            given(personService.updatePerson(anyLong(), any())).willReturn(new Person(id, name, dateOfBirth));
 
             graphQlTester
                     .documentName(UPDATE_PERSON)

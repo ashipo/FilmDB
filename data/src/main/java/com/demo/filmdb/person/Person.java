@@ -41,7 +41,8 @@ public class Person {
     public Person() {
     }
 
-    public Person(String name, @Nullable LocalDate dateOfBirth) {
+    public Person(Long id, String name, @Nullable LocalDate dateOfBirth) {
+        this.id = id;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
     }
@@ -99,10 +100,6 @@ public class Person {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     @Override

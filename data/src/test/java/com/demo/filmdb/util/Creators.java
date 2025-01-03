@@ -13,13 +13,7 @@ public abstract class Creators {
     }
 
     public static Person createPerson(Long id) {
-        return createPerson(id, "John Doe " + id, LocalDate.of(2000, 2, 29));
-    }
-
-    public static Person createPerson(Long id, String name, LocalDate dateOfBirth) {
-        Person result = new Person(name, dateOfBirth);
-        result.setId(id);
-        return result;
+        return new Person(id, "John Doe " + id, LocalDate.of(2000, 2, 29));
     }
 
     public static Role createRole(Long filmId, Long personId, String character) {
