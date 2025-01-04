@@ -44,11 +44,11 @@ class RoleServiceTests extends ServiceTest {
             final Long expectedFilmId = 1L;
             final Long expectedPersonId = 2L;
             final Role expectedRole = new Role();
-            given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(expectedRole));
+            given(roleRepository.findById_FilmIdAndId_PersonId(expectedFilmId, expectedPersonId)).willReturn(Optional.of(expectedRole));
 
             var actual = roleService.getRole(expectedFilmId, expectedPersonId);
 
-            verify(roleRepository).findByIds(expectedFilmId, expectedPersonId);
+            verify(roleRepository).findById_FilmIdAndId_PersonId(expectedFilmId, expectedPersonId);
             assert actual.isPresent();
             assertThat(actual.get()).isEqualTo(expectedRole);
         }
@@ -56,7 +56,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Given ids of a non existing role, returns null")
         void NotExistingIds_ReturnsNull() {
-            given(roleRepository.findByIds(anyLong(), anyLong())).willReturn(Optional.empty());
+            given(roleRepository.findById_FilmIdAndId_PersonId(anyLong(), anyLong())).willReturn(Optional.empty());
 
             var actual = roleService.getRole(11L, 11L);
 
@@ -148,7 +148,7 @@ class RoleServiceTests extends ServiceTest {
             Long expectedPersonId = 3L;
             String expectedCharacter = "Updated character";
             Role originalRole = createRole(expectedFilmId, expectedPersonId, "Original character");
-            given(roleRepository.findByIds(expectedFilmId, expectedPersonId)).willReturn(Optional.of(originalRole));
+            given(roleRepository.findById_FilmIdAndId_PersonId(expectedFilmId, expectedPersonId)).willReturn(Optional.of(originalRole));
             when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
 
             Role actual = roleService.updateRole(expectedFilmId, expectedPersonId, expectedCharacter);
@@ -161,7 +161,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing role, throws EntityNotFoundException")
         void NotExistingRole_Throws() {
-            given(roleRepository.findByIds(anyLong(), anyLong())).willReturn(Optional.empty());
+            given(roleRepository.findById_FilmIdAndId_PersonId(anyLong(), anyLong())).willReturn(Optional.empty());
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
                     roleService.updateRole(1L, 1L, "Lawrence")
@@ -240,7 +240,7 @@ class RoleServiceTests extends ServiceTest {
             Film film = mock(Film.class);
             when(film.getCast()).thenReturn(Set.of(oldRole));
             given(filmService.getFilm(filmId)).willReturn(Optional.of(film));
-            given(roleRepository.findByIds(filmId, personId)).willReturn(Optional.of(oldRole));
+            given(roleRepository.findById_FilmIdAndId_PersonId(filmId, personId)).willReturn(Optional.of(oldRole));
             when(roleRepository.save(any())).then(AdditionalAnswers.returnsFirstArg());
 
             List<Role> actual = roleService.updateCast(filmId, List.of(createCastMember(personId, character)));

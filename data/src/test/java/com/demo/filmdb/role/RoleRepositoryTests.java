@@ -19,6 +19,7 @@ public class RoleRepositoryTests {
     private RoleRepository repository;
 
     @Nested
+    @DisplayName("findById_FilmIdAndId_PersonId")
     class FindByFilmIdAndPersonId {
 
         @Test
@@ -27,7 +28,7 @@ public class RoleRepositoryTests {
             long expectedFilmId = 1L;
             long expectedPersonId = 2L;
 
-            Optional<Role> role = repository.findByIds(expectedFilmId, expectedPersonId);
+            Optional<Role> role = repository.findById_FilmIdAndId_PersonId(expectedFilmId, expectedPersonId);
 
             assertThat(role).hasValueSatisfying((r) -> {
                 assertThat(r.getFilm().getId()).isEqualTo(expectedFilmId);
@@ -41,7 +42,7 @@ public class RoleRepositoryTests {
             long filmId = 1L;
             long personId = 5L;
 
-            Optional<Role> role = repository.findByIds(filmId, personId);
+            Optional<Role> role = repository.findById_FilmIdAndId_PersonId(filmId, personId);
 
             assertThat(role).isEmpty();
         }
