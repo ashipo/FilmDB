@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role, RoleKey> {
+public interface RoleRepository extends JpaRepository<Role, Role.Id> {
 
     @Transactional
     void deleteById_FilmId(Long filmId);

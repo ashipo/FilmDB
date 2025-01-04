@@ -81,6 +81,10 @@ public class Person {
         return Collections.unmodifiableSet(roles);
     }
 
+    public void addRole(Role role) {
+        roles.add(role);
+    }
+
     @Nullable
     public LocalDate getDateOfBirth() {
         return dateOfBirth;

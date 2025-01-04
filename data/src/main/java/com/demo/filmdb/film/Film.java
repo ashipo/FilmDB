@@ -56,6 +56,10 @@ public class Film {
         return Collections.unmodifiableSet(cast);
     }
 
+    public void addRole(Role role) {
+        cast.add(role);
+    }
+
     @Nullable
     public String getSynopsis() {
         return synopsis;

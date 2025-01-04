@@ -73,7 +73,7 @@ class RoleServiceTests extends ServiceTest {
         void ValidIds_DeletesCorrectly() {
             final Long filmId = 1L;
             final Long personId = 2L;
-            final RoleKey expectedId = new RoleKey(filmId, personId);
+            final Role.Id expectedId = new Role.Id(filmId, personId);
 
             roleService.deleteRole(filmId, personId);
 

@@ -96,8 +96,8 @@ public class RoleService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteRole(Long filmId, Long personId) {
-        RoleKey roleKey = new RoleKey(filmId, personId);
-        roleRepository.deleteById(roleKey);
+        Role.Id roleId = new Role.Id(filmId, personId);
+        roleRepository.deleteById(roleId);
     }
 
     /**
@@ -108,8 +108,8 @@ public class RoleService {
      * @return true if exists, false otherwise.
      */
     public boolean roleExists(Long filmId, Long personId) {
-        RoleKey key = new RoleKey(filmId, personId);
-        return roleRepository.existsById(key);
+        Role.Id roleId = new Role.Id(filmId, personId);
+        return roleRepository.existsById(roleId);
     }
 
     /**
