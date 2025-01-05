@@ -13,21 +13,17 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "person")
 public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     @Sortable
     private Long id;
 
-    @Column(name = "name", nullable = false)
     @NotBlank
     @Sortable
     private String name;
 
-    @Column(name = "date_of_birth")
     @Nullable
     @Sortable
     private LocalDate dateOfBirth;

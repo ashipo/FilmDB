@@ -6,30 +6,27 @@ import com.demo.filmdb.role.Role;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.util.*;
 
 @Entity
-@Table(name = "film")
 public class Film {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     @Sortable
     private Long id;
 
-    @Column(name = "title", nullable = false)
     @NotBlank
     @Sortable
     private String title;
 
-    @Column(name = "release_date", nullable = false)
+    @NotNull
     @Sortable
     private LocalDate releaseDate;
 
-    @Column(name = "synopsis")
     @Nullable
     private String synopsis;
 
