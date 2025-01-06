@@ -1,15 +1,13 @@
 package com.demo.filmdb.film;
 
 import com.demo.filmdb.person.Person;
-import com.demo.filmdb.role.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.demo.filmdb.util.Creators.createFilm;
-import static com.demo.filmdb.util.Creators.createPerson;
+import static com.demo.filmdb.util.Creators.*;
 import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -137,7 +135,7 @@ public class FilmTests {
             Film film = createFilm(1L);
 
             assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
-                    film.getCast().add(new Role())
+                    film.getCast().add(createRole())
             );
         }
     }

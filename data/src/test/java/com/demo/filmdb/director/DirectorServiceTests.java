@@ -71,7 +71,7 @@ public class DirectorServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing person id, throws EntityNotFoundException")
         void NotExistingPersonId_Throws() {
-            given(filmRepository.findById(anyLong())).willReturn(Optional.of(new Film()));
+            given(filmRepository.findById(anyLong())).willReturn(Optional.of(createFilm(1L)));
             given(personRepository.findById(anyLong())).willReturn(Optional.empty());
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
@@ -127,7 +127,7 @@ public class DirectorServiceTests extends ServiceTest {
         public void NotExistingPeopleId_Throws() {
             List<Long> directorsIds = List.of(1L, 2L);
             List<Person> directors = List.of(createPerson(1L));
-            given(filmRepository.findById(anyLong())).willReturn(Optional.of(new Film()));
+            given(filmRepository.findById(anyLong())).willReturn(Optional.of(createFilm(1L)));
             given(personRepository.findAllById(any())).willReturn(directors);
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
@@ -197,7 +197,7 @@ public class DirectorServiceTests extends ServiceTest {
         @Test
         @DisplayName("Existing id, saves empty directors")
         public void ExistingId_SavesEmptyDirectors(@Captor ArgumentCaptor<Film> filmCaptor) {
-            given(filmRepository.findById(anyLong())).willReturn(Optional.of(new Film()));
+            given(filmRepository.findById(anyLong())).willReturn(Optional.of(createFilm(1L)));
 
             directorService.deleteDirectors(1L);
 

@@ -66,7 +66,8 @@ public class Role {
     @NotBlank
     private String character;
 
-    public Role() {
+    @SuppressWarnings("unused")
+    Role() {
     }
 
     public Role(Film film, Person person, String character) {

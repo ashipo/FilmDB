@@ -39,7 +39,8 @@ public class Film {
     @OneToMany(mappedBy = "film")
     private final Set<Role> cast = new LinkedHashSet<>();
 
-    public Film() {
+    @SuppressWarnings("unused")
+    Film() {
     }
 
     public Film(Long id, String title, LocalDate releaseDate, @Nullable String synopsis) {

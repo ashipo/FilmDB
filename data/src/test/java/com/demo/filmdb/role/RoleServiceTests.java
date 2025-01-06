@@ -2,7 +2,6 @@ package com.demo.filmdb.role;
 
 import com.demo.filmdb.ServiceTest;
 import com.demo.filmdb.film.Film;
-import com.demo.filmdb.person.Person;
 import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,7 @@ class RoleServiceTests extends ServiceTest {
         void ExistingIds_Finds() {
             final Long expectedFilmId = 1L;
             final Long expectedPersonId = 2L;
-            final Role expectedRole = new Role();
+            final Role expectedRole = createRole(expectedFilmId, expectedPersonId, "The Riddler");
             given(roleRepository.findById_FilmIdAndId_PersonId(expectedFilmId, expectedPersonId)).willReturn(Optional.of(expectedRole));
 
             var actual = roleService.getRole(expectedFilmId, expectedPersonId);
@@ -116,7 +115,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing person id, throws EntityNotFoundException")
         void NotExistingPersonId_Throws() {
-            given(filmService.getFilm(anyLong())).willReturn(Optional.of(new Film()));
+            given(filmService.getFilm(anyLong())).willReturn(Optional.of(createFilm(1L)));
             given(personService.getPerson(anyLong())).willReturn(Optional.empty());
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->
@@ -127,8 +126,8 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Existing role, throws EntityAlreadyExistsException")
         void ExistingRole_Throws() {
-            given(filmService.getFilm(anyLong())).willReturn(Optional.of(new Film()));
-            given(personService.getPerson(anyLong())).willReturn(Optional.of(new Person()));
+            given(filmService.getFilm(anyLong())).willReturn(Optional.of(createFilm(1L)));
+            given(personService.getPerson(anyLong())).willReturn(Optional.of(createPerson(2L)));
             given(roleRepository.existsById(any())).willReturn(true);
 
             assertThatExceptionOfType(EntityAlreadyExistsException.class).isThrownBy(() ->
@@ -315,7 +314,7 @@ class RoleServiceTests extends ServiceTest {
         @Test
         @DisplayName("Not existing person id, throws EntityNotFoundException")
         void NotExistingPersonId_Throws() {
-            given(filmService.getFilm(anyLong())).willReturn(Optional.of(new Film()));
+            given(filmService.getFilm(anyLong())).willReturn(Optional.of(createFilm(1L)));
             given(personService.getPerson(anyLong())).willReturn(Optional.empty());
 
             assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() ->

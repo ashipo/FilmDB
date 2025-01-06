@@ -19,4 +19,8 @@ public abstract class Creators {
     public static Role createRole(Long filmId, Long personId, String character) {
         return new Role(createFilm(filmId), createPerson(personId), character);
     }
+
+    public static Role createRole() {
+        return new Role(createFilm(1L), createPerson(2L), "Jack Torrance");
+    }
 }

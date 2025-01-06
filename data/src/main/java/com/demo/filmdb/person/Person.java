@@ -34,7 +34,8 @@ public class Person {
     @OneToMany(mappedBy = "person")
     private final Set<Role> roles = new LinkedHashSet<>();
 
-    public Person() {
+    @SuppressWarnings("unused")
+    Person() {
     }
 
     public Person(Long id, String name, @Nullable LocalDate dateOfBirth) {
