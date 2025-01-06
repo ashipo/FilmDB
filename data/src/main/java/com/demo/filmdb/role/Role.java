@@ -30,12 +30,20 @@ public class Role {
             this.personId = personId;
         }
 
+        public Long getFilmId() {
+            return filmId;
+        }
+
+        public Long getPersonId() {
+            return personId;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Id id = (Id) o;
-            return Objects.equals(filmId, id.filmId) && Objects.equals(personId, id.personId);
+            if (!(o instanceof Id id)) return false;
+            return Objects.equals(filmId, id.getFilmId())
+                    && Objects.equals(personId, id.getPersonId());
         }
 
         @Override
@@ -80,6 +88,19 @@ public class Role {
 
         film.addRole(this);
         person.addRole(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Role role)) return false;
+        return Objects.equals(film, role.getFilm())
+                && Objects.equals(person, role.getPerson());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(film, person);
     }
 
     public Id getId() {
