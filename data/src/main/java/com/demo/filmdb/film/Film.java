@@ -9,7 +9,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
@@ -158,12 +161,13 @@ public class Film {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Film film)) return false;
-        return Objects.equals(title, film.title) && Objects.equals(releaseDate, film.releaseDate);
+        if (!(o instanceof Film other)) return false;
+        return id != null
+                && id.equals(other.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, releaseDate);
+        return getClass().hashCode();
     }
 }
