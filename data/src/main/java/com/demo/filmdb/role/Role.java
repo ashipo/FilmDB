@@ -78,7 +78,15 @@ public class Role {
     Role() {
     }
 
-    public Role(Film film, Person person, String character) {
+    /**
+     * Creates a Role played by the given Person in the given Film.
+     * Updates Film's and Person's sides of association.
+     *
+     * @param film      must not be null
+     * @param person    must not be null
+     * @param character name or description of the character or characters. Must not be blank.
+     */
+    public Role(Film film, Person person, @NotBlank String character) {
         this.film = film;
         this.person = person;
         this.character = character;

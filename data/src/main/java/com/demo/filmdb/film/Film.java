@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.*;
 
+import static java.util.Objects.requireNonNull;
+
 @Entity
 public class Film {
 
@@ -54,7 +56,16 @@ public class Film {
         return Collections.unmodifiableSet(cast);
     }
 
+    /**
+     * Adds a Role to Film's side of association
+     *
+     * @param role to add
+     */
     public void addRole(Role role) {
+        requireNonNull(role, "Can't add null Role");
+        if (!role.getFilm().equals(this)) {
+            throw new IllegalArgumentException("Can't add Role that belongs to another Film");
+        }
         cast.add(role);
     }
 
@@ -88,7 +99,9 @@ public class Film {
     }
 
     /**
-     * Add director for this film for the both sides of the association
+     * Sets a person as a director of this film for the both sides of the association
+     *
+     * @param director person to make a director
      */
     public void addDirector(Person director) {
         directors.add(director);
@@ -100,7 +113,9 @@ public class Film {
     }
 
     /**
-     * Updates directors for this film for the both sides of the association
+     * Sets a collection of people as the directors of this film for the both sides of the association
+     *
+     * @param newDirectors collection of the new directors
      */
     public void setDirectors(Collection<Person> newDirectors) {
         removeDirectors();
@@ -111,7 +126,9 @@ public class Film {
     }
 
     /**
-     * Remove director from this film for the both sides of the association
+     * Remove a person from the directors of this film for the both sides of the association
+     *
+     * @param director person to remove
      */
     public void removeDirector(Person director) {
         directors.remove(director);
@@ -119,7 +136,7 @@ public class Film {
     }
 
     /**
-     * Removes directors from this film for the both sides of the association
+     * Removes all people from the directors of this film for the both sides of the association
      */
     public void removeDirectors() {
         for (Person director : directors) {

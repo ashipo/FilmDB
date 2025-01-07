@@ -1,10 +1,12 @@
 package com.demo.filmdb.film;
 
 import com.demo.filmdb.person.Person;
+import com.demo.filmdb.role.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.demo.filmdb.util.Creators.*;
@@ -136,6 +138,33 @@ public class FilmTests {
 
             assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
                     film.getCast().add(createRole())
+            );
+        }
+    }
+
+    @Nested
+    class addRole {
+
+        @Test
+        @DisplayName("Given null Role, throws NPE")
+        void giveNullRole_throws() {
+            Film film = createFilm(1L);
+
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() ->
+                    film.addRole(null)
+            );
+        }
+
+        @Test
+        @DisplayName("Given Role that belongs to another Film, throws IllegalArgumentException")
+        void givenOtherFilmRole_throws() {
+            Film film = new Film(1L, "Jaws", LocalDate.now(), null);
+            Film anotherFilm = new Film(2L, "Jaws 2", LocalDate.now(), null);
+            Person actor = createPerson(10L);
+            Role role = new Role(anotherFilm, actor, "Brody");
+
+            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() ->
+                    film.addRole(role)
             );
         }
     }
