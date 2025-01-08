@@ -48,6 +48,12 @@ public class Film {
     Film() {
     }
 
+    public Film(String title, LocalDate releaseDate, @Nullable String synopsis) {
+        this.title = title;
+        this.releaseDate = releaseDate;
+        this.synopsis = synopsis;
+    }
+
     public Film(Long id, String title, LocalDate releaseDate, @Nullable String synopsis) {
         this.id = id;
         this.title = title;
