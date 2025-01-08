@@ -38,6 +38,11 @@ public class Person {
     Person() {
     }
 
+    public Person(String name, @Nullable LocalDate dateOfBirth) {
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+    }
+
     public Person(Long id, String name, @Nullable LocalDate dateOfBirth) {
         this.id = id;
         this.name = name;
@@ -110,5 +115,18 @@ public class Person {
                 ", name='" + name + '\'' +
                 ", date of birth=" + dateOfBirth +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Person other)) return false;
+        return id != null
+                && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
