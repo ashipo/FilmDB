@@ -10,6 +10,7 @@ import java.time.LocalDate;
 
 import static com.demo.filmdb.util.Creators.createFilm;
 import static com.demo.filmdb.util.Creators.createPerson;
+import static org.assertj.core.api.CollectionAssert.assertThatCollection;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -50,5 +51,18 @@ public class RoleTests {
             assertNotEquals(role1, role2);
             assertNotEquals(role2, role3);
         }
+    }
+
+    @Test
+    @DisplayName("Constructor should update bidirectional associations")
+    void constructor_updatesAssociations() {
+        Film film = createFilm(1L);
+        Person person = createPerson(10L);
+        String character = "Marty McFly";
+
+        Role role = new Role(film, person, character);
+
+        assertThatCollection(film.getCast()).contains(role);
+        assertThatCollection(person.getRoles()).contains(role);
     }
 }

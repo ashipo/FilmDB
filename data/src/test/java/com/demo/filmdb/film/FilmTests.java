@@ -13,6 +13,7 @@ import static com.demo.filmdb.util.Creators.*;
 import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+@DisplayName("Film")
 public class FilmTests {
 
     @Nested

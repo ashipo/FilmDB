@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 @Entity
 public class Person {
 
@@ -84,6 +86,10 @@ public class Person {
     }
 
     public void addRole(Role role) {
+        requireNonNull(role, "Can't add null Role");
+        if (!role.getPerson().equals(this)) {
+            throw new IllegalArgumentException("Can't add Role that is played by another Person");
+        }
         roles.add(role);
     }
 
