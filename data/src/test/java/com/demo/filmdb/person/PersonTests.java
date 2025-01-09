@@ -6,11 +6,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static com.demo.filmdb.util.Creators.createFilm;
-import static com.demo.filmdb.util.Creators.createPerson;
+import java.time.LocalDate;
+
+import static com.demo.filmdb.util.Creators.*;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.CollectionAssert.assertThatCollection;
 
+@DisplayName("Person")
 public class PersonTests {
 
     @Nested
@@ -88,7 +90,34 @@ public class PersonTests {
             Person person = createPerson(2L);
 
             assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
-                    person.getRoles().add(new Role())
+                    person.getRoles().add(createRole())
+            );
+        }
+    }
+
+    @Nested
+    class addRole {
+
+        @Test
+        @DisplayName("Given null Role, throws NPE")
+        void giveNullRole_throws() {
+            Person entity = createPerson(1L);
+
+            assertThatExceptionOfType(NullPointerException.class).isThrownBy(() ->
+                    entity.addRole(null)
+            );
+        }
+
+        @Test
+        @DisplayName("Given Role that is played by another Person, throws IllegalArgumentException")
+        void givenOtherPersonRole_throws() {
+            Person person = new Person("Roy Scheider", LocalDate.of(1932, 11, 10));
+            Person anotherPerson = new Person("Robert Shaw", LocalDate.of(1927, 8, 9));
+            Film film = createFilm(10L);
+            Role role = new Role(film, anotherPerson, "Quint");
+
+            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() ->
+                    person.addRole(role)
             );
         }
     }

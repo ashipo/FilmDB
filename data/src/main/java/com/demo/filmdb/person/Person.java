@@ -12,22 +12,20 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 @Entity
-@Table(name = "person")
 public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     @Sortable
     private Long id;
 
-    @Column(name = "name", nullable = false)
     @NotBlank
     @Sortable
     private String name;
 
-    @Column(name = "date_of_birth")
     @Nullable
     @Sortable
     private LocalDate dateOfBirth;
@@ -38,10 +36,17 @@ public class Person {
     @OneToMany(mappedBy = "person")
     private final Set<Role> roles = new LinkedHashSet<>();
 
-    public Person() {
+    @SuppressWarnings("unused")
+    Person() {
     }
 
     public Person(String name, @Nullable LocalDate dateOfBirth) {
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public Person(Long id, String name, @Nullable LocalDate dateOfBirth) {
+        this.id = id;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
     }
@@ -80,6 +85,14 @@ public class Person {
         return Collections.unmodifiableSet(roles);
     }
 
+    public void addRole(Role role) {
+        requireNonNull(role, "Can't add null Role");
+        if (!role.getPerson().equals(this)) {
+            throw new IllegalArgumentException("Can't add Role that is played by another Person");
+        }
+        roles.add(role);
+    }
+
     @Nullable
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
@@ -101,10 +114,6 @@ public class Person {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Override
     public String toString() {
         return "Person{" +
@@ -112,5 +121,18 @@ public class Person {
                 ", name='" + name + '\'' +
                 ", date of birth=" + dateOfBirth +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Person other)) return false;
+        return id != null
+                && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

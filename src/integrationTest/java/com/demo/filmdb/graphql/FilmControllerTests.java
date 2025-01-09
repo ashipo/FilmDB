@@ -2,9 +2,9 @@ package com.demo.filmdb.graphql;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
+import com.demo.filmdb.graphql.enums.SortableFilmField;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.util.EntityNotFoundException;
-import com.demo.filmdb.graphql.enums.SortableFilmField;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -219,7 +219,7 @@ public class FilmControllerTests {
         @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#validFilmInputs")
         @DisplayName("Valid input, correct response")
         void ValidInput_CorrectResponse(String title, LocalDate releaseDate, String synopsis) {
-            given(filmService.createFilm(any())).willReturn(new Film(title, releaseDate, synopsis));
+            given(filmService.createFilm(any())).willReturn(new Film(1L, title, releaseDate, synopsis));
 
             graphQlTester
                     .documentName(CREATE_FILM)
@@ -261,7 +261,7 @@ public class FilmControllerTests {
         @DisplayName("Valid input, correct response")
         void ValidInput_SavesCorrectly(String title, LocalDate releaseDate, String synopsis) {
             final Long id = 1L;
-            given(filmService.updateFilm(anyLong(), any())).willReturn(createFilm(id, title, releaseDate, synopsis));
+            given(filmService.updateFilm(anyLong(), any())).willReturn(new Film(id, title, releaseDate, synopsis));
 
             graphQlTester
                     .documentName(UPDATE_FILM)

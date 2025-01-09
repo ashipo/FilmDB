@@ -210,7 +210,7 @@ public class PersonServiceTests extends ServiceTest {
         @DisplayName("Existing id, updates")
         void ExistingId_Updates(String name, LocalDate dateOfBirth) {
             final Long personId = 5L;
-            final Person existingPerson = createPerson(personId, "Leeloo", LocalDate.of(1, 1, 1));
+            final Person existingPerson = new Person(personId, "Leeloo", LocalDate.of(1, 1, 1));
             // find existing person
             given(personRepository.findById(personId)).willReturn(Optional.of(existingPerson));
             // return updated person

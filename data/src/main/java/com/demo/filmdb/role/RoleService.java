@@ -67,7 +67,7 @@ public class RoleService {
      * @return the found entity or empty {@code Optional}
      */
     public Optional<Role> getRole(Long filmId, Long personId) {
-        return roleRepository.findByIds(filmId, personId);
+        return roleRepository.findById_FilmIdAndId_PersonId(filmId, personId);
     }
 
     /**
@@ -81,7 +81,7 @@ public class RoleService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public Role updateRole(Long filmId, Long personId, String character) throws EntityNotFoundException {
-        Role roleToUpdate = roleRepository.findByIds(filmId, personId).orElseThrow(() ->
+        Role roleToUpdate = roleRepository.findById_FilmIdAndId_PersonId(filmId, personId).orElseThrow(() ->
                 new EntityNotFoundException(roleNotFoundMessage(filmId, personId))
         );
         roleToUpdate.setCharacter(character);
@@ -96,8 +96,8 @@ public class RoleService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteRole(Long filmId, Long personId) {
-        RoleKey roleKey = new RoleKey(filmId, personId);
-        roleRepository.deleteById(roleKey);
+        Role.Id roleId = new Role.Id(filmId, personId);
+        roleRepository.deleteById(roleId);
     }
 
     /**
@@ -108,8 +108,8 @@ public class RoleService {
      * @return true if exists, false otherwise.
      */
     public boolean roleExists(Long filmId, Long personId) {
-        RoleKey key = new RoleKey(filmId, personId);
-        return roleRepository.existsById(key);
+        Role.Id roleId = new Role.Id(filmId, personId);
+        return roleRepository.existsById(roleId);
     }
 
     /**

@@ -3,7 +3,6 @@ package com.demo.filmdb.graphql;
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.person.Person;
 import com.demo.filmdb.role.Role;
-import jakarta.annotation.Nullable;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -57,24 +56,12 @@ class Util {
 
     public static final String DATA = "data";
 
-    static Film createFilm(Long id, String title, LocalDate releaseDate, @Nullable String synopsis) {
-        Film result = new Film(title, releaseDate, synopsis);
-        result.setId(id);
-        return result;
-    }
-
     static Film createFilm(Long id) {
-        return createFilm(id, "Terminator", LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
+        return new Film(id, "Terminator", LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
     }
 
     static Person createPerson(Long id) {
-        return createPerson(id, "Arnold Schwarzenegger", LocalDate.of(1947, 7, 30));
-    }
-
-    static Person createPerson(Long id, String name, @Nullable LocalDate dateOfBirth) {
-        Person result = new Person(name, dateOfBirth);
-        result.setId(id);
-        return result;
+        return new Person(id, "Arnold Schwarzenegger", LocalDate.of(1947, 7, 30));
     }
 
     static Role createRole(Long filmId, Long personId) {

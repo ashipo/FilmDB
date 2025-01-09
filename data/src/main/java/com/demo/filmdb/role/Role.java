@@ -5,58 +5,122 @@ import com.demo.filmdb.person.Person;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 public class Role {
+
+    @Embeddable
+    public static class Id implements Serializable {
+
+        @Column(name = "film_id")
+        private Long filmId;
+
+        @Column(name = "person_id")
+        private Long personId;
+
+        public Id() {
+        }
+
+        public Id(Long filmId, Long personId) {
+            this.filmId = filmId;
+            this.personId = personId;
+        }
+
+        public Long getFilmId() {
+            return filmId;
+        }
+
+        public Long getPersonId() {
+            return personId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Id id)) return false;
+            return Objects.equals(filmId, id.getFilmId())
+                    && Objects.equals(personId, id.getPersonId());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(filmId, personId);
+        }
+
+        @Override
+        public String toString() {
+            return "Id{" +
+                    "filmId=" + filmId +
+                    ", personId=" + personId +
+                    '}';
+        }
+    }
+
     @EmbeddedId
-    RoleKey id = new RoleKey();
+    Id id = new Id();
 
     @ManyToOne(fetch = LAZY)
-    @MapsId("filmId")
-    @JoinColumn(name = "film_id")
+    @JoinColumn(name = "film_id", insertable = false, updatable = false)
     private Film film;
 
     @ManyToOne(fetch = LAZY)
-    @MapsId("personId")
-    @JoinColumn(name = "person_id")
+    @JoinColumn(name = "person_id", insertable = false, updatable = false)
     private Person person;
 
     @NotBlank
-    @Column(nullable = false)
     private String character;
 
-    public Role() {
+    @SuppressWarnings("unused")
+    Role() {
     }
 
-    public Role(Film film, Person person, String character) {
+    /**
+     * Creates a Role played by the given Person in the given Film.
+     * Updates Film's and Person's sides of association.
+     *
+     * @param film      must not be null
+     * @param person    must not be null
+     * @param character name or description of the character or characters. Must not be blank.
+     */
+    public Role(Film film, Person person, @NotBlank String character) {
         this.film = film;
         this.person = person;
         this.character = character;
+
+        this.id.filmId = film.getId();
+        this.id.personId = person.getId();
+
+        film.addRole(this);
+        person.addRole(this);
     }
 
-    public RoleKey getId() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Role role)) return false;
+        return Objects.equals(film, role.getFilm())
+                && Objects.equals(person, role.getPerson());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(film, person);
+    }
+
+    public Id getId() {
         return id;
-    }
-
-    public void setId(RoleKey id) {
-        this.id = id;
     }
 
     public Film getFilm() {
         return film;
     }
 
-    public void setFilm(Film film) {
-        this.film = film;
-    }
-
     public Person getPerson() {
         return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
     }
 
     public String getCharacter() {

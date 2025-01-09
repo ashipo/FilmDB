@@ -6,30 +6,32 @@ import com.demo.filmdb.role.Role;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 @Entity
-@Table(name = "film")
 public class Film {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     @Sortable
     private Long id;
 
-    @Column(name = "title", nullable = false)
     @NotBlank
     @Sortable
     private String title;
 
-    @Column(name = "release_date", nullable = false)
+    @NotNull
     @Sortable
     private LocalDate releaseDate;
 
-    @Column(name = "synopsis")
     @Nullable
     private String synopsis;
 
@@ -42,7 +44,8 @@ public class Film {
     @OneToMany(mappedBy = "film")
     private final Set<Role> cast = new LinkedHashSet<>();
 
-    public Film() {
+    @SuppressWarnings("unused")
+    Film() {
     }
 
     public Film(String title, LocalDate releaseDate, @Nullable String synopsis) {
@@ -51,8 +54,28 @@ public class Film {
         this.synopsis = synopsis;
     }
 
+    public Film(Long id, String title, LocalDate releaseDate, @Nullable String synopsis) {
+        this.id = id;
+        this.title = title;
+        this.releaseDate = releaseDate;
+        this.synopsis = synopsis;
+    }
+
     public Set<Role> getCast() {
         return Collections.unmodifiableSet(cast);
+    }
+
+    /**
+     * Adds a Role to Film's side of association
+     *
+     * @param role to add
+     */
+    public void addRole(Role role) {
+        requireNonNull(role, "Can't add null Role");
+        if (!role.getFilm().equals(this)) {
+            throw new IllegalArgumentException("Can't add Role that belongs to another Film");
+        }
+        cast.add(role);
     }
 
     @Nullable
@@ -84,12 +107,10 @@ public class Film {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     /**
-     * Add director for this film for the both sides of the association
+     * Sets a person as a director of this film for the both sides of the association
+     *
+     * @param director person to make a director
      */
     public void addDirector(Person director) {
         directors.add(director);
@@ -101,7 +122,9 @@ public class Film {
     }
 
     /**
-     * Updates directors for this film for the both sides of the association
+     * Sets a collection of people as the directors of this film for the both sides of the association
+     *
+     * @param newDirectors collection of the new directors
      */
     public void setDirectors(Collection<Person> newDirectors) {
         removeDirectors();
@@ -112,7 +135,9 @@ public class Film {
     }
 
     /**
-     * Remove director from this film for the both sides of the association
+     * Remove a person from the directors of this film for the both sides of the association
+     *
+     * @param director person to remove
      */
     public void removeDirector(Person director) {
         directors.remove(director);
@@ -120,7 +145,7 @@ public class Film {
     }
 
     /**
-     * Removes directors from this film for the both sides of the association
+     * Removes all people from the directors of this film for the both sides of the association
      */
     public void removeDirectors() {
         for (Person director : directors) {
@@ -142,12 +167,13 @@ public class Film {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Film film)) return false;
-        return Objects.equals(title, film.title) && Objects.equals(releaseDate, film.releaseDate);
+        if (!(o instanceof Film other)) return false;
+        return id != null
+                && id.equals(other.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, releaseDate);
+        return getClass().hashCode();
     }
 }
