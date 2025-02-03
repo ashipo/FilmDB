@@ -238,7 +238,8 @@ public class PersonIntegrationTests {
                 arguments(named("Empty name", "{ \"name\":\"\", \"dateOfBirth\" : \"1921-12-18\"}")),
                 arguments(named("Blank name", "{ \"name\":\"   \", \"dateOfBirth\" : \"1921-12-18\"}")),
                 arguments(named("Missing name", "{ \"dateOfBirth\" : \"1921-12-18\"}")),
-                arguments(named("Invalid date of birth", "{ \"name\":\"Yuriy\", \"dateOfBirth\" : \"some\"}"))
+                arguments(named("Name > 255 characters", "{ \"name\": \"" + "A".repeat(256) + "\", \"dateOfBirth\" : \"1921-12-18\"}")),
+                arguments(named("Invalid date of birth", "{ \"name\":\"Yuriy\", \"dateOfBirth\" : \"last week\"}"))
         );
     }
 }

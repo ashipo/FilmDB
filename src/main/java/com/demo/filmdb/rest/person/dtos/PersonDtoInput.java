@@ -1,8 +1,6 @@
 package com.demo.filmdb.rest.person.dtos;
 
 import com.demo.filmdb.person.PersonInfo;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -11,8 +9,8 @@ import java.time.LocalDate;
  * An input DTO used to create/update a person
  */
 public record PersonDtoInput(
-        @NotBlank String name,
-        @Nullable LocalDate dateOfBirth
+        String name,
+        LocalDate dateOfBirth
 ) implements Serializable, PersonInfo {
 
     @Override
@@ -21,7 +19,7 @@ public record PersonDtoInput(
     }
 
     @Override
-    public @Nullable LocalDate getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 }

@@ -1,5 +1,7 @@
-package com.demo.filmdb.graphql;
+package com.demo.filmdb.graphql.person;
 
+import com.demo.filmdb.graphql.PersonController;
+import com.demo.filmdb.graphql.TestConfigurer;
 import com.demo.filmdb.graphql.enums.SortablePersonField;
 import com.demo.filmdb.graphql.payloads.DeletePersonPayload;
 import com.demo.filmdb.person.Person;
@@ -35,13 +37,14 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.graphql.execution.ErrorType.NOT_FOUND;
 
 @GraphQlTest({PersonController.class, TestConfigurer.class})
-@DisplayName("GraphQL Person")
+@DisplayName("GraphQL PersonController")
 public class PersonControllerTests {
 
     @Autowired
     GraphQlTester graphQlTester;
 
     @MockBean
+    @SuppressWarnings("unused")
     private PersonService personService;
 
     @Nested
@@ -86,7 +89,7 @@ public class PersonControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#invalidPeopleInputs")
+        @MethodSource("com.demo.filmdb.graphql.person.PersonControllerTests#invalidPeopleInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(
                 Object page,
@@ -119,7 +122,7 @@ public class PersonControllerTests {
     class CreatePerson {
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#validPersonInputs")
+        @MethodSource("com.demo.filmdb.graphql.person.PersonControllerTests#validPersonInputs")
         @DisplayName("Valid input, correct response")
         void ValidInput_CorrectResponse(String name, LocalDate dateOfBirth) {
             given(personService.createPerson(any())).willReturn(new Person(9L, name, dateOfBirth));
@@ -137,7 +140,7 @@ public class PersonControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#invalidPersonInputs")
+        @MethodSource("com.demo.filmdb.graphql.person.PersonControllerTests#invalidPersonInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object name, Object dateOfBirth) {
             graphQlTester
@@ -195,7 +198,7 @@ public class PersonControllerTests {
     class UpdatePerson {
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#validPersonInputs")
+        @MethodSource("com.demo.filmdb.graphql.person.PersonControllerTests#validPersonInputs")
         @DisplayName("Valid input, correct response")
         void ValidInput_CorrectResponse(String name, LocalDate dateOfBirth) {
             final Long id = 1L;
@@ -234,7 +237,7 @@ public class PersonControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.PersonControllerTests#invalidPersonInputs")
+        @MethodSource("com.demo.filmdb.graphql.person.PersonControllerTests#invalidPersonInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object name, Object dateOfBirth) {
             graphQlTester
