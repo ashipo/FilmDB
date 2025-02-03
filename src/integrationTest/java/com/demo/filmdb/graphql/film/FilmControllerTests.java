@@ -1,7 +1,9 @@
-package com.demo.filmdb.graphql;
+package com.demo.filmdb.graphql.film;
 
 import com.demo.filmdb.film.Film;
 import com.demo.filmdb.film.FilmService;
+import com.demo.filmdb.graphql.FilmController;
+import com.demo.filmdb.graphql.TestConfigurer;
 import com.demo.filmdb.graphql.enums.SortableFilmField;
 import com.demo.filmdb.graphql.payloads.DeleteFilmPayload;
 import com.demo.filmdb.util.EntityNotFoundException;
@@ -35,13 +37,14 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.graphql.execution.ErrorType.NOT_FOUND;
 
 @GraphQlTest({FilmController.class, TestConfigurer.class})
-@DisplayName("GraphQL Film")
+@DisplayName("GraphQL FilmController")
 public class FilmControllerTests {
 
     @Autowired
     GraphQlTester graphQlTester;
 
     @MockBean
+    @SuppressWarnings("unused")
     private FilmService filmService;
 
     @Nested
@@ -86,7 +89,7 @@ public class FilmControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#invalidFilmsInputs")
+        @MethodSource("com.demo.filmdb.graphql.film.FilmControllerTests#invalidFilmsInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(
                 Object page,
@@ -216,7 +219,7 @@ public class FilmControllerTests {
     class CreateFilm {
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#validFilmInputs")
+        @MethodSource("com.demo.filmdb.graphql.film.FilmControllerTests#validFilmInputs")
         @DisplayName("Valid input, correct response")
         void ValidInput_CorrectResponse(String title, LocalDate releaseDate, String synopsis) {
             given(filmService.createFilm(any())).willReturn(new Film(1L, title, releaseDate, synopsis));
@@ -235,7 +238,7 @@ public class FilmControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#invalidFilmInputs")
+        @MethodSource("com.demo.filmdb.graphql.film.FilmControllerTests#invalidFilmInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object title, Object releaseDate, Object synopsis) {
             graphQlTester
@@ -257,7 +260,7 @@ public class FilmControllerTests {
     class UpdateFilm {
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#validFilmInputs")
+        @MethodSource("com.demo.filmdb.graphql.film.FilmControllerTests#validFilmInputs")
         @DisplayName("Valid input, correct response")
         void ValidInput_SavesCorrectly(String title, LocalDate releaseDate, String synopsis) {
             final Long id = 1L;
@@ -297,7 +300,7 @@ public class FilmControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.FilmControllerTests#invalidFilmInputs")
+        @MethodSource("com.demo.filmdb.graphql.film.FilmControllerTests#invalidFilmInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object title, Object releaseDate, Object synopsis) {
             graphQlTester

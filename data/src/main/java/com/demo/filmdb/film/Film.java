@@ -7,6 +7,7 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -24,15 +25,24 @@ public class Film {
     @Sortable
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Title is required")
+    @Size(
+            min = 1,
+            max = 255,
+            message = "Title length must be between 1 and 255 characters"
+    )
     @Sortable
     private String title;
 
-    @NotNull
+    @NotNull(message = "Release date is required")
     @Sortable
     private LocalDate releaseDate;
 
     @Nullable
+    @Size(
+            max = 2000,
+            message = "Synopsys length cannot exceed 2000 characters"
+    )
     private String synopsis;
 
     @ManyToMany

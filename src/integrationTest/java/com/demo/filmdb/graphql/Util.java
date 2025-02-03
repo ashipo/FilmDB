@@ -12,51 +12,55 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-class Util {
+public class Util {
     // documents
-    static final String FILMS = "films";
-    static final String GET_FILM = "film";
-    static final String DELETE_FILM = "deleteFilm";
-    static final String CREATE_FILM = "createFilm";
-    static final String UPDATE_FILM = "updateFilm";
-    static final String SET_DIRECTOR = "setDirector";
-    static final String DELETE_DIRECTOR = "deleteDirector";
-    static final String UPDATE_DIRECTORS = "updateDirectors";
-    static final String CREATE_ROLE = "createRole";
-    static final String GET_ROLE = "role";
-    static final String UPDATE_ROLE = "updateRole";
-    static final String DELETE_ROLE = "deleteRole";
-    static final String UPDATE_CAST = "updateCast";
-    static final String PEOPLE = "people";
-    static final String CREATE_PERSON = "createPerson";
-    static final String GET_PERSON = "person";
-    static final String UPDATE_PERSON = "updatePerson";
-    static final String DELETE_PERSON = "deletePerson";
+    static public final String FILMS = "films";
+    static public final String GET_FILM = "film";
+    static public final String DELETE_FILM = "deleteFilm";
+    static public final String CREATE_FILM = "createFilm";
+    static public final String UPDATE_FILM = "updateFilm";
+    static public final String SET_DIRECTOR = "setDirector";
+    static public final String DELETE_DIRECTOR = "deleteDirector";
+    static public final String UPDATE_DIRECTORS = "updateDirectors";
+    static public final String CREATE_ROLE = "createRole";
+    static public final String GET_ROLE = "role";
+    static public final String UPDATE_ROLE = "updateRole";
+    static public final String DELETE_ROLE = "deleteRole";
+    static public final String UPDATE_CAST = "updateCast";
+    static public final String PEOPLE = "people";
+    static public final String CREATE_PERSON = "createPerson";
+    static public final String GET_PERSON = "person";
+    static public final String UPDATE_PERSON = "updatePerson";
+    static public final String DELETE_PERSON = "deletePerson";
     // variables
-    static final String VAR_ID = "id";
-    static final String FILM_ID = "filmId";
-    static final String PERSON_ID = "personId";
-    static final String CHARACTER = "character";
-    static final String NAME = "name";
-    static final String DATE_OF_BIRTH = "dateOfBirth";
-    static final String TITLE = "title";
-    static final String RELEASE_DATE = "releaseDate";
-    static final String SYNOPSIS = "synopsis";
-    static final String DIRECTORS_IDS = "directorsIds";
-    static final String CAST = "cast";
-    static final String PAGE = "page";
-    static final String PAGE_SIZE = "pageSize";
-    static final String SORT_BY = "sortBy";
-    static final String SORT_DIRECTION = "sortDirection";
+    static public final String VAR_ID = "id";
+    static public final String FILM_ID = "filmId";
+    static public final String PERSON_ID = "personId";
+    static public final String CHARACTER = "character";
+    static public final String NAME = "name";
+    static public final String DATE_OF_BIRTH = "dateOfBirth";
+    static public final String TITLE = "title";
+    static public final String RELEASE_DATE = "releaseDate";
+    static public final String SYNOPSIS = "synopsis";
+    static public final String DIRECTORS_IDS = "directorsIds";
+    static public final String CAST = "cast";
+    static public final String PAGE = "page";
+    static public final String PAGE_SIZE = "pageSize";
+    static public final String SORT_BY = "sortBy";
+    static public final String SORT_DIRECTION = "sortDirection";
     // named arguments
-    static final Named<Object> NULL = named("[Null]", null);
-    static final Named<String> EMPTY_STRING = named("[Empty]", "");
-    static final Named<String> BLANK_STRING = named("[Blank]", "  ");
-    static final Named<String> INVALID_DATE = named("[Invalid]", "2000-20-20");
+    static public final Named<Object> NULL = named("[Null]", null);
+    static public final Named<String> EMPTY_STRING = named("[Empty]", "");
+    static public final Named<String> BLANK_STRING = named("[Blank]", "  ");
+    static public final Named<String> INVALID_DATE = named("[Invalid]", "2000-20-20");
 
-    public static final String DATA = "data";
+    static public Named<String> stringOfLength(int len) {
+        return named("[Length = " + len + "]", "A".repeat(len));
+    }
 
-    static Film createFilm(Long id) {
+    static public final String DATA = "data";
+
+    static public Film createFilm(Long id) {
         return new Film(id, "Terminator", LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
     }
 
