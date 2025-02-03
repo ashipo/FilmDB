@@ -5,6 +5,7 @@ import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
+import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
@@ -12,11 +13,14 @@ import org.springframework.graphql.execution.ErrorType;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.demo.filmdb.graphql.exceptions.GraphQLErrorType.CONFLICT;
+import static graphql.ErrorType.ValidationError;
 
 @Component
+@SuppressWarnings("unused")
 public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter {
 
     @Override
@@ -31,24 +35,25 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
             return null;
         }
 
-        return GraphQLError.newError()
+        return GraphqlErrorBuilder.newError(env)
                 .errorType(errorType)
                 .message(ex.getMessage())
-                .path(env.getExecutionStepInfo().getPath())
-                .location(env.getField().getSourceLocation())
                 .build();
     }
 
     @Override
     protected List<GraphQLError> resolveToMultipleErrors(Throwable ex, DataFetchingEnvironment env) {
+        GraphQLError singleError = resolveToSingleError(ex, env);
+        if (singleError != null) {
+            return Collections.singletonList(singleError);
+        }
+
         if (ex instanceof ConstraintViolationException violationException) {
             var errors = new ArrayList<GraphQLError>();
             for (var violation : violationException.getConstraintViolations()) {
-                var error = GraphQLError.newError()
-                        .errorType(ErrorType.BAD_REQUEST)
+                var error = GraphqlErrorBuilder.newError(env)
+                        .errorType(ValidationError)
                         .message(violation.getMessage())
-                        .path(env.getExecutionStepInfo().getPath())
-                        .location(env.getField().getSourceLocation())
                         .build();
                 errors.add(error);
             }
