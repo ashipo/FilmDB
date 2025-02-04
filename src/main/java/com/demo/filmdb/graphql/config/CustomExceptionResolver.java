@@ -5,6 +5,7 @@ import com.demo.filmdb.util.EntityAlreadyExistsException;
 import com.demo.filmdb.util.EntityNotFoundException;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
+import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.graphql.execution.ErrorType;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import static com.demo.filmdb.graphql.exceptions.GraphQLErrorType.CONFLICT;
 
 @Component
+@SuppressWarnings("unused")
 public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter {
 
     @Override
@@ -27,11 +29,9 @@ public class CustomExceptionResolver extends DataFetcherExceptionResolverAdapter
             return null;
         }
 
-        return GraphQLError.newError()
+        return GraphqlErrorBuilder.newError(env)
                 .errorType(errorType)
                 .message(ex.getMessage())
-                .path(env.getExecutionStepInfo().getPath())
-                .location(env.getField().getSourceLocation())
                 .build();
     }
 }

@@ -6,6 +6,7 @@ import com.demo.filmdb.role.Role;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -22,7 +23,12 @@ public class Person {
     @Sortable
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Name is required")
+    @Size(
+            min = 1,
+            max = 255,
+            message = "Name length must be between 1 and 255 characters"
+    )
     @Sortable
     private String name;
 

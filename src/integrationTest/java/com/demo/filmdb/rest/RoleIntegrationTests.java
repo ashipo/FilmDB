@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -14,11 +15,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.stream.Stream;
+
 import static com.demo.filmdb.rest.Util.NOT_EXISTING_ID;
 import static com.demo.filmdb.rest.Util.configureMockMvc;
 import static com.demo.filmdb.rest.util.Path.API_PREFIX;
 import static com.demo.filmdb.security.SecurityConfig.ROLE_ADMIN;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.ParameterizedTest.ARGUMENTS_PLACEHOLDER;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -99,14 +105,8 @@ public class RoleIntegrationTests {
                     .andExpect(status().isConflict());
         }
 
-        @ParameterizedTest(name = "{arguments}")
-        @ValueSource(strings = {
-                "[]",
-                "[{\"personId\":, \"character\":\"test\"}]",
-                "[{\"personId\":one, \"character\":\"test\"}]",
-                "[{\"personId\":1, \"character\":}]",
-                "[{\"personId\":1, \"character\":\"   \"}]"
-        })
+        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.rest.RoleIntegrationTests#invalidRoleInput")
         @DisplayName("Existing film id, invalid request, expect 400")
         @WithMockUser(roles = {ROLE_ADMIN})
         public void InvalidRequest_Response400(String requestBody) throws Exception {
@@ -185,12 +185,8 @@ public class RoleIntegrationTests {
                     jsonPath("$._links.self.href").value(containsString(expectedUri)));
         }
 
-        @ParameterizedTest(name = "{arguments}")
-        @ValueSource(strings = {
-                "{}",
-                "{ \"character\" : \"\"}",
-                "{ \"character\" : \"   \"}"
-        })
+        @ParameterizedTest(name = ARGUMENTS_PLACEHOLDER)
+        @MethodSource("com.demo.filmdb.rest.RoleIntegrationTests#invalidRoleUpdateInput")
         @DisplayName("Existing ids, invalid request, expect 400")
         @WithMockUser(roles = {ROLE_ADMIN})
         public void InvalidInput_Response400(String request) throws Exception {
@@ -279,5 +275,26 @@ public class RoleIntegrationTests {
             mockMvc.perform(delete(uri))
                     .andExpect(status().isForbidden());
         }
+    }
+
+    private static Stream<Arguments> invalidRoleInput() {
+        return Stream.of(
+                arguments(named("Empty request", "{}")),
+                arguments(named("Missing person id", "{\"personId\":, \"character\":\"test\"}")),
+                arguments(named("Invalid person id", "{\"personId\":one, \"character\":\"test\"}")),
+                arguments(named("Null person id", "{\"personId\":null, \"character\":\"test\"}")),
+                arguments(named("Missing character", "{\"personId\":1, \"character\":}")),
+                arguments(named("Blank character", "{\"personId\":1, \"character\":\"   \"}")),
+                arguments(named("Character > 255 characters", "{\"personId\":1, \"character\":\"" + "A".repeat(256) + "\"}"))
+        );
+    }
+
+    private static Stream<Arguments> invalidRoleUpdateInput() {
+        return Stream.of(
+                arguments(named("Empty request", "{}")),
+                arguments(named("Missing character", "{\"character\":}")),
+                arguments(named("Blank character", "{\"character\":\"\"}")),
+                arguments(named("Character length > 255", "{\"character\":\"" + "A".repeat(256) + "\"}"))
+        );
     }
 }

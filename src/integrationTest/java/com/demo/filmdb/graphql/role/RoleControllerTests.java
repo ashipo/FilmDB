@@ -1,5 +1,7 @@
-package com.demo.filmdb.graphql;
+package com.demo.filmdb.graphql.role;
 
+import com.demo.filmdb.graphql.RoleController;
+import com.demo.filmdb.graphql.TestConfigurer;
 import com.demo.filmdb.graphql.payloads.DeleteRolePayload;
 import com.demo.filmdb.role.CastMember;
 import com.demo.filmdb.role.Role;
@@ -40,6 +42,7 @@ public class RoleControllerTests {
     GraphQlTester graphQlTester;
 
     @MockBean
+    @SuppressWarnings("unused")
     private RoleService roleService;
 
     @Nested
@@ -69,7 +72,7 @@ public class RoleControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
+        @MethodSource("com.demo.filmdb.graphql.role.RoleControllerTests#invalidRoleInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Long filmId, Long personId, String character) {
             graphQlTester
@@ -168,7 +171,7 @@ public class RoleControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
+        @MethodSource("com.demo.filmdb.graphql.role.RoleControllerTests#invalidRoleInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Long filmId, Long personId, String character) {
             graphQlTester
@@ -273,7 +276,7 @@ public class RoleControllerTests {
         }
 
         @ParameterizedTest(name = ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-        @MethodSource("com.demo.filmdb.graphql.RoleControllerTests#invalidRoleInputs")
+        @MethodSource("com.demo.filmdb.graphql.role.RoleControllerTests#invalidRoleInputs")
         @DisplayName("Invalid input, validation error")
         void InvalidInput_ValidationError(Object filmId, Object personId, Object character) {
             List<Map<Object, Object>> cast = List.of(

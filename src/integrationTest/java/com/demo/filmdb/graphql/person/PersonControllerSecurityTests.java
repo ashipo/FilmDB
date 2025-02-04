@@ -1,4 +1,4 @@
-package com.demo.filmdb.graphql;
+package com.demo.filmdb.graphql.person;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,24 +17,34 @@ import static org.springframework.graphql.execution.ErrorType.UNAUTHORIZED;
 
 @SpringBootTest
 @AutoConfigureHttpGraphQlTester
-@DisplayName("GraphQL Role Security")
-public class RoleControllerSecurityTests {
+@DisplayName("GraphQL Person Security")
+public class PersonControllerSecurityTests {
 
     @Autowired
     HttpGraphQlTester graphQlTester;
 
     @Nested
-    @DisplayName(CREATE_ROLE)
-    class CreateRole {
+    @DisplayName(PEOPLE)
+    class People {
+
+        @Test
+        @DisplayName("Not authenticated, authorized")
+        void NotAuthenticated_Authorized() {
+            graphQlTester.document("{people {id}}")
+                    .executeAndVerify();
+        }
+    }
+
+    @Nested
+    @DisplayName(CREATE_PERSON)
+    class CreatePerson {
 
         @Test
         @DisplayName("Not authenticated, unauthorized")
         void NotAuthenticated_Unauthorized() {
             graphQlTester
-                    .documentName(CREATE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 1L)
-                    .variable(CHARACTER, "Merry")
+                    .documentName(CREATE_PERSON)
+                    .variable(NAME, "Anthony Hopkins")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -45,10 +55,8 @@ public class RoleControllerSecurityTests {
         @WithMockUser
         void AuthenticatedUser_Forbidden() {
             graphQlTester
-                    .documentName(CREATE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 2L)
-                    .variable(CHARACTER, "Pippin")
+                    .documentName(CREATE_PERSON)
+                    .variable(NAME, "Jodie Foster")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -60,41 +68,37 @@ public class RoleControllerSecurityTests {
         @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
-                    .documentName(CREATE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 3L)
-                    .variable(CHARACTER, "Sam")
+                    .documentName(CREATE_PERSON)
+                    .variable(NAME, "Scott Glenn")
                     .executeAndVerify();
         }
     }
 
     @Nested
-    @DisplayName(GET_ROLE)
-    class GetRole {
+    @DisplayName(GET_PERSON)
+    class GetPerson {
 
         @Test
         @DisplayName("Not authenticated, authorized")
         void NotAuthenticated_Authorized() {
             graphQlTester
-                    .documentName(GET_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 1L)
+                    .documentName(GET_PERSON)
+                    .variable(VAR_ID, 1)
                     .executeAndVerify();
         }
     }
 
     @Nested
-    @DisplayName(UPDATE_ROLE)
-    class UpdateRole {
+    @DisplayName(UPDATE_PERSON)
+    class UpdatePerson {
 
         @Test
         @DisplayName("Not authenticated, unauthorized")
         void NotAuthenticated_Unauthorized() {
             graphQlTester
-                    .documentName(UPDATE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 1L)
-                    .variable(CHARACTER, "Merry")
+                    .documentName(UPDATE_PERSON)
+                    .variable(VAR_ID, 6)
+                    .variable(NAME, "Chris Tucker")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -105,10 +109,9 @@ public class RoleControllerSecurityTests {
         @WithMockUser
         void AuthenticatedUser_Forbidden() {
             graphQlTester
-                    .documentName(UPDATE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 2L)
-                    .variable(CHARACTER, "Pippin")
+                    .documentName(UPDATE_PERSON)
+                    .variable(VAR_ID, 7)
+                    .variable(NAME, "Ian Holm")
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -120,25 +123,23 @@ public class RoleControllerSecurityTests {
         @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
-                    .documentName(UPDATE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 2L)
-                    .variable(CHARACTER, "Sam")
+                    .documentName(UPDATE_PERSON)
+                    .variable(VAR_ID, 3)
+                    .variable(NAME, "Luke Perry")
                     .executeAndVerify();
         }
     }
 
     @Nested
-    @DisplayName(DELETE_ROLE)
-    class DeleteRole {
+    @DisplayName(DELETE_PERSON)
+    class DeletePerson {
 
         @Test
         @DisplayName("Not authenticated, unauthorized")
         void NotAuthenticated_Unauthorized() {
             graphQlTester
-                    .documentName(DELETE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 2L)
+                    .documentName(DELETE_PERSON)
+                    .variable(VAR_ID, 1)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
@@ -149,9 +150,8 @@ public class RoleControllerSecurityTests {
         @WithMockUser
         void AuthenticatedUser_Forbidden() {
             graphQlTester
-                    .documentName(DELETE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 2L)
+                    .documentName(DELETE_PERSON)
+                    .variable(VAR_ID, 1)
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
@@ -163,49 +163,8 @@ public class RoleControllerSecurityTests {
         @Transactional
         void AuthenticatedAdmin_Authorized() {
             graphQlTester
-                    .documentName(DELETE_ROLE)
-                    .variable(FILM_ID, 1L)
-                    .variable(PERSON_ID, 2L)
-                    .executeAndVerify();
-        }
-
-    }
-
-    @Nested
-    @DisplayName(UPDATE_CAST)
-    class UpdateCast {
-
-        @Test
-        @DisplayName("Not authenticated, unauthorized")
-        void NotAuthenticated_Unauthorized() {
-            graphQlTester
-                    .documentName(UPDATE_CAST)
-                    .variable(FILM_ID, 1L)
-                    .execute()
-                    .errors()
-                    .expect(responseError -> responseError.getErrorType() == UNAUTHORIZED);
-        }
-
-        @Test
-        @DisplayName("Authenticated as USER, forbidden")
-        @WithMockUser
-        void AuthenticatedUser_Forbidden() {
-            graphQlTester
-                    .documentName(UPDATE_CAST)
-                    .variable(FILM_ID, 1L)
-                    .execute()
-                    .errors()
-                    .expect(responseError -> responseError.getErrorType() == FORBIDDEN);
-        }
-
-        @Test
-        @DisplayName("Authenticated as ADMIN, authorized")
-        @WithMockUser(roles = {ROLE_ADMIN})
-        @Transactional
-        void AuthenticatedAdmin_Authorized() {
-            graphQlTester
-                    .documentName(UPDATE_CAST)
-                    .variable(FILM_ID, 1L)
+                    .documentName(DELETE_PERSON)
+                    .variable(VAR_ID, 1)
                     .executeAndVerify();
         }
     }

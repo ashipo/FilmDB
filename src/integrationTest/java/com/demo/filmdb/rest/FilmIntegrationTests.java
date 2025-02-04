@@ -262,7 +262,9 @@ public class FilmIntegrationTests {
                 arguments(named("Null title", new FilmDtoInput(null, LocalDate.now(), "Sy"))),
                 arguments(named("Null release date", new FilmDtoInput("Title", null, "Sy"))),
                 arguments(named("Empty title", new FilmDtoInput("", LocalDate.now(), "Sy"))),
-                arguments(named("Blank title", new FilmDtoInput("   ", LocalDate.now(), "Sy")))
+                arguments(named("Blank title", new FilmDtoInput("   ", LocalDate.now(), "Sy"))),
+                arguments(named("Title > 255 characters", new FilmDtoInput("Long title ".repeat(30), LocalDate.now(), "Sy"))),
+                arguments(named("Synopsis > 2000 characters", new FilmDtoInput("Title", LocalDate.now(), "Very long synopsis. ".repeat(150))))
         );
     }
 }

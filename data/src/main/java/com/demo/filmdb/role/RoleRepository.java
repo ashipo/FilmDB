@@ -22,5 +22,6 @@ public interface RoleRepository extends JpaRepository<Role, Role.Id> {
      * @param personId must not be {@code null}
      * @return the entity with the given ids or {@link Optional#empty} if none found
      */
+    @Transactional(readOnly = true)
     Optional<Role> findById_FilmIdAndId_PersonId(Long filmId, Long personId);
 }
