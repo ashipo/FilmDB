@@ -64,19 +64,19 @@ public class Util {
         return new Film(id, "Terminator", LocalDate.of(1984, 10, 26), "A human soldier is sent from 2029 to 1984");
     }
 
-    static Person createPerson(Long id) {
+    static public Person createPerson(Long id) {
         return new Person(id, "Arnold Schwarzenegger", LocalDate.of(1947, 7, 30));
     }
 
-    static Role createRole(Long filmId, Long personId) {
+    static public Role createRole(Long filmId, Long personId) {
         return new Role(createFilm(filmId), createPerson(personId), "Sarah Connor");
     }
 
-    static Role createRole(Long filmId, Long personId, String character) {
+    static public Role createRole(Long filmId, Long personId, String character) {
         return new Role(createFilm(filmId), createPerson(personId), character);
     }
 
-    static Stream<Arguments> invalidCrewMemberIdInputs() {
+    static public Stream<Arguments> invalidCrewMemberIdInputs() {
         return Stream.of(
                 arguments(NULL, 1L),
                 arguments(1L, NULL),

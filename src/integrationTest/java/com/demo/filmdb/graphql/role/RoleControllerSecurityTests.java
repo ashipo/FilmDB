@@ -1,4 +1,4 @@
-package com.demo.filmdb.graphql;
+package com.demo.filmdb.graphql.role;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

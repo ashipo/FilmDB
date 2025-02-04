@@ -4,6 +4,7 @@ import com.demo.filmdb.film.Film;
 import com.demo.filmdb.person.Person;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -61,7 +62,7 @@ public class Role {
     }
 
     @EmbeddedId
-    Id id = new Id();
+    private final Id id = new Id();
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "film_id", insertable = false, updatable = false)
@@ -71,7 +72,12 @@ public class Role {
     @JoinColumn(name = "person_id", insertable = false, updatable = false)
     private Person person;
 
-    @NotBlank
+    @NotBlank(message = "Character is required")
+    @Size(
+            min = 1,
+            max = 255,
+            message = "Character length must be between 1 and 255 characters"
+    )
     private String character;
 
     @SuppressWarnings("unused")

@@ -1,4 +1,4 @@
-package com.demo.filmdb.graphql.person;
+package com.demo.filmdb.graphql.role;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -10,8 +10,6 @@ import org.springframework.graphql.test.tester.WebGraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-
 import static com.demo.filmdb.graphql.Util.*;
 import static com.demo.filmdb.security.SecurityConfig.ROLE_ADMIN;
 import static graphql.ErrorType.ValidationError;
@@ -20,8 +18,8 @@ import static graphql.ErrorType.ValidationError;
  * Domain level constraints validation test
  */
 @SpringBootTest
-@DisplayName("GraphQL Person domain constraints validation")
-public class PersonIntegrationTests {
+@DisplayName("GraphQL Role domain constraints validation")
+public class RoleIntegrationTests {
 
     private WebGraphQlTester graphQlTester;
 
@@ -32,31 +30,33 @@ public class PersonIntegrationTests {
     }
 
     @Nested
-    @DisplayName(CREATE_PERSON)
-    class CreatePerson {
+    @DisplayName(CREATE_ROLE)
+    class CreateRole {
 
         @Test
-        @DisplayName("Valid input, correct response")
+        @DisplayName("Valid character field length (<= 255), correct response")
         @WithMockUser(roles = {ROLE_ADMIN})
         @Transactional
         void ValidInput_CorrectResponse() {
             graphQlTester
-                    .documentName(CREATE_PERSON)
-                    .variable(NAME, "A".repeat(255))
-                    .variable(DATE_OF_BIRTH, null)
+                    .documentName(CREATE_ROLE)
+                    .variable(FILM_ID, 1)
+                    .variable(PERSON_ID, 4)
+                    .variable(CHARACTER, "A".repeat(255))
                     .execute()
-                    .path(CREATE_PERSON + ".person")
+                    .path(CREATE_ROLE + ".role")
                     .hasValue();
         }
 
         @Test
-        @DisplayName("Invalid input, validation error")
+        @DisplayName("Invalid character field length (> 255), validation error")
         @WithMockUser(roles = {ROLE_ADMIN})
         void InvalidInput_ValidationError() {
             graphQlTester
-                    .documentName(CREATE_PERSON)
-                    .variable(NAME, "A".repeat(256))
-                    .variable(DATE_OF_BIRTH, LocalDate.of(1969, 11, 4))
+                    .documentName(CREATE_ROLE)
+                    .variable(FILM_ID, 1)
+                    .variable(PERSON_ID, 4)
+                    .variable(CHARACTER, "A".repeat(256))
                     .execute()
                     .errors()
                     .expect(responseError -> responseError.getErrorType() == ValidationError)

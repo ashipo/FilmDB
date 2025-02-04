@@ -45,6 +45,7 @@ public class RoleService {
      * @throws EntityNotFoundException if film or person could not be found
      * @throws EntityAlreadyExistsException if role for the given film and person already exists
      */
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public Role createRole(Long filmId, Long personId, String character) throws EntityNotFoundException, EntityAlreadyExistsException {
         Film film = filmService.getFilm(filmId).orElseThrow(() ->
