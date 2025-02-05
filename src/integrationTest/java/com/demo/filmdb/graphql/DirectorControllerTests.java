@@ -13,8 +13,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +39,8 @@ public class DirectorControllerTests {
     @Autowired
     GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
+    @SuppressWarnings("unused")
     private DirectorService directorService;
 
     @Nested

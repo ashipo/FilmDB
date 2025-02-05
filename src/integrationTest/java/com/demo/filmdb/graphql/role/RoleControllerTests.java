@@ -17,8 +17,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -41,7 +41,7 @@ public class RoleControllerTests {
     @Autowired
     GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     @SuppressWarnings("unused")
     private RoleService roleService;
 
