@@ -16,9 +16,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -43,7 +43,7 @@ public class PersonControllerTests {
     @Autowired
     GraphQlTester graphQlTester;
 
-    @MockBean
+    @MockitoBean
     @SuppressWarnings("unused")
     private PersonService personService;
 
